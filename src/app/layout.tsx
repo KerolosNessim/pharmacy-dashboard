@@ -28,8 +28,7 @@ export default function RootLayout({
             <AppSidebar />
             <SidebarInset>
               <Navbar />
-              <main className="p-4">
-                <SidebarTrigger className="mb-4" />
+              <main >
                 {children}
               </main>
             </SidebarInset>

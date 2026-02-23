@@ -13,7 +13,7 @@ import { GoArrowDownLeft, GoArrowUpRight } from "react-icons/go";
 
 const TransferPage = () => {
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4 p-4">
       {/* header */}
       <div>
         <p className="text-muted-foreground text-sm">Welcome back,</p>

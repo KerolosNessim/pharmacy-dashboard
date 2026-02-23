@@ -9,17 +9,25 @@ import { Bell, Megaphone } from "lucide-react";
 import { Button } from "../ui/button";
 import UserAvatar from "./user-avatar";
 import NavbarSheet from "./navbar-sheet";
+import { SidebarTrigger } from "../ui/sidebar";
 const Navbar = () => {
   return (
     <div className="p-2 lg:pe-6 border-b flex items-center justify-between sticky top-0 z-50 bg-background">
       <Link href="/">
         <h1 className="text-lg font-medium">
-          <span className="text-primary font-bold">ME</span> Pharmacies
+          <span className="text-primary font-bold">ME</span> <span className="max-sm:hidden">Pharmacies</span>
         </h1>
       </Link>
 
       {/* links */}
       <div className="flex items-center gap-4">
+        {/* sidebar collapse */}
+        <HoverCard openDelay={50} closeDelay={50}>
+          <HoverCardTrigger asChild>
+            <SidebarTrigger size={"icon"}  />
+          </HoverCardTrigger>
+          <HoverCardContent>Sidebar</HoverCardContent>
+        </HoverCard>
         {/* mode toggle */}
         <ModeToggle variant="ghost" />
         {/* updates */}

@@ -86,7 +86,7 @@ const NavbarSheet = () => {
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="gap-4">
           <SheetTitle asChild>
-            <div className="bg-bg rounded-lg p-4 flex items-center gap-4">
+            <div className="bg-bg rounded-lg p-4 flex items-center gap-4 ">
               {/* image */}
               <Image
                 src="https://github.com/shadcn.png"
@@ -99,7 +99,7 @@ const NavbarSheet = () => {
               <div className="flex flex-col gap-1">
                 <h2 className="font-semibold text-lg">Alrashidi</h2>
                 <p className="text-muted-foreground text-sm">ID: 382383</p>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="success">Neuro Pharmacy</Badge>
                   <Badge variant="pending">
                     <Shield />

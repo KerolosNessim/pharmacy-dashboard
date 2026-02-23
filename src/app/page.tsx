@@ -6,7 +6,7 @@ export default function Home() {
   const badges = ["43,000+ Products", "32 Branches", "Live Pricing","Insurance"];
 
   return (
-    <section>
+    <section className="p-4">
       {/* search */}
       <HomeSearch/>
       {/* content */}

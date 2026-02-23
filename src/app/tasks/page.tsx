@@ -4,7 +4,7 @@ import React from 'react'
 
 const TasksPage = () => {
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4 p-4">
       {/* header */}
       <div>
         <h2 className="text-2xl font-bold">My Tasks</h2>
