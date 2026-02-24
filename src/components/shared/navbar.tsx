@@ -10,13 +10,15 @@ import { Button } from "../ui/button";
 import UserAvatar from "./user-avatar";
 import NavbarSheet from "./navbar-sheet";
 import { SidebarTrigger } from "../ui/sidebar";
+import Image from "next/image";
 const Navbar = () => {
   return (
     <div className="p-2 lg:pe-6 border-b flex items-center justify-between sticky top-0 z-50 bg-background">
       <Link href="/">
-        <h1 className="text-lg font-medium">
-          <span className="text-primary font-bold">ME</span> <span className="max-sm:hidden">Pharmacies</span>
-        </h1>
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="logo" width={25} height={25} />
+          <p className="font-bold max-md:hidden">Pharmacies </p>
+        </div>
       </Link>
 
       {/* links */}

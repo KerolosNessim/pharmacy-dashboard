@@ -53,7 +53,7 @@ const TransferPage = () => {
           <h2 className=" font-bold">Transfers</h2>
         </div>
         <div className="border rounded-xl overflow-hidden">
-          <Link href={"/transfer"} className="w-full ">
+          <Link href={"/transfer/history"} className="w-full ">
             <Button
               variant={"secondary"}
               className="w-full h-fit flex-row justify-between border-b rounded-none"
@@ -67,7 +67,7 @@ const TransferPage = () => {
               <ChevronRight className="size-5 text-muted-foreground" />
             </Button>
           </Link>
-          <Link href={"/transfer"} className="w-full ">
+          <Link href={"/transfer/history"} className="w-full ">
             <Button
               variant={"secondary"}
               className="w-full h-fit flex-row justify-between  rounded-none"

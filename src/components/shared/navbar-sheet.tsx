@@ -19,11 +19,7 @@ const NavbarSheet = () => {
       href: "/refill",
       icon: Pill,
     },
-    {
-      name: "Cash",
-      href: "/cash",
-      icon: Wallet,
-    },
+
     {
       name: "Transfer History",
       href: "/transfer/history",

@@ -1,6 +1,5 @@
 import { Badge } from '@/components/ui/badge';
 import { Truck } from 'lucide-react';
-import React from 'react'
 
 const TasksPage = () => {
   return (

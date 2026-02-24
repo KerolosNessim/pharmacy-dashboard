@@ -21,11 +21,11 @@ const ChatPage = () => {
               placeholder="select branch to chat"
             />
           </SelectTrigger>
-          <SelectContent position="popper" className="bg-bg">
+          <SelectContent position="popper" >
             <SelectGroup>
               {Array.from({ length: 10 }).map((_, index) => (
                 <SelectItem
-                  className="group text-base! hover:bg-primary!"
+                  className="group text-base!"
                   key={index}
                   value={index.toString()}
                 >

@@ -16,14 +16,14 @@ import {
   ClipboardList,
   Home,
   MessagesSquare,
-  Phone
+  Phone,
+  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ModeToggle } from "./mode-toggle";
 import UserAvatar from "./user-avatar";
-
-
+import Image from "next/image";
 
 export function AppSidebar() {
   const pathName = usePathname();
@@ -53,13 +53,18 @@ export function AppSidebar() {
       href: "/extintions",
       icon: Phone,
     },
+    {
+      name: "Cash",
+      href: "/cash",
+      icon: Wallet,
+    },
   ];
 
   return (
     <Sidebar>
-      <SidebarHeader className="p-4 border-b gap-0">
-        <h1 className="text-xl text-primary font-bold">MEP AI</h1>
-        <p className="text-muted-foreground text-xs">Pharmacy Platform</p>
+      <SidebarHeader className="p-4 border-b flex-row ">
+        <Image src="/logo.png" alt="logo" width={50} height={50} />
+        <p className="font-bold">Pharmacy <br /> Platform</p>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -89,9 +94,9 @@ export function AppSidebar() {
         {/* theme */}
         <div className="flex items-center justify-between">
           <p>Theme</p>
-          <ModeToggle/>
+          <ModeToggle />
         </div>
-        <UserAvatar/>
+        <UserAvatar />
       </SidebarFooter>
     </Sidebar>
   );
