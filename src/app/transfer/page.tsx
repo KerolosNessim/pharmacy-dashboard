@@ -5,8 +5,7 @@ import {
   ChevronRight,
   CircleAlert,
   History,
-  Printer,
-  User,
+  User
 } from "lucide-react";
 import Link from "next/link";
 import { GoArrowDownLeft, GoArrowUpRight } from "react-icons/go";
@@ -21,7 +20,7 @@ const TransferPage = () => {
       </div>
       {/* in & out */}
       <div className="grid grid-cols-2 gap-4">
-        <Link href={"/transfer"} className="w-full ">
+        <Link href={"/transfer/create"} className="w-full ">
           <Button
             variant={"secondary"}
             className="w-full h-fit flex-col py-6 border rounded-xl"
@@ -33,7 +32,7 @@ const TransferPage = () => {
             <p className="text-muted-foreground">Incoming</p>
           </Button>
         </Link>
-        <Link href={"/transfer"} className="w-full ">
+        <Link href={"/request"} className="w-full ">
           <Button
             variant={"secondary"}
             className="w-full h-fit flex-col py-6 border rounded-xl"

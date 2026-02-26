@@ -1,3 +1,5 @@
+"use client";
+import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -6,13 +8,27 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { History, LayoutDashboard, LogOut, Mail, Menu, MessageSquare, Package, Pill, ScanBarcode, Shield, Upload, Users, Wallet } from "lucide-react";
-import { Button } from "../ui/button";
-import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import { ILink } from "@/types/constant";
+import {
+  History,
+  LogOut,
+  Mail,
+  Menu,
+  MessageSquare,
+  Package,
+  Pill,
+  ScanBarcode,
+  Shield,
+  Upload,
+  Users,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { Button } from "../ui/button";
+import SendReportDialog from "./send-report-dialog";
+import { useState } from "react";
 const NavbarSheet = () => {
+  const [open, setOpen] = useState(false);
   const Sheet_Links: ILink[] = [
     {
       name: "Refill Tasks",
@@ -29,6 +45,7 @@ const NavbarSheet = () => {
       name: "Send Transfer Report",
       href: "/",
       icon: Mail,
+      isButton: true,
     },
     {
       name: "Upload Data ",
@@ -37,12 +54,12 @@ const NavbarSheet = () => {
     },
     {
       name: "Manage Pharmacists ",
-      href: "/",
+      href: "/pharmacists",
       icon: Users,
     },
     {
       name: "Products Database ",
-      href: "/",
+      href: "/products",
       icon: Package,
     },
     {
@@ -72,7 +89,7 @@ const NavbarSheet = () => {
     },
   ];
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon">
           <Menu className="h-4 w-4" />
@@ -110,14 +127,32 @@ const NavbarSheet = () => {
               {/* navs */}
               <ul className="border rounded-xl overflow-hidden">
                 {Sheet_Links.map((link, index) => (
-                  <li key={index} className="p-4 border-b hover:bg-primary/30 hover:text-primary">
-                    <Link
-                      href={link.href}
-                      className="flex items-center gap-2 text-lg"
-                    >
-                      <link.icon />
-                      <p>{link.name}</p>
-                    </Link>
+                  <li
+                    key={index}
+                    className="p-4 border-b hover:bg-primary/30 hover:text-primary"
+                  >
+                    {link.isButton ? (
+                      <SendReportDialog
+                        button={
+                          <Button
+                            variant="ghost"
+                            className="flex items-center gap-2 text-lg font-normal  hover:bg-transparent! hover:text-primary! p-0! "
+                          >
+                            <link.icon className="size-5" />
+                            <p>{link.name}</p>
+                          </Button>
+                        }
+                      />
+                    ) : (
+                      <Link
+                        onClick={() => setOpen(false)}
+                        href={link.href}
+                        className="flex items-center gap-2 text-lg"
+                      >
+                        <link.icon />
+                        <p>{link.name}</p>
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

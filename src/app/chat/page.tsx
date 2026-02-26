@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MessageSquare, RefreshCcw, Users } from "lucide-react";
+
 const ChatPage = () => {
   return (
     <section className="flex flex-col gap-8">

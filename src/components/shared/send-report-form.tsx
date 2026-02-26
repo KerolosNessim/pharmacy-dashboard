@@ -1,8 +1,8 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
 
 import {
   Field,
@@ -10,18 +10,10 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Mail } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -29,51 +21,37 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { Input } from "../ui/input";
 const formSchema = z.object({
-  status: z.string().optional(),
-  fromDate: z.date().optional(),
-  toDate: z.date().optional(),
+  email: z
+    .string()
+    .email({ message: "Invalid email" })
+    .nonempty({ message: "Email is required" }),
+  fromDate: z.date({ message: "Date is required" }),
+  toDate: z.date({ message: "Date is required" }),
 });
-
-const TransferFilterForm = () => {
+const SendReportForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: "all",
+      email: "",
       fromDate: new Date(),
       toDate: new Date(),
     },
   });
-
   function onSubmit(data: z.infer<typeof formSchema>) {
     console.log(data);
   }
-
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup className="flex gap-4">
         <Controller
-          name="status"
+          name="email"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-2">
-              <FieldLabel htmlFor="status">Status</FieldLabel>
-              <Select value={field.value || ""} onValueChange={field.onChange}>
-                <SelectTrigger id="status" aria-invalid={fieldState.invalid}>
-                  <SelectValue placeholder="Select a status" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectGroup>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="requested">Requested</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="sent">Sent</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-
+              <FieldLabel className="text-black dark:text-white" htmlFor="email">Email Address</FieldLabel>
+              <Input type="email" {...field} placeholder="Enter your email" className="focus-visible:ring-primary h-12! " />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
@@ -84,14 +62,14 @@ const TransferFilterForm = () => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-2">
-                <FieldLabel htmlFor="fromDate">From </FieldLabel>
+                <FieldLabel className="text-black dark:text-white" htmlFor="fromDate">From </FieldLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-[280px] justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground",
+                        "w-[280px] justify-start text-left font-normal h-12! ",
+                        !field.value && "text-muted-foreground  ",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -123,14 +101,14 @@ const TransferFilterForm = () => {
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-2">
-                <FieldLabel htmlFor="toDate">To </FieldLabel>
+                <FieldLabel className="text-black dark:text-white" htmlFor="toDate">To </FieldLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-[280px] justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground",
+                        "w-[280px] justify-start text-left font-normal h-12! ",
+                        !field.value && "text-muted-foreground  ",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
@@ -158,9 +136,10 @@ const TransferFilterForm = () => {
             )}
           />
         </div>
+        <Button type="submit" className="h-12"> <Mail/>Send Report</Button>
       </FieldGroup>
     </form>
   );
 };
 
-export default TransferFilterForm;
+export default SendReportForm;
