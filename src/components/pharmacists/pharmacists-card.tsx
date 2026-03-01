@@ -8,7 +8,7 @@ import { useState } from "react";
 const PharmacistsCard = () => {
   const [isEditing, setIsEditing] = useState(false);
   return (
-    <div className="w-full p-4 rounded-lg border hover:bg-muted-foreground/5 flex items-center justify-between">
+    <div className="w-full p-4 rounded-lg border hover:bg-muted-foreground/5 flex items-center justify-between max-md:flex-col max-md:items-start max-md:gap-4">
       {/* details */}
       <div className="flex flex-col gap-2">
         <p className="font-semibold text-lg">Abdulaziz</p>

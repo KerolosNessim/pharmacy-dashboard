@@ -2,7 +2,7 @@ import ClinicCard from "@/components/extintions/clinic-card";
 import DepartmentCard from "@/components/extintions/department-card";
 import ExtintionSearch from "@/components/extintions/extintion-search";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Building, Building2, CreditCard } from "lucide-react";
+import { Building2, CreditCard } from "lucide-react";
 const ExtintionsPage = () => {
   return (
     <section className="p-4 flex flex-col gap-4">

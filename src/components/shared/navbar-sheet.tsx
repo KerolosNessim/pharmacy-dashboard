@@ -49,7 +49,7 @@ const NavbarSheet = () => {
     },
     {
       name: "Upload Data ",
-      href: "/",
+      href: "/upload",
       icon: Upload,
     },
     {
@@ -64,27 +64,27 @@ const NavbarSheet = () => {
     },
     {
       name: "Import Product",
-      href: "/",
+      href: "/import-product",
       icon: Upload,
     },
     {
       name: "Whatsapp Setup",
-      href: "/",
+      href: "/whatsapp",
       icon: MessageSquare,
     },
-    {
-      name: "Scan Ai",
-      href: "/",
-      icon: ScanBarcode,
-    },
-    {
-      name: "Scan Components",
-      href: "/",
-      icon: ScanBarcode,
-    },
+    // {
+    //   name: "Scan Ai",
+    //   href: "/",
+    //   icon: ScanBarcode,
+    // },
+    // {
+    //   name: "Scan Components",
+    //   href: "/",
+    //   icon: ScanBarcode,
+    // },
     {
       name: "Manage Members ",
-      href: "/",
+      href: "/members",
       icon: Users,
     },
   ];
