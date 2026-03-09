@@ -1,0 +1,22 @@
+import { apiRequest } from "@/lib/api-request";
+import { RegisterValues } from "@/components/auth/register-form";
+import { loginResponse, logoutResponse, registerResponse } from "@/types/auth";
+import { loginValues } from "@/components/auth/login-form";
+
+export const registerApi = (data: RegisterValues) =>
+  apiRequest<registerResponse>("/auth/super-admin/register", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+
+  export const loginApi = (data: loginValues) =>
+    apiRequest<loginResponse>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+
+    export const logoutApi = () =>
+    apiRequest<logoutResponse> ("/auth/logout", {
+      method: "POST",
+    });

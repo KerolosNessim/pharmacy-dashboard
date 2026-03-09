@@ -27,6 +27,8 @@ import Link from "next/link";
 import { Button } from "../ui/button";
 import SendReportDialog from "./send-report-dialog";
 import { useState } from "react";
+import LogoutBtn from "./logout-btn";
+import UserInfo from "./user-info";
 const NavbarSheet = () => {
   const [open, setOpen] = useState(false);
   const Sheet_Links: ILink[] = [
@@ -99,30 +101,9 @@ const NavbarSheet = () => {
       <SheetContent className="overflow-y-auto">
         <SheetHeader className="gap-4">
           <SheetTitle asChild>
-            <div className="bg-bg rounded-lg p-4 flex items-center gap-4 ">
-              {/* image */}
-              <Image
-                src="https://github.com/shadcn.png"
-                alt="Logo"
-                width={70}
-                height={70}
-                className="rounded-lg"
-              />
-              {/* info */}
-              <div className="flex flex-col gap-1">
-                <h2 className="font-semibold text-lg">Alrashidi</h2>
-                <p className="text-muted-foreground text-sm">ID: 382383</p>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge variant="success">Neuro Pharmacy</Badge>
-                  <Badge variant="pending">
-                    <Shield />
-                    Admin
-                  </Badge>
-                </div>
-              </div>
-            </div>
+            <UserInfo />
           </SheetTitle>
-          <SheetDescription>
+          <SheetDescription asChild>
             <div className="flex flex-col gap-4">
               {/* navs */}
               <ul className="border rounded-xl overflow-hidden">
@@ -156,11 +137,7 @@ const NavbarSheet = () => {
                   </li>
                 ))}
               </ul>
-              {/* logour */}
-              <Button variant="destructive" className="cursor-pointer">
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </Button>
+              <LogoutBtn />
             </div>
           </SheetDescription>
         </SheetHeader>

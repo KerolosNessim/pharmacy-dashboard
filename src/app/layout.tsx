@@ -1,14 +1,8 @@
 import { ThemeProvider } from "@/components/shared/theme-provider";
-import {
-  Sidebar,
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import QueryProvider from "@/providers/query-provider";
 import type { Metadata } from "next";
 import "./globals.css";
-import { AppSidebar } from "@/components/shared/app-sidebar";
-import Navbar from "@/components/shared/navbar";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,15 +18,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={` antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset>
-              <Navbar />
-              <main >
-                {children}
-              </main>
-            </SidebarInset>
-          </SidebarProvider>
+          <Toaster richColors position="bottom-right" />
+
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
       </body>
     </html>
