@@ -13,10 +13,13 @@ import { cn } from "@/lib/utils";
 import { ILink } from "@/types/constant";
 import {
   ArrowUpDown,
+  Building2,
   ClipboardList,
   Home,
+  LibraryBig,
   MessagesSquare,
   Phone,
+  UserStar,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -57,6 +60,21 @@ export function AppSidebar() {
       name: "Cash",
       href: "/cash",
       icon: Wallet,
+    },
+    {
+      name: "Categories",
+      href: "/categories",
+      icon: LibraryBig ,
+    },
+    {
+      name: "Pharmacies",
+      href: "/pharmacies",
+      icon: Building2 ,
+    },
+    {
+      name: "Supervisors",
+      href: "/supervisor",
+      icon: UserStar ,
     },
   ];
 

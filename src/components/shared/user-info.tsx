@@ -8,7 +8,7 @@ const UserInfo = () => {
   return (
     <div className="bg-bg rounded-lg p-4 flex items-center gap-4 ">
       {/* image */}
-      <Avatar className="size-20">
+      <Avatar className="size-16">
         <AvatarFallback>{user?.name?.[0]}</AvatarFallback>
       </Avatar>
       {/* info */}

@@ -1,20 +1,19 @@
 "use client";
+import AddDoctorDialog from "@/components/members/add-doctor-dialog";
+import AddMemberDialog from "@/components/members/add-member-dialog";
+import DoctorsTable from "@/components/members/doctors-table";
+import MemberTable from "@/components/members/member-table";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
-import { useGoBack } from "@/hooks/use-goback";
-import { ArrowLeft, Plus, Stethoscope, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import MemberTable from "@/components/members/member-table";
-import DoctorsTable from "@/components/members/doctors-table";
-import AddMemberDialog from "@/components/members/add-member-dialog";
-import AddDoctorDialog from "@/components/members/add-doctor-dialog";
+import { useGoBack } from "@/hooks/use-goback";
+import { ArrowLeft, Stethoscope, Users } from "lucide-react";
 
 const MembersPage = () => {
   const goBack = useGoBack();

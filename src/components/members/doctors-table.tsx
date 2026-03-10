@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Building2, Pencil, Phone, Search, Trash, User } from "lucide-react";
+import { Building2, Pencil, Phone, Search, Trash } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 const DoctorsTable = () => {
