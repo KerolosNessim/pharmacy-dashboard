@@ -5,16 +5,17 @@ import Image from "next/image";
 const LoginPage = () => {
   return (
     <main className="flex flex-col items-center justify-center h-screen gap-6">
-      <div className="flex flex-col items-center gap-4 ">
-        <Image
+      <div className="flex flex-col items-center gap-2 ">
+        {/* <Image
           src="/logo.png"
           alt="Logo"
           width={200}
           height={200}
           className="size-20"
-        />
+        /> */}
+<p className="text-4xl font-bold text-primary">ME</p>
         <div className="flex flex-col items-center gap-2">
-          <h1 className="text-2xl font-bold">ME Pharmacies</h1>
+          <h1 className="text-2xl font-bold">Pharmacies</h1>
           <p className="text-muted-foreground">Sign in to continue</p>
         </div>
       </div>
