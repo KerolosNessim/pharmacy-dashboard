@@ -43,6 +43,7 @@ export default function LoginForm() {
   const { isSubmitting } = form.formState;
   async function onSubmit(values: loginValues) {
     const res = await loginApi(values);
+    console.log(res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
