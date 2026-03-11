@@ -14,6 +14,7 @@ const RegisterPage = () => {
             height={200}
             className="size-20"
           />
+          
           <div className="flex flex-col items-center gap-2">
             <h1 className="text-2xl font-bold">ME Pharmacies</h1>
             <p className="text-muted-foreground">Sign up to continue</p>
