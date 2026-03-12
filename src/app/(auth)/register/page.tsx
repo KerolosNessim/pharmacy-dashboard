@@ -7,13 +7,15 @@ const RegisterPage = () => {
     <div>
       <main className="flex flex-col items-center justify-center min-h-screen gap-6">
         <div className="flex flex-col items-center gap-4 ">
-          <Image
+          {/* <Image
             src="/logo.png"
             alt="Logo"
             width={200}
             height={200}
             className="size-20"
-          />
+          /> */}
+          <p className="text-4xl font-bold text-primary">ME</p>
+
           <div className="flex flex-col items-center gap-2">
             <h1 className="text-2xl font-bold">ME Pharmacies</h1>
             <p className="text-muted-foreground">Sign up to continue</p>

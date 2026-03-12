@@ -50,7 +50,7 @@ export default function LoginForm() {
       if (res?.data?.data?.admin) setUser(res?.data?.data?.admin);
       router.push("/");
     } else {
-      toast.error(res.error);
+      toast.error(res?.error);
     }
   }
   return (
