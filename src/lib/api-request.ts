@@ -1,3 +1,4 @@
+"use server"
 import { getToken } from "@/actions/auth";
 
 export type ApiResponse<T> = {
