@@ -1,6 +1,7 @@
 "use client";
-import ImportProductForm from "@/components/import-product/import-product-form";
+import { AddProductForm } from "@/components/import-product/add-product-form";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { useGoBack } from "@/hooks/use-goback";
 import { ArrowLeft } from "lucide-react";
 
@@ -17,12 +18,16 @@ const ImportProductPage = () => {
           <div>
             <h2 className="text-2xl font-bold">Import Products</h2>
             <p className="text-muted-foreground text-sm">
-              Upload files and tell me what to do with them
+              Upload details of products and tell me what to do with them
             </p>
           </div>
         </div>
         {/* content */}
-        <ImportProductForm />
+        <Card>
+          <CardContent>
+            <AddProductForm />
+          </CardContent>
+        </Card>
       </div>
     </section>
   );

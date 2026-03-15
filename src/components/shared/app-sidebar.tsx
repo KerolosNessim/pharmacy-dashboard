@@ -19,7 +19,9 @@ import {
   LibraryBig,
   MessagesSquare,
   Phone,
+  ShieldAlert,
   UserStar,
+  Users,
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
@@ -75,6 +77,16 @@ export function AppSidebar() {
       name: "Supervisors",
       href: "/supervisor",
       icon: UserStar ,
+    },
+    {
+      name: "Pharmacists",
+      href: "/pharmacists-staff",
+      icon: Users ,
+    },
+    {
+      name: "Roles",
+      href: "/roles",
+      icon: ShieldAlert ,
     },
   ];
 

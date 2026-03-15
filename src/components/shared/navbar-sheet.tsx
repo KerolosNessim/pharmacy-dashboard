@@ -4,6 +4,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -44,12 +45,6 @@ const NavbarSheet = () => {
       icon: History,
     },
     {
-      name: "Send Transfer Report",
-      href: "/",
-      icon: Mail,
-      isButton: true,
-    },
-    {
       name: "Upload Data ",
       href: "/upload",
       icon: Upload,
@@ -69,21 +64,6 @@ const NavbarSheet = () => {
       href: "/import-product",
       icon: Upload,
     },
-    {
-      name: "Whatsapp Setup",
-      href: "/whatsapp",
-      icon: MessageSquare,
-    },
-    // {
-    //   name: "Scan Ai",
-    //   href: "/",
-    //   icon: ScanBarcode,
-    // },
-    // {
-    //   name: "Scan Components",
-    //   href: "/",
-    //   icon: ScanBarcode,
-    // },
     {
       name: "Manage Members ",
       href: "/members",
@@ -137,10 +117,12 @@ const NavbarSheet = () => {
                   </li>
                 ))}
               </ul>
-              <LogoutBtn />
             </div>
           </SheetDescription>
         </SheetHeader>
+      <SheetFooter>
+        <LogoutBtn />
+      </SheetFooter>
       </SheetContent>
     </Sheet>
   );

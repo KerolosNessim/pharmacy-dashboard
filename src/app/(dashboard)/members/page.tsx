@@ -9,7 +9,7 @@ import {
   CardAction,
   CardContent,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGoBack } from "@/hooks/use-goback";
@@ -51,33 +51,39 @@ const MembersPage = () => {
           data-[state=active]:border-0! border-0"
             value="doctors"
           >
-            <Stethoscope/>
+            <Stethoscope />
             Doctors
           </TabsTrigger>
         </TabsList>
         <TabsContent value="staff">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl font-bold"><Users/>All Members (50)</CardTitle>
-            <CardAction>
-              <AddMemberDialog/>
-            </CardAction>
+              <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+                <Users />
+                All Members (50)
+              </CardTitle>
+              <CardAction>
+                <AddMemberDialog />
+              </CardAction>
             </CardHeader>
             <CardContent>
-              <MemberTable/>
+              <MemberTable />
             </CardContent>
           </Card>
         </TabsContent>
         <TabsContent value="doctors">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-2xl font-bold"><Stethoscope/>All Doctors (50)</CardTitle>
-            <CardAction>
-              <AddDoctorDialog/>
-            </CardAction>
+              <CardTitle className="flex items-center gap-2 text-2xl font-bold">
+                <Stethoscope />
+                All Doctors (50)
+              </CardTitle>
+              <CardAction>
+                <AddDoctorDialog />
+              </CardAction>
             </CardHeader>
             <CardContent>
-              <DoctorsTable/>
+              <DoctorsTable />
             </CardContent>
           </Card>
         </TabsContent>

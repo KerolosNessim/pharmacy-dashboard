@@ -42,10 +42,10 @@ const Navbar = () => {
               </Link>
             </Button>
           </HoverCardTrigger>
-          <HoverCardContent>Updates</HoverCardContent>
+          <HoverCardContent>Alerts</HoverCardContent>
         </HoverCard>
         {/* notifications */}
-        <HoverCard openDelay={50} closeDelay={50}>
+        {/* <HoverCard openDelay={50} closeDelay={50}>
           <HoverCardTrigger asChild>
             <Button variant="ghost" size="icon">
               <Link href="/notifications">
@@ -55,7 +55,7 @@ const Navbar = () => {
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Notifications</HoverCardContent>
-        </HoverCard>
+        </HoverCard> */}
         {/* user Avatar */}
         <UserAvatar withName={false} size="sm" />
         {/* navbar sheet */}
