@@ -40,11 +40,6 @@ const NavbarSheet = () => {
     },
 
     {
-      name: "Transfer History",
-      href: "/transfer/history",
-      icon: History,
-    },
-    {
       name: "Upload Data ",
       href: "/upload",
       icon: Upload,

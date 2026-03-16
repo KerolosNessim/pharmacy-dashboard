@@ -1,6 +1,6 @@
-import { Building2, CreditCard, Phone } from "lucide-react";
-import { Button } from "../ui/button";
 import { Department } from "@/types/extintions";
+import { Building2, Phone } from "lucide-react";
+import { Button } from "../ui/button";
 
 const DepartmentCard = ({department }: { department: Department}) => {
   return (

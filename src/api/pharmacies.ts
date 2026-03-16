@@ -9,6 +9,6 @@ export const addPharmacyApi = (data: pharmacyValues) =>
   });
 
   export const getPharmaciesApi = () =>
-    apiRequest<GetPharmaciesResponse>(`/super-admin/pharmacies`, {
+    apiRequest<GetPharmaciesResponse>(`/pharmacies`, {
       method: "GET",
     });

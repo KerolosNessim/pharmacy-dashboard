@@ -10,7 +10,14 @@ import { Badge } from "../ui/badge";
 import { Clock, Printer } from "lucide-react";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
-const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem}) => {
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+const TransferIncomingCard = ({
+  order,
+  transfar,
+}: {
+  order: number;
+  transfar: RequestItem;
+}) => {
   return (
     <Card>
       <CardHeader className="items-center!">
@@ -59,16 +66,18 @@ const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem
           ))}
         </div>
       </CardContent>
-      <CardFooter className="border-t">
+      <CardFooter className="border-t flex items-center justify-between">
         <div className="flex items-center gap-2">
           <p className="text-base text-muted-foreground">Status:</p>
           <Badge
             variant={
               transfar?.status == "pending"
                 ? "pending"
-                : transfar.status == "completed" || transfar.status == "approved"
+                : transfar.status == "completed" ||
+                    transfar.status == "approved"
                   ? "success"
-                  : transfar.status == "rejected" || transfar.status == "cancelled"
+                  : transfar.status == "rejected" ||
+                      transfar.status == "cancelled"
                     ? "destructive"
                     : "default"
             }
@@ -76,9 +85,20 @@ const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem
             {transfar?.status}
           </Badge>
         </div>
+
+        <Select>
+          <SelectTrigger>
+            <SelectValue placeholder="Change Status" />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+          </SelectContent>
+        </Select>
       </CardFooter>
     </Card>
   );
 };
 
-export default TransferHistoryCard;
+export default TransferIncomingCard;

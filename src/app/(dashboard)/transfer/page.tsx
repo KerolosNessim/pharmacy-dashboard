@@ -1,26 +1,37 @@
+"use client";
+import { getRequestsApi } from "@/api/transfar";
 import MyTransferCard from "@/components/transfer/my-transfer-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  ChevronRight,
-  CircleAlert,
-  History,
-  User
-} from "lucide-react";
+import { useUserStore } from "@/stores/user-store";
+import { useQuery } from "@tanstack/react-query";
+import { ChevronRight, CircleCheck, File, History, User } from "lucide-react";
 import Link from "next/link";
 import { GoArrowDownLeft, GoArrowUpRight } from "react-icons/go";
 
 const TransferPage = () => {
+  const { user } = useUserStore();
+  const { data } = useQuery({
+    queryKey: ["transfers"],
+    queryFn: () => getRequestsApi(),
+  });
+  const transfers = data?.data?.data?.data ?? [];
+  const completedTransfers = transfers.filter(
+    (transfer) => transfer.status === "completed",
+  );
   return (
     <section className="flex flex-col gap-4 p-4">
       {/* header */}
-      <div>
-        <p className="text-muted-foreground text-sm">Welcome back,</p>
-        <h2 className="text-2xl font-bold">Alrashidi</h2>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-muted-foreground text-sm">Welcome back,</p>
+          <h2 className="text-2xl font-bold">{user?.name}</h2>
+        </div>
+        <Button><File/> Send Report</Button>
       </div>
       {/* in & out */}
       <div className="grid grid-cols-2 gap-4">
-        <Link href={"/transfer/create"} className="w-full ">
+        <Link href={"/transfer/incoming"} className="w-full ">
           <Button
             variant={"secondary"}
             className="w-full h-fit flex-col py-6 border rounded-xl"
@@ -66,19 +77,19 @@ const TransferPage = () => {
               <ChevronRight className="size-5 text-muted-foreground" />
             </Button>
           </Link>
-          <Link href={"/transfer/history"} className="w-full ">
+          <Link href={"/transfer/completed"} className="w-full ">
             <Button
               variant={"secondary"}
               className="w-full h-fit flex-row justify-between  rounded-none"
             >
               <div className="flex items-center gap-2">
-                <div className="size-10 rounded-lg bg-orange-400/30 text-orange-400 flex justify-center items-center">
-                  <CircleAlert className="size-5 " />
+                <div className="size-10 rounded-lg bg-green-400/30 text-green-400 flex justify-center items-center">
+                  <CircleCheck className="size-5 " />
                 </div>
-                <p className="font-bold">Pending </p>
+                <p className="font-bold">Completed </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={"pending"}>5</Badge>
+                <Badge variant={"success"}>{completedTransfers.length}</Badge>
                 <ChevronRight className="size-5 text-muted-foreground" />
               </div>
             </Button>
@@ -90,11 +101,11 @@ const TransferPage = () => {
         <div className="flex items-center gap-2">
           <User className="size-5 text-primary" />
           <h2 className=" font-bold"> My Transfers</h2>
-          <Badge variant={"success"}>6</Badge>
+          <Badge variant={"success"}>{transfers.length}</Badge>
         </div>
         <div className="border rounded-xl overflow-hidden">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <MyTransferCard key={index} />
+          {transfers.map((transfer, index) => (
+            <MyTransferCard key={index} transfar={transfer} />
           ))}
         </div>
       </div>

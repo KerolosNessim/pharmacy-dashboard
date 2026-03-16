@@ -16,8 +16,8 @@ export const getCategoriesStatsApi = () =>
 
 export const getProductsListApi = (search?: string) => {
   const query = search ? `?search=${search}` : "";
-  return apiRequest<ProductsListResponse>(`/super-admin/products${query}`);
+  return apiRequest<ProductsListResponse>(`/products${query}`);
 }
 export const getSingleProductApi = (id: string) => {
-  return apiRequest<SingleProductResponse>(`/super-admin/products/${id}`);
+  return apiRequest<SingleProductResponse>(`/products/${id}`);
 }

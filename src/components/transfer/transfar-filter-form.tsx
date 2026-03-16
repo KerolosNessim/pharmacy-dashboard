@@ -3,6 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
+import { useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import {
   Field,
@@ -30,6 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+
 const formSchema = z.object({
   status: z.string().optional(),
   fromDate: z.date().optional(),
@@ -37,14 +40,45 @@ const formSchema = z.object({
 });
 
 const TransferFilterForm = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      status: "all",
-      fromDate: new Date(),
-      toDate: new Date(),
+      status: searchParams.get("status") || "all",
+      fromDate: searchParams.get("from_date") ? new Date(searchParams.get("from_date")!) : undefined,
+      toDate: searchParams.get("to_date") ? new Date(searchParams.get("to_date")!) : undefined,
     },
   });
+
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      const params = new URLSearchParams(Array.from(searchParams.entries()));
+      
+      if (value.status && value.status !== "all") {
+        params.set("status", value.status);
+      } else {
+        params.delete("status");
+      }
+
+      if (value.fromDate) {
+        params.set("from_date", format(value.fromDate as Date, "yyyy-MM-dd"));
+      } else {
+        params.delete("from_date");
+      }
+
+      if (value.toDate) {
+        params.set("to_date", format(value.toDate as Date, "yyyy-MM-dd"));
+      } else {
+        params.delete("to_date");
+      }
+
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    });
+    return () => subscription.unsubscribe();
+  }, [form, router, pathname, searchParams]);
 
   function onSubmit(data: z.infer<typeof formSchema>) {
     console.log(data);
@@ -66,10 +100,10 @@ const TransferFilterForm = () => {
                 <SelectContent position="popper">
                   <SelectGroup>
                     <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="requested">Requested</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="sent">Sent</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
