@@ -156,6 +156,40 @@ export const AddRequestForm = ({
               className=" border p-4 rounded-md relative shadow-sm"
             >
               <div className=" space-y-4">
+                <div className="flex items-end gap-4 w-full ">
+                  <FormField
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    control={form.control as any}
+                    name={`items.${index}.quantity`}
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel>Quantity</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="1"
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(Number(e.target.value))
+                            }
+                            className="w-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {fields.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      className=" shrink-0"
+                      onClick={() => remove(index)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
                 <FormField
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   control={form.control as any}
@@ -193,41 +227,6 @@ export const AddRequestForm = ({
                     </FormItem>
                   )}
                 />
-
-                <div className="flex items-end gap-4 w-full ">
-                  <FormField
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    control={form.control as any}
-                    name={`items.${index}.quantity`}
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>Quantity</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min="1"
-                            {...field}
-                            onChange={(e) =>
-                              field.onChange(Number(e.target.value))
-                            }
-                            className="w-full"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      className=" shrink-0"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
               </div>
             </div>
           ))}
@@ -260,7 +259,11 @@ export const AddRequestForm = ({
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Submit Request"}
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              "Submit Request"
+            )}
           </Button>
         </div>
       </form>

@@ -1,3 +1,4 @@
+"use client";
 import {
   Card,
   CardAction,
@@ -6,18 +7,52 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Badge } from "../ui/badge";
-import { Clock, Printer } from "lucide-react";
-import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Check, Clock, Loader2, Printer, X } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { useState } from "react";
+import { acceptRequestApi, rejectRequestApi } from "@/api/transfar";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 const TransferIncomingCard = ({
   order,
   transfar,
 }: {
   order: number;
   transfar: RequestItem;
-}) => {
+  }) => {
+  const [acceptLoading, setAcceptLoading] = useState(false);
+  const [rejectLoading, setRejectLoading] = useState(false);
+const queryClient = useQueryClient();
+  const handleAccept = async() => {
+    setAcceptLoading(true);
+    const res = await acceptRequestApi(transfar?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ["transfers-incoming"],
+      });
+    } else {
+      toast.error(res?.error);
+    }
+    setAcceptLoading(false);
+
+  };
+  const handleReject = async() => {
+    setRejectLoading(true);
+    const res = await rejectRequestApi(transfar?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ["transfers-incoming"],
+      });
+    } else {
+      toast.error(res?.error);
+    }
+    setRejectLoading(false);
+
+  };
   return (
     <Card>
       <CardHeader className="items-center!">
@@ -68,34 +103,15 @@ const TransferIncomingCard = ({
       </CardContent>
       <CardFooter className="border-t flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <p className="text-base text-muted-foreground">Status:</p>
-          <Badge
-            variant={
-              transfar?.status == "pending"
-                ? "pending"
-                : transfar.status == "completed" ||
-                    transfar.status == "approved"
-                  ? "success"
-                  : transfar.status == "rejected" ||
-                      transfar.status == "cancelled"
-                    ? "destructive"
-                    : "default"
-            }
-          >
-            {transfar?.status}
-          </Badge>
+          <Button onClick={handleAccept} disabled={acceptLoading}>
+            {acceptLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="size-5" />}
+            Accept
+          </Button>
+          <Button variant={"destructive"} onClick={handleReject} disabled={rejectLoading}>
+            {rejectLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <X className="size-5" />}
+            Reject
+          </Button>
         </div>
-
-        <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="Change Status" />
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="cancelled">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
       </CardFooter>
     </Card>
   );

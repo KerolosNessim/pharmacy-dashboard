@@ -7,7 +7,7 @@ import TransferHistoryCard from "@/components/transfer/transfer-history-card"
 import { Button } from "@/components/ui/button"
 import { useGoBack } from "@/hooks/use-goback"
 import { useQuery } from "@tanstack/react-query"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, Inbox } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 
 const TransferHistoryContent = () => {
@@ -34,7 +34,7 @@ const TransferHistoryContent = () => {
   const transfers = data?.data?.data?.data ?? [];
 
   return (
-    <section className='p-4 flex flex-col gap-4 lg:max-w-3/4 mx-auto'>
+    <section className='p-4 flex flex-col gap-4 mx-auto'>
       {/* header */}
       <div className="flex items-start gap-1">
         <Button variant={"ghost"}  onClick={goBack} className="flex items-center gap-1">
@@ -43,6 +43,9 @@ const TransferHistoryContent = () => {
         </Button>
         <h2 className="text-2xl text-primary font-bold">Transfers History</h2>
       </div>
+
+      {transfers?.length > 0 ?
+      <div className="bg-red-500">
       {/* search */}
       <TransferSearch />
       {/* list */}
@@ -51,6 +54,18 @@ const TransferHistoryContent = () => {
           <TransferHistoryCard key={index} order={index+1} transfar={transfer} />
         ))
       }
+        </div> :
+        <div className="flex flex-col items-center gap-3 bg-bg rounded-lg border p-6 ">
+            <Inbox className="size-14 text-primary" />
+            <h3 className="text-lg font-medium">No Transfer Requests</h3>
+            <p className="text-muted-foreground">
+              When you request items from other branches, they&apos;ll appear
+              here.
+            </p>
+          </div>
+      
+    }
+
     </section>
   )
 }

@@ -15,6 +15,11 @@ const UserInfo = () => {
       <div className="flex flex-col gap-1">
         <h2 className="font-semibold text-lg">{user?.name}</h2>
         <p className="text-muted-foreground text-sm">ID:{user?.id_number}</p>
+        {
+          user?.pharmacy_id && (
+            <p className="text-muted-foreground text-sm">Pharmacy:{user?.pharmacy_name}</p>
+          )
+        }
         <div className="flex items-center gap-2 flex-wrap">
           <Badge variant="pending">
             <Shield />

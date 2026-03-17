@@ -39,24 +39,27 @@ export const SingleProductDetails = ({ productId }: { productId: string }) => {
 
   return (
     <div className="flex flex-col gap-6 w-full  mx-auto mt-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      
       {/* Product Header Card */}
       <div className="bg-bg border rounded-lg p-6 flex flex-col gap-4 shadow-sm relative overflow-hidden">
         <div className="flex items-center gap-2">
-          {
-            product.image ?(
-              <Image src={product.image} alt={product.name} width={100} height={100} className="rounded-lg" />
-            ) : (
-              <div className="size-20 bg-background/50 border rounded-lg flex items-center justify-center">
-                <Box className="size-10 " />
-              </div>
-            )
-          }
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={100}
+              height={100}
+              className="rounded-lg"
+            />
+          ) : (
+            <div className="size-20 bg-background/50 border rounded-lg flex items-center justify-center">
+              <Box className="size-10 " />
+            </div>
+          )}
           <div className="flex flex-col gap-1">
             <h1 className="text-lg font-bold">{product.name}</h1>
             <div className="flex items-center gap-3">
               <span className="text-sm text-foreground/80 font-mono tracking-wide">
-                Ref: {product.code}
+                SKU: {product.code}
               </span>
               {product.sku && (
                 <span className="text-sm text-foreground/80 font-mono tracking-wide">
@@ -64,7 +67,10 @@ export const SingleProductDetails = ({ productId }: { productId: string }) => {
                 </span>
               )}
               {product.category?.name && (
-                <Badge variant="success" className="px-2 py-0.5 text-xs font-normal">
+                <Badge
+                  variant="success"
+                  className="px-2 py-0.5 text-xs font-normal"
+                >
                   {product.category.name}
                 </Badge>
               )}
@@ -83,9 +89,12 @@ export const SingleProductDetails = ({ productId }: { productId: string }) => {
         <h3 className="text-sm font-bold text-muted-foreground tracking-wider uppercase pl-1">
           Product Details
         </h3>
-        
-        <Accordion type="single" collapsible className="w-full bg-bg border rounded-lg shadow-sm  " >
-          
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full bg-bg border rounded-lg shadow-sm  "
+        >
           {product.active_ingredients && (
             <AccordionItem value="composition" className="px-4 border-b">
               <AccordionTrigger className="hover:no-underline py-4 text-base font-semibold">
@@ -141,10 +150,8 @@ export const SingleProductDetails = ({ productId }: { productId: string }) => {
               </AccordionContent>
             </AccordionItem>
           )}
-
         </Accordion>
       </div>
-
     </div>
   );
 };

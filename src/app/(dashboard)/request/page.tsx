@@ -1,11 +1,11 @@
 "use client";
 import { getRequestsApi } from "@/api/transfar";
 import OutCard from "@/components/request/out-card";
-import RequestDialog from "@/components/request/request-dialog";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Inbox, Loader2, Plus } from "lucide-react";
+import Link from "next/link";
 const RequestPage = () => {
   const goBack = useGoBack();
 
@@ -30,19 +30,32 @@ const RequestPage = () => {
             </p>
           </div>
         </div>
-        <RequestDialog />
+        <Link href={"request/create"}>
+          <Button><Plus className="mr-2 h-4 w-4"/>Request Items</Button>
+        </Link>
       </div>
-      <div className="lg:w-2/3 mx-auto space-y-4">
         {isLoading ? (
           <div className="flex items-center justify-center">
             <Loader2 className="size-8 animate-spin" />
           </div>
         ) : (
-          requests.map((request,index) => (
-            <OutCard key={request.id} order={index+1} request={request} />
-          ))
+            requests.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 bg-bg rounded-lg border p-6 ">
+                    <Inbox className="size-14 text-primary" />
+                    <h3 className="text-lg font-medium">No Out Requests</h3>
+                    <p className="text-muted-foreground">
+                        When you request items from other branches, they&apos;ll appear
+                        here.
+                    </p>
+                </div>
+          ) : (
+                <div className="lg:w-2/3 mx-auto space-y-4">
+                {requests.map((request,index) => (
+                    <OutCard key={request.id} order={index+1} request={request} />
+                ))}
+              </div>
+            )
         )}
-      </div>
     </section>
   );
 };

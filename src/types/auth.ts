@@ -35,6 +35,7 @@ export type user = {
     id_number: string,
     role: string,
     pharmacy_id: number | null| string
+    pharmacy_name: string | null
 }
 
 export type userState = {

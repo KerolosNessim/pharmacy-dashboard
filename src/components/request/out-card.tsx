@@ -1,3 +1,4 @@
+"use client"
 import {
   Card,
   CardAction,
@@ -7,10 +8,30 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "../ui/badge";
-import { Clock, Printer } from "lucide-react";
+import { CircleCheck, Clock, Loader2, Printer } from "lucide-react";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
+import { useState } from "react";
+import { completeRequestApi } from "@/api/transfar";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
+  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const handleComplete = async() => {
+    setLoading(true);
+    const res = await completeRequestApi(request?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ["transfers-out"],
+      });
+    } else {
+      toast.error(res?.error);
+    }
+    setLoading(false);
+  };
+  
   return (
     <Card>
       <CardHeader className="items-center!">
@@ -54,11 +75,19 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
           ))}
         </div>
       </CardContent>
-      <CardFooter className="border-t">
+      <CardFooter className="border-t flex items-center justify-between">
         <div className="flex items-center gap-2">
           <p className="text-base text-muted-foreground">Status:</p>
           <Badge variant={request?.status=="pending"?"pending":request.status=="completed" || request.status=="approved"?"success":request.status=="rejected" || request.status=="cancelled"?"destructive": "default"}>{request.status}</Badge>
         </div>
+        {
+          request.status=="Approved" && (
+            <Button onClick={handleComplete} disabled={loading} >
+              {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CircleCheck className="size-5" />}
+              Mark as completed
+            </Button>
+          )
+        }
       </CardFooter>
     </Card>
   );

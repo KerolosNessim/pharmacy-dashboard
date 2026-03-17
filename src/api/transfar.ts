@@ -11,3 +11,16 @@ export const getRequestsApi = (params?: string) => {
   const url = params ? `/transfers${params}` : "/transfers";
   return apiRequest<TransferResponse>(url);
 }
+
+export const acceptRequestApi = (id: number) =>
+  apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/approve`, {
+    method: "POST",
+  });
+export const rejectRequestApi = (id: number) =>
+  apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/reject`, {
+    method: "POST",
+  });
+export const completeRequestApi = (id: number) =>
+  apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/complete`, {
+    method: "POST",
+  });

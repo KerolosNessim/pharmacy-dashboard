@@ -1,7 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { RequestItem } from "@/types/transfar";
-import { Printer } from "lucide-react";
 
 const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
   return (
@@ -13,6 +11,7 @@ const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
             {transfar?.created_at}
           </p>
         </div>
+        <p className="font-semibold">From: {transfar?.from_pharmacy}</p>
         <p className="font-semibold">To: {transfar?.to_pharmacy}</p>
         <p className="text-sm text-muted-foreground">
           {transfar?.medications?.reduce((acc, item) => acc + item.quantity, 0)}
