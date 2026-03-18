@@ -10,7 +10,7 @@ const TransferIncomingPage = () => {
   const goBack = useGoBack();
   const { data } = useQuery({
     queryKey: ["transfers-incoming"],
-    queryFn: () => getRequestsApi("?type=in"),
+    queryFn: () => getRequestsApi("?type=in&status=all"),
   });
   const transfers = data?.data?.data?.data ?? [];
   return (

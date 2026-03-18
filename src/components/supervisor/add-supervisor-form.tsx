@@ -26,8 +26,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 const formSchema = z.object({
   name: z.string().min(3, "Supervisor name is required"),
-  id_number: z.string().min(3, "Supervisor id number is required"),
-  password: z.string().min(3, "Supervisor password must be more than 3 char"),
+  email: z.string().email("Supervisor email is required"),
   pharmacy_id: z.string().nonempty("Supervisor pharmacy must be selected"),
 });
 
@@ -49,8 +48,7 @@ export const AddSupervisorForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      id_number: "",
-      password: "",
+      email: "",
       pharmacy_id: "",
     },
   });
@@ -97,32 +95,13 @@ export const AddSupervisorForm = ({
         {/* Supervisor address */}
         <FormField
           control={form.control}
-          name="id_number"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Supervisor Id</FormLabel>
+              <FormLabel>Supervisor Email</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Supervisor Id"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Supervisor phone */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Supervisor Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="******"
+                  placeholder="Enter Supervisor Email"
                   {...field}
                   className="focus-visible:ring-primary"
                 />

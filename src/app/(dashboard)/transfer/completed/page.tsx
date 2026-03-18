@@ -10,7 +10,7 @@ const TransferCompletedPage = () => {
   const goBack = useGoBack();
   const { data } = useQuery({
     queryKey: ["transfers-completed"],
-    queryFn: () => getRequestsApi("?status=completed"),
+    queryFn: () => getRequestsApi("?type=all&status=completed"),
   });
   const transfers = data?.data?.data?.data ?? [];
   return (

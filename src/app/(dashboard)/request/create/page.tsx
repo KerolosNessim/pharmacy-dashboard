@@ -1,13 +1,11 @@
 "use client";
 
 import { getPharmaciesApi } from "@/api/pharmacies";
+import { addRequestApi } from "@/api/transfar";
 import RequestProductSearch from "@/components/request/request-product-search";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useGoBack } from "@/hooks/use-goback";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Box, Loader2, Minus, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -15,8 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { addRequestApi } from "@/api/transfar";
+import { useGoBack } from "@/hooks/use-goback";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft, Box, Loader2, Minus, Plus, X } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 export type SelectedProduct = {
   name: string;
@@ -29,7 +29,6 @@ export type SelectedProduct = {
 
 const RequestPage = () => {
   const goBack = useGoBack();
-
   const { data: pharmaciesData, isLoading: loadingPharmacies } = useQuery({
     queryKey: ["pharmacies"],
     queryFn: getPharmaciesApi,
@@ -76,11 +75,12 @@ const RequestPage = () => {
         quantity: product.quantity,
       })),
     };
-    const res = await addRequestApi(payload );
+    const res = await addRequestApi(payload);
     if (res?.ok) {
       toast.success(res?.data?.message);
       setSelectedProduct([]);
       setPharmacyId("");
+      goBack();
     } else {
       toast.error(res?.error);
     }
@@ -196,7 +196,12 @@ const RequestPage = () => {
           </SelectContent>
         </Select>
       </div>
-      <Button onClick={handleSubmit} disabled={loading} type="submit" className="w-full h-12!">
+      <Button
+        onClick={handleSubmit}
+        disabled={loading}
+        type="submit"
+        className="w-full h-12!"
+      >
         {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Submit"}
       </Button>
     </section>

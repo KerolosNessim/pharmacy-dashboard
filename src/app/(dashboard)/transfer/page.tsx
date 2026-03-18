@@ -13,11 +13,12 @@ const TransferPage = () => {
   const { user } = useUserStore();
   const { data } = useQuery({
     queryKey: ["transfers"],
-    queryFn: () => getRequestsApi(),
+    queryFn: () => getRequestsApi("?type=all&status=all"),
   });
+  console.log(data);
   const { data:completedData } = useQuery({
     queryKey: ["completed-transfers"],
-    queryFn: () => getRequestsApi("?status=completed"),
+    queryFn: () => getRequestsApi("?type=all&status=completed"),
   });
   const transfers = data?.data?.data?.data ?? [];
   const completedTransfers = completedData?.data?.data?.data ?? [];
@@ -45,6 +46,7 @@ const TransferPage = () => {
             </div>
             <h2 className="text-2xl font-bold">IN</h2>
             <p className="text-muted-foreground">Incoming</p>
+            <Badge variant={"success"}>{data?.data?.data?.totals?.total_in}</Badge>
           </Button>
         </Link>
         <Link href={"/request"} className="w-full ">
@@ -57,6 +59,7 @@ const TransferPage = () => {
             </div>
             <h2 className="text-2xl font-bold">OUT</h2>
             <p className="text-muted-foreground">Requested Items</p>
+            <Badge variant={"success"}>{data?.data?.data?.totals?.total_out}</Badge>
           </Button>
         </Link>
       </div>

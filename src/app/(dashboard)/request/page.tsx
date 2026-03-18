@@ -11,7 +11,7 @@ const RequestPage = () => {
 
   const { data,isLoading } = useQuery({
     queryKey: ["transfer-out"],
-    queryFn: () => getRequestsApi("?type=out"),
+    queryFn: () => getRequestsApi("?type=out&status=all"),
   });
   const requests = data?.data?.data?.data ?? [];
 

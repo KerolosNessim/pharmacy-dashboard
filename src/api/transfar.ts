@@ -16,9 +16,10 @@ export const acceptRequestApi = (id: number) =>
   apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/approve`, {
     method: "POST",
   });
-export const rejectRequestApi = (id: number) =>
+export const rejectRequestApi = (id: number,rejection_reason:string) =>
   apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/reject`, {
     method: "POST",
+    body: JSON.stringify({ rejection_reason }),
   });
 export const completeRequestApi = (id: number) =>
   apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/complete`, {

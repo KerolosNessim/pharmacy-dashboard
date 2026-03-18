@@ -15,17 +15,20 @@ import { useState } from "react";
 import { acceptRequestApi, rejectRequestApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { Textarea } from "../ui/textarea";
 const TransferIncomingCard = ({
   order,
   transfar,
 }: {
   order: number;
   transfar: RequestItem;
-  }) => {
+}) => {
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [rejectLoading, setRejectLoading] = useState(false);
-const queryClient = useQueryClient();
-  const handleAccept = async() => {
+  const [isRejected, setIsRejected] = useState(false);
+  const [reason, setReason] = useState("");
+  const queryClient = useQueryClient();
+  const handleAccept = async () => {
     setAcceptLoading(true);
     const res = await acceptRequestApi(transfar?.id);
     if (res?.ok) {
@@ -33,25 +36,31 @@ const queryClient = useQueryClient();
       queryClient.invalidateQueries({
         queryKey: ["transfers-incoming"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["transfer-out"],
+      });
     } else {
       toast.error(res?.error);
     }
     setAcceptLoading(false);
-
   };
-  const handleReject = async() => {
+  const handleReject = async () => {
     setRejectLoading(true);
-    const res = await rejectRequestApi(transfar?.id);
+    const res = await rejectRequestApi(transfar?.id,reason);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
         queryKey: ["transfers-incoming"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["transfer-out"],
+      });
     } else {
       toast.error(res?.error);
     }
     setRejectLoading(false);
-
+    setIsRejected(false);
+    setReason("");
   };
   return (
     <Card>
@@ -101,17 +110,67 @@ const queryClient = useQueryClient();
           ))}
         </div>
       </CardContent>
-      <CardFooter className="border-t flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button onClick={handleAccept} disabled={acceptLoading}>
-            {acceptLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Check className="size-5" />}
-            Accept
-          </Button>
-          <Button variant={"destructive"} onClick={handleReject} disabled={rejectLoading}>
-            {rejectLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <X className="size-5" />}
-            Reject
-          </Button>
+      <CardFooter className="border-t  flex flex-col gap-2">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-2">
+            {transfar?.status === "Approved" ||
+            transfar?.status === "Rejected" || transfar?.status === "Completed" ? null : (
+              <>
+                <Button onClick={handleAccept} disabled={acceptLoading}>
+                  {acceptLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="size-5" />
+                  )}
+                  Accept
+                </Button>
+
+                <Button
+                  variant={"destructive"}
+                  onClick={() => setIsRejected(!isRejected)}
+                >
+                  Reject
+                </Button>
+              </>
+            )}
+          </div>
+          <Badge
+            variant={
+              transfar?.status == "pending"
+                ? "pending"
+                : transfar?.status == "completed" ||
+                    transfar?.status == "approved"
+                  ? "success"
+                  : transfar?.status == "rejected" ||
+                      transfar?.status == "cancelled"
+                    ? "destructive"
+                    : "default"
+            }
+          >
+            {transfar?.status}
+          </Badge>
         </div>
+        {isRejected && (
+          <div className=" space-y-4 w-full">
+            <p className="text-base text-muted-foreground font-semibold">
+              Rejection Reason:
+            </p>
+            <Textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Enter rejection reason"
+              className="min-h-[80px] focus-visible:ring-primary"
+            />
+            <Button variant={"destructive"} onClick={handleReject} disabled={rejectLoading} className=" ms-auto  ">
+              {rejectLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <X className="size-5" />
+              )}
+              Reject
+            </Button>
+          </div>
+        )}
       </CardFooter>
     </Card>
   );

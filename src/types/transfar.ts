@@ -76,6 +76,10 @@ export type AddRequestData= {
     data: {
         data: RequestItem[],
         current_page: number,
+        totals: {
+            total_in: number,
+            total_out: number,
+        },
         last_page: number,
         total: number
     }

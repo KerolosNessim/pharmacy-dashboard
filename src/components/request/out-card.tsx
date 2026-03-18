@@ -24,7 +24,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
-        queryKey: ["transfers-out"],
+        queryKey: ["transfer-out"],
       });
     } else {
       toast.error(res?.error);
