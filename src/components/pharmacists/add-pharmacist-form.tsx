@@ -25,13 +25,13 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 const formSchema = z.object({
-  name: z.string().min(3, "Supervisor name is required"),
-  id_number: z.string().min(3, "Supervisor id number is required"),
-  password: z.string().min(3, "Supervisor password must be more than 3 char"),
-  pharmacy_id: z.string().nonempty("Supervisor pharmacy must be selected"),
+  name: z.string().min(3, "Pharmacist name is required"),
+  id_number: z.string().min(3, "Pharmacist id number is required"),
+  password: z.string().min(3, "Pharmacist password must be more than 3 char"),
+  pharmacy_id: z.string().nonempty("Pharmacist pharmacy must be selected"),
 });
 
-export type supervisorValues = z.infer<typeof formSchema>;
+export type pharmacistValues = z.infer<typeof formSchema>;
 
 export const AddPharmacistForm = ({
   setOpen,
@@ -45,7 +45,7 @@ export const AddPharmacistForm = ({
     queryFn: getPharmaciesApi,
   });
   const pharmacies = data?.data?.data?.data ?? [];
-  const form = useForm<supervisorValues>({
+  const form = useForm<pharmacistValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -54,7 +54,7 @@ export const AddPharmacistForm = ({
       pharmacy_id: "",
     },
   });
-  async function onSubmit(values: supervisorValues) {
+  async function onSubmit(values: pharmacistValues) {
     console.log(values);
     const res = await addPharmacistApi(values);
     if (res?.ok) {
