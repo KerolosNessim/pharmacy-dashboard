@@ -1,4 +1,7 @@
 "use client";
+
+export const dynamic = "force-dynamic";
+
 import ActivateForm from "@/components/auth/activate-form";
 import { Card, CardContent } from "@/components/ui/card";
 

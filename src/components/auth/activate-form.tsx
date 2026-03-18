@@ -39,6 +39,7 @@ export type activateValues = z.infer<typeof formSchema>;
 export default function ActivateForm() {
   const searchParams = useSearchParams();
   const id_number = searchParams.get("id_number");
+  
   const router = useRouter();
   const form = useForm<activateValues>({
     resolver: zodResolver(formSchema),
