@@ -1,11 +1,13 @@
-"use client";
-
-export const dynamic = "force-dynamic";
-
 import ActivateForm from "@/components/auth/activate-form";
 import { Card, CardContent } from "@/components/ui/card";
 
-const ActivatePage = () => {
+export const dynamic = "force-dynamic";
+
+export default function ActivatePage({
+  searchParams,
+}: {
+  searchParams: { id_number?: string };
+}) {
   return (
     <main className="flex flex-col items-center justify-center h-screen gap-6">
       <div className="flex flex-col items-center gap-2 ">
@@ -18,11 +20,9 @@ const ActivatePage = () => {
 
       <Card className="w-full max-w-md">
         <CardContent>
-          <ActivateForm />
+          <ActivateForm id_number={searchParams.id_number} />
         </CardContent>
       </Card>
     </main>
   );
-};
-
-export default ActivatePage;
+}

@@ -16,8 +16,9 @@ import { activateApi } from "@/api/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 // ================= Schema =================
 const formSchema = z
@@ -35,21 +36,33 @@ const formSchema = z
 
 export type activateValues = z.infer<typeof formSchema>;
 
+// ================= Props =================
+type Props = {
+  id_number?: string;
+};
+
 // ================= Component =================
-export default function ActivateForm() {
-  const searchParams = useSearchParams();
-  const id_number = searchParams.get("id_number");
-  
+export default function ActivateForm({ id_number }: Props) {
   const router = useRouter();
+
   const form = useForm<activateValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id_number: id_number||"",
+      id_number: "",
       password: "",
       password_confirmation: "",
     },
   });
+
   const { isSubmitting } = form.formState;
+
+  // ✅ نحط القيمة بعد ما component يركب
+  useEffect(() => {
+    if (id_number) {
+      form.setValue("id_number", id_number);
+    }
+  }, [id_number, form]);
+
   async function onSubmit(values: activateValues) {
     const res = await activateApi(values);
     if (res?.ok) {
@@ -59,6 +72,7 @@ export default function ActivateForm() {
       toast.error(res?.error);
     }
   }
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
@@ -79,6 +93,7 @@ export default function ActivateForm() {
             </FormItem>
           )}
         />
+
         {/* password */}
         <FormField
           control={form.control}
@@ -97,7 +112,8 @@ export default function ActivateForm() {
             </FormItem>
           )}
         />
-        {/* password */}
+
+        {/* confirm password */}
         <FormField
           control={form.control}
           name="password_confirmation"
