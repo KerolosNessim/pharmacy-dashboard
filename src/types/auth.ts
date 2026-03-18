@@ -1,12 +1,7 @@
 export type registerResponse = {
   message: string;
   token: string;
-  admin?: {
-    id: number;
-    name: string;
-    id_number: string;
-    role: string;
-  }
+  admin?: user
 }
 
 export type loginResponse = {
@@ -14,13 +9,7 @@ export type loginResponse = {
     message: string,
     data: {
         token: string,
-        admin: {
-            id: number,
-            name: string,
-            id_number: string,
-            role: string,
-            pharmacy_id: number | null| string
-        }
+        admin: user
     }
 }
 
@@ -34,12 +23,12 @@ export type user = {
     name: string,
     id_number: string,
     role: string,
-    pharmacy_id: number | null| string
-    pharmacy_name: string | null
+    pharmacy_id?: number | null| string
+    pharmacy_name?: string | null
 }
 
 export type userState = {
     user: user | null,
-    setUser: (user:user) => void,
+    setUser: (user:user | undefined) => void,
     removeUser: () => void
 }
