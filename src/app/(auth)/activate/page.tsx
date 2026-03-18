@@ -1,3 +1,4 @@
+"use client";
 import ActivateForm from "@/components/auth/activate-form";
 import { Card, CardContent } from "@/components/ui/card";
 
