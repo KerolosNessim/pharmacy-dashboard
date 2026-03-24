@@ -103,7 +103,7 @@ export const AddDepartmentForm = ({
             ) : (
               <>
                 <Plus />
-                Add Pharmasist
+                Add Department
               </>
             )}
           </Button>

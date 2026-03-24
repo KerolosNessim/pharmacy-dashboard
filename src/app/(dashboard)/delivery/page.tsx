@@ -1,19 +1,11 @@
 "use client";
-import AddCashDialog from "@/components/cash/add-cash-dialog";
-import CashTable from "@/components/cash/cash-table";
+import AddDeliveryDialog from "@/components/delivery/add-delivery-dialog";
+import DeliveryTable from "@/components/delivery/delivery-table";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { ArrowLeft } from "lucide-react";
 
-export interface CashInvoice {
-  id: string;
-  amount: string;
-  status: string;
-  date: string;
-  delivery_rep: string;
-}
-
-const CashPage = () => {
+const DeliveryPage = () => {
   const goBack = useGoBack();
   return (
     <section className="flex flex-col gap-4 p-4">
@@ -24,19 +16,18 @@ const CashPage = () => {
             <ArrowLeft />
           </Button>
           <div>
-            <h2 className="text-2xl font-bold">Cash Management</h2>
+            <h2 className="text-2xl font-bold">Delivery Representatives</h2>
             <p className="text-muted-foreground text-sm">
-              Manage and track external invoice statuses
+              Manage delivery representatives and their tasks
             </p>
           </div>
         </div>
-        <AddCashDialog />
+        <AddDeliveryDialog />
       </div>
-
-      {/* invoices table */}
-      <CashTable />
+      {/* delivery representatives */}
+      <DeliveryTable />
     </section>
   );
 };
 
-export default CashPage;
+export default DeliveryPage;

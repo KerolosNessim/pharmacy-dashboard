@@ -135,7 +135,10 @@ const RequestPage = () => {
                         <p className="font-medium">{product.name}</p>
                         <p className="font-medium">{product.description}</p>
                         <p className="text-sm text-muted-foreground">
-                          SKU: {product.sku || "-"} . {product.price}
+                          SKU: {product.sku || "-"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Price: {product.price}
                         </p>
                       </div>
                     </div>

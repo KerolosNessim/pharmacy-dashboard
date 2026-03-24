@@ -18,6 +18,7 @@ import {
   Home,
   LibraryBig,
   MessagesSquare,
+  Motorbike,
   Phone,
   ShieldAlert,
   UserStar,
@@ -62,6 +63,11 @@ export function AppSidebar() {
       name: "Cash",
       href: "/cash",
       icon: Wallet,
+    },
+    {
+      name: "Delivery",
+      href: "/delivery",
+      icon: Motorbike,
     },
     {
       name: "Categories",

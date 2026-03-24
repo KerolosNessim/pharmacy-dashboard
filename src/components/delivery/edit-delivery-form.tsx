@@ -1,4 +1,3 @@
-import { addClinicApi, addDepartmentApi } from "@/api/extintions";
 import {
   Form,
   FormControl,
@@ -8,62 +7,48 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 const formSchema = z.object({
-  name: z.string().min(3, "Clinic name is required"),
-  phone: z.string().min(3, "Clinic phone is required"),
-  address: z.string().min(3, "Clinic address is required"),
+  name: z.string().min(3, "Pharmacist name is required"),
+  phone_number: z.string().min(3, "Pharmacist id number is required"),
 });
 
-export type ClinicValues = z.infer<typeof formSchema>;
+export type deliveryValues = z.infer<typeof formSchema>;
 
-export const AddClinicForm = ({
+export const EditDeliveryForm = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
 }) => {
-  const form = useForm<ClinicValues>({
+  const form = useForm<deliveryValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      phone: "",
-      address: "",
+      phone_number: "",
     },
   });
-
-  const queryClient = useQueryClient();
-  async function onSubmit(values: ClinicValues) {
-    const res = await addClinicApi(values);
-    if (res?.ok) {
-      toast.success(res?.data?.message);
-      setOpen(false);
-      form.reset();
-      queryClient.invalidateQueries({ queryKey: ["cliencs"] });
-    } else {
-      toast.error(res?.error);
-    }
+  async function onSubmit(values: deliveryValues) {
+    console.log(values);
   }
 
   const { isSubmitting } = form.formState;
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {/* Supervisor Name */}
+        {/*  Name */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Clinic Name</FormLabel>
+              <FormLabel>Delivery Representative Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Clinic Name"
+                  placeholder="Enter Delivery Representative Name"
                   {...field}
                   className="focus-visible:ring-primary"
                 />
@@ -72,34 +57,17 @@ export const AddClinicForm = ({
             </FormItem>
           )}
         />
-        {/* Supervisor address */}
+        {/* phone number */}
         <FormField
           control={form.control}
-          name="phone"
+          name="phone_number"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Clinic Phone</FormLabel>
+              <FormLabel>Delivery Representative Phone Number</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Clinic Phone"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Supervisor address */}
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Clinic Address</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Clinic Address"
+                  type="number"
+                  placeholder="Enter Delivery Representative Phone Number"
                   {...field}
                   className="focus-visible:ring-primary"
                 />
@@ -123,7 +91,7 @@ export const AddClinicForm = ({
             ) : (
               <>
                 <Plus />
-                Add Clinic
+                Add Delivery Representative
               </>
             )}
           </Button>

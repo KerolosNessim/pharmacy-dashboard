@@ -94,7 +94,7 @@ const RequestProductSearch = ({
                       </p>
                       <p>{product?.description}</p>
                       <p>
-                        {product?.sku} . {product?.price}
+                        SKU: {product?.sku || "-"} . Price: {product?.price}
                       </p>
                     </div>
                   </div>
