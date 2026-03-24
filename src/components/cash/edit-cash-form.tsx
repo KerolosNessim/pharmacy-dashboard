@@ -38,15 +38,17 @@ const deliveryReps = ["John Doe", "Jane Doe", "Ahmed", "Mohamed"];
 export const EditCashForm = ({
   setOpen,
   invoice,
+  editInvoice
 }: {
   setOpen: (open: boolean) => void;
   invoice: CashInvoice;
+  editInvoice: (invoice: CashInvoice) => void;
 }) => {
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       invoice_number: invoice.id || "",
-      products_info: "Fake products inside invoice",
+      products_info: invoice.products_info || "",
       amount: invoice.amount || "",
       delivery_rep: invoice.delivery_rep || "",
       status:
@@ -57,10 +59,11 @@ export const EditCashForm = ({
     },
   });
 
-  async function onSubmit(values: cashValues) {
-    console.log("Updated values:", values);
+  const onSubmit = (values: any) => {
+    editInvoice({ ...invoice, ...values });
     setOpen(false);
-  }
+  };
+
 
   const { isSubmitting } = form.formState;
 

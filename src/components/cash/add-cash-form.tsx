@@ -35,29 +35,28 @@ const deliveryReps = ["John Doe", "Jane Doe", "Ahmed", "Mohamed"];
 
 export const AddCashForm = ({
   setOpen,
+  addInvoice,
 }: {
   setOpen: (open: boolean) => void;
+  addInvoice: (invoice: any) => void;
 }) => {
-
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      products_info: "",
-      amount: "",
-      delivery_rep: "",
-      status: "Delivery",
-    },
   });
 
-
-
   async function onSubmit(values: cashValues) {
-    console.log(values);
+    const newInvoice = {
+      id: "INV-" + Math.floor(Math.random() * 1000000),
+      date: new Date().toISOString().split("T")[0],
+      ...values,
+    };
+
+    addInvoice(newInvoice);
     setOpen(false);
   }
 
   const { isSubmitting } = form.formState;
-  
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -89,7 +88,10 @@ export const AddCashForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Delivery Representative</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Delivery Representative" />
@@ -115,7 +117,10 @@ export const AddCashForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Status" />
@@ -123,8 +128,12 @@ export const AddCashForm = ({
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="Delivery">Delivery</SelectItem>
-                    <SelectItem value="Received from Driver">Received from Driver</SelectItem>
-                    <SelectItem value="Delivered to Finance">Delivered to Finance</SelectItem>
+                    <SelectItem value="Received from Driver">
+                      Received from Driver
+                    </SelectItem>
+                    <SelectItem value="Delivered to Finance">
+                      Delivered to Finance
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -151,7 +160,6 @@ export const AddCashForm = ({
             </FormItem>
           )}
         />
-
 
         <div className="flex justify-end gap-3 pt-4">
           <Button

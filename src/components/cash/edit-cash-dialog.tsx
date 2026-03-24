@@ -1,33 +1,44 @@
 "use client";
-import { Edit } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
 import { EditCashForm } from "./edit-cash-form";
 import { CashInvoice } from "@/app/(dashboard)/cash/page";
+import { Edit } from "lucide-react";
 
-const EditCashDialog = ({ invoice }: { invoice: CashInvoice }) => {
+const EditCashDialog = ({
+  invoice,
+  editInvoice,
+}: {
+  invoice: CashInvoice;
+  editInvoice: (invoice: CashInvoice) => void;
+}) => {
   const [open, setOpen] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant={"secondary"} className="hover:bg-bg">
-          <Edit />
+        <Button variant="outline">
+          <Edit/>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Cash Invoice</DialogTitle>
-          <DialogDescription>Update external invoice record</DialogDescription>
+          <DialogTitle>Edit Invoice</DialogTitle>
         </DialogHeader>
-        <EditCashForm setOpen={setOpen} invoice={invoice} />
+
+        <EditCashForm
+          setOpen={setOpen}
+          invoice={invoice}
+          editInvoice={editInvoice}
+        />
       </DialogContent>
     </Dialog>
   );

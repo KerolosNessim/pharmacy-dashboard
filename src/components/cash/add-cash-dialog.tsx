@@ -5,16 +5,15 @@ import { Button } from "../ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
 import { AddCashForm } from "./add-cash-form";
 
-
-const AddCashDialog = () => {
+const AddCashDialog = ({ addInvoice }: { addInvoice: any }) => {
   const [open, setOpen] = useState(false);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -22,14 +21,13 @@ const AddCashDialog = () => {
           <Plus /> Add Invoice
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Cash Invoice</DialogTitle>
-          <DialogDescription>
-            Create a new external invoice record
-          </DialogDescription>
+          <DialogTitle>Add Invoice</DialogTitle>
         </DialogHeader>
-        <AddCashForm setOpen={setOpen} />
+
+        <AddCashForm setOpen={setOpen} addInvoice={addInvoice} />
       </DialogContent>
     </Dialog>
   );
