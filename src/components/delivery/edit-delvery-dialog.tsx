@@ -11,8 +11,9 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { EditDeliveryForm } from "./edit-delivery-form";
+import { Delivery } from "@/types/delivery";
 
-const EditDeliveryDialog = () => {
+const EditDeliveryDialog = ({deliveryRep}:{deliveryRep:Delivery}) => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -26,7 +27,7 @@ const EditDeliveryDialog = () => {
           <DialogTitle>Edit Delivery Representative</DialogTitle>
           <DialogDescription>Edit Delivery Representative</DialogDescription>
         </DialogHeader>
-        <EditDeliveryForm setOpen={setOpen} />
+        <EditDeliveryForm deliveryRep={deliveryRep} setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );

@@ -21,38 +21,54 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getDeliveriesApi } from "@/api/delivery";
+import { addCashApi } from "@/api/cash";
+import { toast } from "sonner";
 
 const formSchema = z.object({
-  products_info: z.string().min(3, "Products info is required"),
+  products_information: z.string().min(3, "Products info is required"),
   amount: z.string().min(1, "Amount is required"),
-  delivery_rep: z.string().min(1, "Delivery representative is required"),
-  status: z.enum(["Delivery", "Received from Driver", "Delivered to Finance"]),
+  delivery_representative_id: z
+    .string()
+    .min(1, "Delivery representative is required"),
+  status: z.enum(["delivery", "received_from_driver", "delivered_to_finance"]),
 });
 
 export type cashValues = z.infer<typeof formSchema>;
 
-const deliveryReps = ["John Doe", "Jane Doe", "Ahmed", "Mohamed"];
 
-export const AddCashForm = ({
+export const  AddCashForm = ({
   setOpen,
-  addInvoice,
 }: {
   setOpen: (open: boolean) => void;
-  addInvoice: (invoice: any) => void;
 }) => {
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      products_information: "",
+      amount: "",
+      delivery_representative_id: "",
+      status: "delivery",
+    },
   });
 
+  const {data} = useQuery({
+    queryKey: ["deliveries"],
+    queryFn: getDeliveriesApi,
+  })
+  const deliveryReps = data?.data?.data ?? []
+  const queryClient = useQueryClient();
   async function onSubmit(values: cashValues) {
-    const newInvoice = {
-      id: "INV-" + Math.floor(Math.random() * 1000000),
-      date: new Date().toISOString().split("T")[0],
-      ...values,
-    };
-
-    addInvoice(newInvoice);
-    setOpen(false);
+    const res = await addCashApi(values);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ["cash"] });
+      setOpen(false);
+    }
+    else {
+      toast.error(res?.error);
+    }
   }
 
   const { isSubmitting } = form.formState;
@@ -84,7 +100,7 @@ export const AddCashForm = ({
           {/* Delivery Rep */}
           <FormField
             control={form.control}
-            name="delivery_rep"
+            name="delivery_representative_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Delivery Representative</FormLabel>
@@ -99,8 +115,8 @@ export const AddCashForm = ({
                   </FormControl>
                   <SelectContent>
                     {deliveryReps.map((rep) => (
-                      <SelectItem key={rep} value={rep}>
-                        {rep}
+                      <SelectItem key={rep?.id} value={rep?.id.toString()}>
+                        {rep?.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -127,11 +143,11 @@ export const AddCashForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Delivery">Delivery</SelectItem>
-                    <SelectItem value="Received from Driver">
+                    <SelectItem value="delivery">Delivery</SelectItem>
+                    <SelectItem value="received_from_driver">
                       Received from Driver
                     </SelectItem>
-                    <SelectItem value="Delivered to Finance">
+                    <SelectItem value="delivered_to_finance">
                       Delivered to Finance
                     </SelectItem>
                   </SelectContent>
@@ -145,8 +161,8 @@ export const AddCashForm = ({
         {/* Products Info */}
         <FormField
           control={form.control}
-          name="products_info"
-          render={({ field }) => (
+          name="products_information"
+          render={({field}) => (
             <FormItem>
               <FormLabel>Products Information</FormLabel>
               <FormControl>

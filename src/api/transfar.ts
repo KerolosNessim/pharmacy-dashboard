@@ -2,7 +2,7 @@ import { apiRequest } from "@/lib/api-request";
 import { AddRequestData, AddRequestResponse, TransferResponse } from "@/types/transfar";
 
 export const addRequestApi = (data: AddRequestData) =>
-  apiRequest<AddRequestResponse>("/supervisor/transfers", {
+  apiRequest<AddRequestResponse>("/transfers", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -13,15 +13,15 @@ export const getRequestsApi = (params?: string) => {
 }
 
 export const acceptRequestApi = (id: number) =>
-  apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/approve`, {
+  apiRequest<AddRequestResponse>(`/transfers/${id}/approve`, {
     method: "POST",
   });
 export const rejectRequestApi = (id: number,rejection_reason:string) =>
-  apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/reject`, {
+  apiRequest<AddRequestResponse>(`/transfers/${id}/reject`, {
     method: "POST",
     body: JSON.stringify({ rejection_reason }),
   });
 export const completeRequestApi = (id: number) =>
-  apiRequest<AddRequestResponse>(`/supervisor/transfers/${id}/complete`, {
+  apiRequest<AddRequestResponse>(`/transfers/${id}/complete`, {
     method: "POST",
   });

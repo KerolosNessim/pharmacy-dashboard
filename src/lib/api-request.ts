@@ -1,5 +1,5 @@
-"use server"
-import { getToken } from "@/actions/auth";
+"use server";
+import { getRole, getToken } from "@/actions/auth";
 
 export type ApiResponse<T> = {
   ok: boolean;
@@ -14,14 +14,23 @@ export async function apiRequest<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<ApiResponse<T>> {
-  const token = await getToken()
+  const token = await getToken();
+  const role = await getRole();
+
+  const isFormData = options?.body instanceof FormData;
+
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,
       headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": `Bearer ${token}`,
+        ...(isFormData
+          ? {} // ❗ سيب المتصفح يحدد الـ Content-Type
+          : {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            }),
+        Authorization: `Bearer ${token}`,
+        "accept-role": role || "",
         ...(options?.headers || {}),
       },
     });
@@ -49,5 +58,3 @@ export async function apiRequest<T>(
     };
   }
 }
-
-

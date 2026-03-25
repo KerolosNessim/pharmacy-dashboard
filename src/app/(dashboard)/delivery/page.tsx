@@ -4,9 +4,16 @@ import DeliveryTable from "@/components/delivery/delivery-table";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { ArrowLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getDeliveriesApi } from "@/api/delivery";
 
 const DeliveryPage = () => {
   const goBack = useGoBack();
+  const { data } = useQuery({
+    queryKey: ["deliveries"],
+    queryFn: () => getDeliveriesApi(),
+  });
+  const deliveries = data?.data?.data ?? [];
   return (
     <section className="flex flex-col gap-4 p-4">
       {/* header */}
@@ -25,7 +32,7 @@ const DeliveryPage = () => {
         <AddDeliveryDialog />
       </div>
       {/* delivery representatives */}
-      <DeliveryTable />
+      <DeliveryTable deliveries={deliveries} />
     </section>
   );
 };

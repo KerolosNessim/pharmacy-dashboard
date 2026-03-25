@@ -5,7 +5,7 @@ import { loginValues } from "@/components/auth/login-form";
 import { activateValues } from "@/components/auth/activate-form";
 
 export const registerApi = (data: RegisterValues) =>
-  apiRequest<registerResponse>("/auth/super-admin/register", {
+  apiRequest<registerResponse>("/auth/register", {
     method: "POST",
     body: JSON.stringify(data),
   });
@@ -23,7 +23,7 @@ export const registerApi = (data: RegisterValues) =>
     });
 
     export const activateApi = (data: activateValues) =>
-    apiRequest<loginResponse> ("/supervisor/activate", {
+    apiRequest<loginResponse> ("/activate", {
       method: "POST",
       body: JSON.stringify(data),
     });

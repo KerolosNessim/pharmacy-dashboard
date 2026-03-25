@@ -5,13 +5,13 @@ import { AddProductResponse, CategoryStatsResponse, ProductsListResponse, Single
 
 
 export const addProductApi = (data: ProductFormValues) =>
-  apiRequest<AddProductResponse>("/super-admin/products", {
+  apiRequest<AddProductResponse>("/products", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
 export const getCategoriesStatsApi = () =>
-  apiRequest<CategoryStatsResponse>("/super-admin/products/stats");
+  apiRequest<CategoryStatsResponse>("/products/stats");
 
 
 export const getProductsListApi = (search?: string) => {

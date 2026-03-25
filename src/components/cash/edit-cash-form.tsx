@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Cash } from "@/types/cash";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -21,47 +22,67 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
-import { CashInvoice } from "@/app/(dashboard)/cash/page";
+import { getDeliveriesApi } from "@/api/delivery";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { updateCashApi } from "@/api/cash";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   invoice_number: z.string().min(1, "Invoice number is required"),
-  products_info: z.string().min(3, "Products info is required"),
+  products_information: z.string().min(3, "Products info is required"),
   amount: z.string().min(1, "Amount is required"),
-  delivery_rep: z.string().min(1, "Delivery representative is required"),
-  status: z.enum(["Delivery", "Received from Driver", "Delivered to Finance"]),
+  delivery_representative_id: z
+    .string()
+    .min(1, "Delivery representative is required"),
+  status: z.enum(["delivery", "received_from_driver", "delivered_to_finance"]),
 });
 
 export type cashValues = z.infer<typeof formSchema>;
 
-const deliveryReps = ["John Doe", "Jane Doe", "Ahmed", "Mohamed"];
+
 
 export const EditCashForm = ({
   setOpen,
   invoice,
-  editInvoice
 }: {
   setOpen: (open: boolean) => void;
-  invoice: CashInvoice;
-  editInvoice: (invoice: CashInvoice) => void;
+  invoice: Cash;
 }) => {
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      invoice_number: invoice.id || "",
-      products_info: invoice.products_info || "",
-      amount: invoice.amount || "",
-      delivery_rep: invoice.delivery_rep || "",
+      invoice_number: invoice.invoice_number || "",
+      products_information: invoice.products_information || "",
+      amount: String(invoice.amount) || "",
+      delivery_representative_id:
+        String(invoice.delivery_representative.id) || "",
       status:
         (invoice.status as
-          | "Delivery"
-          | "Received from Driver"
-          | "Delivered to Finance") || "Delivery",
+          | "delivery"
+          | "received_from_driver"
+          | "delivered_to_finance") || "delivery",
     },
   });
 
-  const onSubmit = (values: any) => {
-    editInvoice({ ...invoice, ...values });
-    setOpen(false);
+  const { data } = useQuery({
+    queryKey: ["deliveries"],
+    queryFn: getDeliveriesApi,
+  })
+
+  const deliveries = data?.data?.data?? [];
+const queryClient = useQueryClient();
+  const onSubmit = async(values:cashValues) => {
+    const res = await updateCashApi(invoice.id, values);
+    if(res?.ok){
+      toast.success(res?.data?.message);
+      setOpen(false);
+      queryClient.invalidateQueries({ queryKey: ["cash"] });
+    }
+    else{
+      toast.error(res?.error);
+
+    }
+
   };
 
 
@@ -113,7 +134,7 @@ export const EditCashForm = ({
           {/* Delivery Rep */}
           <FormField
             control={form.control}
-            name="delivery_rep"
+            name="delivery_representative_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Delivery Representative</FormLabel>
@@ -127,9 +148,9 @@ export const EditCashForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {deliveryReps.map((rep) => (
-                      <SelectItem key={rep} value={rep}>
-                        {rep}
+                    {deliveries.map((rep) => (
+                      <SelectItem key={rep?.id} value={String(rep?.id)}>
+                        {rep?.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -156,11 +177,11 @@ export const EditCashForm = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Delivery">Delivery</SelectItem>
-                    <SelectItem value="Received from Driver">
+                    <SelectItem value="delivery">Delivery</SelectItem>
+                    <SelectItem value="received_from_driver">
                       Received from Driver
                     </SelectItem>
-                    <SelectItem value="Delivered to Finance">
+                    <SelectItem value="delivered_to_finance">
                       Delivered to Finance
                     </SelectItem>
                   </SelectContent>
@@ -174,7 +195,7 @@ export const EditCashForm = ({
         {/* Products Info */}
         <FormField
           control={form.control}
-          name="products_info"
+          name="products_information"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Products Information</FormLabel>

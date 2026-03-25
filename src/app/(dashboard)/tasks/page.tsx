@@ -1,27 +1,41 @@
 "use client";
+import { getTasksApi } from "@/api/tasks";
 import { CompletedTasksList } from "@/components/tasks/completed-tasks-list";
 import { PendingTasksList } from "@/components/tasks/pending-tasks-list";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGoBack } from "@/hooks/use-goback";
-import { ArrowLeft, CalendarIcon, CheckCircle2, Search, Truck } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGoBack } from "@/hooks/use-goback";
+import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { ChevronDownIcon } from "lucide-react";
+import { ArrowLeft, CalendarIcon, CheckCircle2, Search, Truck } from "lucide-react";
 import { useState } from "react";
 
 const TasksPage = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
+  const [search, setSearch] = useState("");
   const goBack = useGoBack();
 
+  const fromDateString = fromDate ? format(fromDate as Date, "yyyy-MM-dd") : "";
+  const toDateString = toDate ? format(toDate as Date, "yyyy-MM-dd") : "";
+
+  const {data:pendingTasks} = useQuery({
+    queryKey: ["tasks", "pending", search, fromDateString, toDateString],
+    queryFn: () => getTasksApi(`?status=pending${search ? `&search=${search}`:''}${fromDateString ? `&from_date=${fromDateString}`:''}${toDateString ? `&to_date=${toDateString}`:''}`),
+  });
+  const PendingTasks = pendingTasks?.data?.data?.data??[];
+  const {data:completedTasks} = useQuery({
+    queryKey: ["tasks", "completed", search, fromDateString, toDateString],
+    queryFn: () => getTasksApi(`?status=completed${search ? `&search=${search}`:''}${fromDateString ? `&from_date=${fromDateString}`:''}${toDateString ? `&to_date=${toDateString}`:''}`),
+  });
+  const CompletedTasks = completedTasks?.data?.data?.data??[];
   return (
     <section className="flex flex-col gap-6 p-4">
       {/* header */}
@@ -46,6 +60,8 @@ const TasksPage = () => {
           </InputGroupAddon>
           <InputGroupInput
             placeholder="Search task title..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </InputGroup>
         {/* from date */}
@@ -108,10 +124,10 @@ const TasksPage = () => {
         </TabsList>
 
         <TabsContent value="pending" className="mt-0">
-          <PendingTasksList />
+          <PendingTasksList tasks={PendingTasks} />
         </TabsContent>
         <TabsContent value="completed" className="mt-0">
-          <CompletedTasksList />
+          <CompletedTasksList tasks={CompletedTasks} />
         </TabsContent>
       </Tabs>
     </section>

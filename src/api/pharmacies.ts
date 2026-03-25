@@ -3,7 +3,7 @@ import { apiRequest } from "@/lib/api-request";
 import { GetPharmaciesResponse, addPharmacyResponse } from "@/types/pharmacies";
 
 export const addPharmacyApi = (data: pharmacyValues) =>
-  apiRequest<addPharmacyResponse>("/super-admin/pharmacies", {
+  apiRequest<addPharmacyResponse>("/pharmacies", {
     method: "POST",
     body: JSON.stringify(data),
   });

@@ -9,15 +9,13 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { EditCashForm } from "./edit-cash-form";
-import { CashInvoice } from "@/app/(dashboard)/cash/page";
 import { Edit } from "lucide-react";
+import { Cash } from "@/types/cash";
 
 const EditCashDialog = ({
   invoice,
-  editInvoice,
 }: {
-  invoice: CashInvoice;
-  editInvoice: (invoice: CashInvoice) => void;
+  invoice: Cash;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -37,7 +35,6 @@ const EditCashDialog = ({
         <EditCashForm
           setOpen={setOpen}
           invoice={invoice}
-          editInvoice={editInvoice}
         />
       </DialogContent>
     </Dialog>

@@ -7,37 +7,45 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Motorbike, Trash } from "lucide-react";
+import { Edit, Loader2, Motorbike, Trash } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import EditDeliveryDialog from "./edit-delvery-dialog";
+import { Delivery } from "@/types/delivery";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteDeliveryApi } from "@/api/delivery";
+import { toast } from "sonner";
+import { useState } from "react";
 
-const DeliveryTable = () => {
+const DeliveryTable = ({ deliveries }: { deliveries: Delivery[] }) => {
+  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
-const deliveryReps = [
-  {
-    name: "John Doe",
-    phone: "123456789",
-  },
-  {
-    name: "Jane Doe",
-    phone: "123456789",
-  },
-];
+  async function deleteDelivery(id: number) {
+    setLoading(true);
+    const response = await deleteDeliveryApi(id);
+    if (response?.ok) {
+      queryClient.invalidateQueries({ queryKey: ["deliveries"] });
+      toast.success(response?.data?.message);
+    } else {
+      toast.error(response?.error);
+    }
+    setLoading(false);
+  }
+
   return (
     <div className="border rounded-lg! overflow-hidden ">
-
-      {deliveryReps.length > 0 ? (
+      {deliveries.length > 0 ? (
         <Table className="">
           <TableHeader className="bg-bg ">
             <TableRow className="hover:bg-bg ">
               <TableHead>Name</TableHead>
-              <TableHead>Phone</TableHead >
+              <TableHead>Phone</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-bg/50">
-            {deliveryReps.map((deliveryRep, index) => (
+            {deliveries.map((deliveryRep, index) => (
               <TableRow
                 key={index}
                 className="hover:bg-muted-foreground/5  h-14  px-4 "
@@ -45,8 +53,12 @@ const deliveryReps = [
                 <TableCell>{deliveryRep?.name}</TableCell>
                 <TableCell>{deliveryRep?.phone}</TableCell>
                 <TableCell className="flex items-center gap-2">
-                  <EditDeliveryDialog />
-                  <Button variant={"destructive"} >
+                  <EditDeliveryDialog deliveryRep={deliveryRep}/>
+                  <Button
+                    disabled={loading}
+                    onClick={() => deleteDelivery(deliveryRep?.id)}
+                    variant={"destructive"}
+                  >
                     <Trash />
                   </Button>
                 </TableCell>

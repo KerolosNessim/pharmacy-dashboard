@@ -1,5 +1,5 @@
 "use client";
-import { getPharmacistsApi } from "@/api/pharmacists";
+import { getPharmacistsApi, togglePharmacistStatusApi } from "@/api/pharmacists";
 import {
   Table,
   TableBody,
@@ -8,9 +8,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Users } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { Switch } from "../ui/switch";
+import { toast } from "sonner";
 
 const PharmacistStaffTable = () => {
   const { data, isLoading } = useQuery({
@@ -19,7 +21,17 @@ const PharmacistStaffTable = () => {
   });
   console.log(data);
   const pharmacists = data?.data?.data?.data ?? [];
-
+  const queryClient = useQueryClient();
+  async function toggleStatus(id: string) {
+    const res = await togglePharmacistStatusApi(id);
+    console.log(res);
+    if (res?.ok) {
+      queryClient.invalidateQueries({ queryKey: ["pharmacists"] });
+      toast.success(res?.data?.message || "Pharmacist status updated!");
+    } else {
+      toast.error(res?.error || "Failed to update status");
+    }
+  }
   return (
     <div className="border rounded-lg! overflow-hidden ">
       {isLoading && (
@@ -47,7 +59,10 @@ const PharmacistStaffTable = () => {
                 <TableCell>{pharmacist?.id_number}</TableCell>
                 <TableCell>{pharmacist?.pharmacy?.name}</TableCell>
                 <TableCell>
-                  <Badge variant={"outline"}>{pharmacist?.status}</Badge>
+                  <Switch
+                    checked={pharmacist.status === "active"}
+                    onCheckedChange={() => toggleStatus(String(pharmacist.id))}
+                  />
                 </TableCell>
               </TableRow>
             ))}

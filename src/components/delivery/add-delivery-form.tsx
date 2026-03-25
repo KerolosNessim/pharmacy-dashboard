@@ -12,9 +12,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { addDeliveryApi } from "@/api/delivery";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 const formSchema = z.object({
   name: z.string().min(3, "Pharmacist name is required"),
-  phone_number: z.string().min(3, "Pharmacist id number is required"),
+  phone: z.string().min(3, "Pharmacist id number is required"),
 });
 
 export type deliveryValues = z.infer<typeof formSchema>;
@@ -24,16 +27,24 @@ export const AddDeliveryForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
-
+const queryClient = useQueryClient();
   const form = useForm<deliveryValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      phone_number: "",
+      phone: "",
     },
   });
   async function onSubmit(values: deliveryValues) {
-    console.log(values);
+    const res = await addDeliveryApi(values);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ["deliveries"] });
+      setOpen(false);
+    }
+    else{
+      toast.error(res?.error);
+    }
   }
 
   const { isSubmitting } = form.formState;
@@ -61,7 +72,7 @@ export const AddDeliveryForm = ({
         {/* phone number */}
         <FormField
           control={form.control}
-          name="phone_number"
+          name="phone"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Delivery Representative Phone Number</FormLabel>

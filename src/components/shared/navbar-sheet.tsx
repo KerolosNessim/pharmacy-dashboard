@@ -39,16 +39,16 @@ const NavbarSheet = () => {
       icon: Pill,
     },
 
-    {
-      name: "Upload Data ",
-      href: "/upload",
-      icon: Upload,
-    },
-    {
-      name: "Manage Pharmacists ",
-      href: "/pharmacists",
-      icon: Users,
-    },
+    // {
+    //   name: "Upload Data ",
+    //   href: "/upload",
+    //   icon: Upload,
+    // },
+    // {
+    //   name: "Manage Pharmacists ",
+    //   href: "/pharmacists",
+    //   icon: Users,
+    // },
     {
       name: "Products Database ",
       href: "/products",
@@ -59,11 +59,11 @@ const NavbarSheet = () => {
       href: "/import-product",
       icon: Upload,
     },
-    {
-      name: "Manage Members ",
-      href: "/members",
-      icon: Users,
-    },
+    // {
+    //   name: "Manage Members ",
+    //   href: "/members",
+    //   icon: Users,
+    // },
   ];
   return (
     <Sheet open={open} onOpenChange={setOpen}>

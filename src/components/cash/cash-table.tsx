@@ -7,27 +7,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Cash } from "@/types/cash";
+import { Trash } from "lucide-react";
 import { Button } from "../ui/button";
 import EditCashDialog from "./edit-cash-dialog";
-import { CashInvoice } from "@/app/(dashboard)/cash/page";
-import { Trash } from "lucide-react";
+import { Badge } from "../ui/badge";
+import { useQueryClient } from "@tanstack/react-query";
+import { deleteCashApi } from "@/api/cash";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const CashTable = ({
   invoices,
-  deleteInvoice,
-  editInvoice,
 }: {
-  invoices: CashInvoice[];
-  deleteInvoice: (id: string) => void;
-  editInvoice: (invoice: CashInvoice) => void;
-}) => {
+  invoices: Cash[];
+  }) => {
+  const [loading,setLoading]=useState(false)
+  const queryClient = useQueryClient();
+  const deleteCash = async (id: number) => {
+    setLoading(true)
+    const res = await deleteCashApi(id);
+    if(res?.ok){
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ["cash"] });
+    }
+    else{
+      toast.error(res?.error);
+    }
+    setLoading(false)
+  };
+  
   return (
     <div className="border rounded-lg overflow-hidden">
       {invoices.length > 0 ? (
         <Table className="bg-bg">
           <TableHeader>
             <TableRow>
-              <TableHead>ID</TableHead>
+              <TableHead>Invoice Number</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Rep</TableHead>
               <TableHead>Amount</TableHead>
@@ -39,17 +55,22 @@ const CashTable = ({
           <TableBody>
             {invoices.map((inv) => (
               <TableRow key={inv.id}>
-                <TableCell>{inv.id}</TableCell>
-                <TableCell>{inv.date}</TableCell>
-                <TableCell>{inv.delivery_rep}</TableCell>
+                <TableCell>{inv.invoice_number}</TableCell>
+                <TableCell>{new Date(inv.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>{inv.delivery_representative.name}</TableCell>
                 <TableCell>{inv.amount}</TableCell>
-                <TableCell>{inv.status}</TableCell>
+                <TableCell>
+                  <Badge className="capitalize">
+                    {inv.status.replaceAll("_", " ")}
+                  </Badge>
+                  </TableCell>
                 <TableCell className="flex gap-2">
-                  <EditCashDialog invoice={inv} editInvoice={editInvoice} />
+                  <EditCashDialog invoice={inv} />
 
                   <Button
                     variant="destructive"
-                    onClick={() => deleteInvoice(inv.id)}
+                    onClick={() => deleteCash(inv.id)}
+                    disabled={loading}
                   >
                     <Trash />
                   </Button>

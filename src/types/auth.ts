@@ -9,7 +9,8 @@ export type loginResponse = {
     message: string,
     data: {
         token: string,
-        admin: user
+        admin?: user
+        pharmacist?: user
     }
 }
 

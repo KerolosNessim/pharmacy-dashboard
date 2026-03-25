@@ -5,25 +5,25 @@ import { apiRequest } from "@/lib/api-request";
 import { ClinicResponse, addClinicResponse, addDepartmentResponse, addDoctorExtensionResponse, getDepartmentsResponse } from "@/types/extintions";
 
 export const addDepartmentApi = (data: DepartmentValues) =>
-  apiRequest<addDepartmentResponse>("/super-admin/medical-departments", {
+  apiRequest<addDepartmentResponse>("/medical-departments", {
     method: "POST",
     body: JSON.stringify(data),
   });
 export const addClinicApi = (data: ClinicValues) =>
-  apiRequest<addClinicResponse>("/super-admin/clinics", {
+  apiRequest<addClinicResponse>("/clinics", {
     method: "POST",
     body: JSON.stringify(data),
   });
 export const addDoctorApi = (data: DoctorExtensionValues) =>
-  apiRequest<addDoctorExtensionResponse>("/super-admin/doctors", {
+  apiRequest<addDoctorExtensionResponse>("/doctors", {
     method: "POST",
     body: JSON.stringify(data),
   });
 export const getDepartmentsApi = () =>
-  apiRequest<getDepartmentsResponse>("/super-admin/medical-departments", {
+  apiRequest<getDepartmentsResponse>("/medical-departments", {
     method: "GET",
   });
 export const getClinicsApi = () =>
-  apiRequest<ClinicResponse>("/super-admin/clinics", {
+  apiRequest<ClinicResponse>("/clinics", {
     method: "GET",
   });

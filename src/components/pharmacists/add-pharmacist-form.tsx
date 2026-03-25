@@ -1,3 +1,4 @@
+"use client"
 import { getPharmaciesApi } from "@/api/pharmacies";
 import { addPharmacistApi } from "@/api/pharmacists";
 import {
@@ -24,10 +25,10 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { useUserStore } from "@/stores/user-store";
 const formSchema = z.object({
   name: z.string().min(3, "Pharmacist name is required"),
-  id_number: z.string().min(3, "Pharmacist id number is required"),
-  password: z.string().min(3, "Pharmacist password must be more than 3 char"),
+  email: z.string().email("Pharmacist email is required"),
   pharmacy_id: z.string().nonempty("Pharmacist pharmacy must be selected"),
 });
 
@@ -37,7 +38,8 @@ export const AddPharmacistForm = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
-}) => {
+  }) => {
+const {user}=useUserStore()
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -49,12 +51,11 @@ export const AddPharmacistForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      id_number: "",
-      password: "",
-      pharmacy_id: "",
+      email: "",
+      pharmacy_id: String(user?.pharmacy_id),
     },
   });
-  async function onSubmit(values: pharmacistValues) {
+ async function onSubmit(values: pharmacistValues) {
     console.log(values);
     const res = await addPharmacistApi(values);
     if (res?.ok) {
@@ -69,11 +70,12 @@ export const AddPharmacistForm = ({
     }
   }
 
+
   const { isSubmitting } = form.formState;
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {/* Supervisor Name */}
+        {/* Pharmacist Name */}
         <FormField
           control={form.control}
           name="name"
@@ -91,16 +93,16 @@ export const AddPharmacistForm = ({
             </FormItem>
           )}
         />
-        {/* Supervisor address */}
+        {/* Pharmacist address */}
         <FormField
           control={form.control}
-          name="id_number"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Pharmacist Id</FormLabel>
+              <FormLabel>Pharmacist Email</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Pharmacist Id"
+                  placeholder="Enter Pharmacist Email"
                   {...field}
                   className="focus-visible:ring-primary"
                 />
@@ -109,26 +111,8 @@ export const AddPharmacistForm = ({
             </FormItem>
           )}
         />
-        {/* Supervisor phone */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pharmacist Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="******"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Supervisor pharmacy */}
+        {/* Pharmacist pharmacy */}
+        {user?.role==="admin"&&(
         <FormField
           control={form.control}
           name="pharmacy_id"
@@ -169,6 +153,7 @@ export const AddPharmacistForm = ({
             </FormItem>
           )}
         />
+        )}
 
         <div className="flex justify-end gap-3 pt-4">
           <Button
@@ -184,7 +169,7 @@ export const AddPharmacistForm = ({
             ) : (
               <>
                 <Plus />
-                Add Pharmasist
+                Add Pharmacist
               </>
             )}
           </Button>

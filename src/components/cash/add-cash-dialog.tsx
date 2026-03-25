@@ -11,7 +11,7 @@ import {
 } from "../ui/dialog";
 import { AddCashForm } from "./add-cash-form";
 
-const AddCashDialog = ({ addInvoice }: { addInvoice: any }) => {
+const   AddCashDialog = () => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,7 +27,7 @@ const AddCashDialog = ({ addInvoice }: { addInvoice: any }) => {
           <DialogTitle>Add Invoice</DialogTitle>
         </DialogHeader>
 
-        <AddCashForm setOpen={setOpen} addInvoice={addInvoice} />
+        <AddCashForm setOpen={setOpen}  />
       </DialogContent>
     </Dialog>
   );

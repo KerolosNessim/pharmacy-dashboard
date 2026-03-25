@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { loginApi } from "@/api/auth";
 import { Loader2 } from "lucide-react";
-import { setToken } from "@/actions/auth";
+import { setRole, setToken } from "@/actions/auth";
 import { useUserStore } from "@/stores/user-store";
 
 // ================= Schema =================
@@ -47,7 +47,10 @@ export default function LoginForm() {
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
-      if (res?.data?.data?.admin) setUser(res?.data?.data?.admin);
+      await setRole(res?.data?.data?.admin?.role || res?.data?.data?.pharmacist?.role);      
+      if (res?.data?.data?.admin || res?.data?.data?.pharmacist) {
+        setUser(res?.data?.data?.admin || res?.data?.data?.pharmacist);
+      }
       router.push("/");
     } else {
       toast.error(res?.error);

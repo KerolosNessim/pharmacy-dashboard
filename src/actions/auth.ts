@@ -21,3 +21,22 @@ export async function getToken() {
   const cookieStore = await cookies();
   return cookieStore.get("token")?.value;
 }
+export async function setRole(role: string | undefined) {
+  const cookieStore = await cookies();
+  cookieStore.set("role", role || "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+  });
+}
+
+export async function deleteRole() {
+  const cookieStore = await cookies();
+  cookieStore.delete("role");
+}
+
+export async function getRole() {
+  const cookieStore = await cookies();
+  return cookieStore.get("role")?.value;
+}

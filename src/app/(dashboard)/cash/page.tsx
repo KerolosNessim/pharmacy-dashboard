@@ -5,34 +5,19 @@ import CashTable from "@/components/cash/cash-table";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { ArrowLeft } from "lucide-react";
+import { getCashApi } from "@/api/cash";
+import { useQuery } from "@tanstack/react-query";
 
-export interface CashInvoice {
-  id: string;
-  amount: string;
-  status: string;
-  date: string;
-  delivery_rep: string;
-  products_info: string;
-}
+
 
 const CashPage = () => {
   const goBack = useGoBack();
+const {data} = useQuery({
+  queryKey: ["cash"],
+  queryFn: getCashApi,
+})
 
-  const [invoices, setInvoices] = useState<CashInvoice[]>([]);
-
-  const addInvoice = (invoice: CashInvoice) => {
-    setInvoices((prev) => [invoice, ...prev]);
-  };
-
-  const deleteInvoice = (id: string) => {
-    setInvoices((prev) => prev.filter((inv) => inv.id !== id));
-  };
-
-  const editInvoice = (updated: CashInvoice) => {
-    setInvoices((prev) =>
-      prev.map((inv) => (inv.id === updated.id ? updated : inv)),
-    );
-  };
+  const invoices=data?.data?.data?.data??[]
 
   return (
     <section className="flex flex-col gap-4 p-4">
@@ -47,13 +32,11 @@ const CashPage = () => {
           </div>
         </div>
 
-        <AddCashDialog addInvoice={addInvoice} />
+        <AddCashDialog  />
       </div>
 
       <CashTable
         invoices={invoices}
-        deleteInvoice={deleteInvoice}
-        editInvoice={editInvoice}
       />
     </section>
   );
