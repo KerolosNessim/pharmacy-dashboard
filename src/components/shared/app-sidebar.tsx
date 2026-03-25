@@ -49,11 +49,11 @@ export function AppSidebar() {
       href: "/tasks",
       icon: ClipboardList,
     },
-    {
-      name: "Chat",
-      href: "/chat",
-      icon: MessagesSquare,
-    },
+    // {
+    //   name: "Chat",
+    //   href: "/chat",
+    //   icon: MessagesSquare,
+    // },
     {
       name: "Extintions",
       href: "/extintions",
