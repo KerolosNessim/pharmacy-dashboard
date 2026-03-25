@@ -27,27 +27,33 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUserStore } from "@/stores/user-store";
 import { ModeToggle } from "./mode-toggle";
 import UserAvatar from "./user-avatar";
 import Image from "next/image";
 
 export function AppSidebar() {
   const pathName = usePathname();
+  const { user } = useUserStore();
+
   const NAV_LINKS: ILink[] = [
     {
       name: "Home",
       href: "/",
       icon: Home,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
     {
       name: "Transfer",
       href: "/transfer",
       icon: ArrowUpDown,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
     {
       name: "Tasks",
       href: "/tasks",
       icon: ClipboardList,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
     // {
     //   name: "Chat",
@@ -58,43 +64,55 @@ export function AppSidebar() {
       name: "Extintions",
       href: "/extintions",
       icon: Phone,
+      allowedRoles: ["admin"],
     },
     {
       name: "Cash",
       href: "/cash",
       icon: Wallet,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
     {
       name: "Delivery",
       href: "/delivery",
       icon: Motorbike,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
     {
       name: "Categories",
       href: "/categories",
-      icon: LibraryBig ,
+      icon: LibraryBig,
+      allowedRoles: ["admin"],
     },
     {
       name: "Pharmacies",
       href: "/pharmacies",
-      icon: Building2 ,
+      icon: Building2,
+      allowedRoles: ["admin"],
     },
     {
       name: "Supervisors",
       href: "/supervisor",
-      icon: UserStar ,
+      icon: UserStar,
+      allowedRoles: ["admin"],
     },
     {
       name: "Pharmacists",
       href: "/pharmacists-staff",
-      icon: Users ,
+      icon: Users,
+      allowedRoles: ["admin", "supervisor"],
     },
-    {
-      name: "Roles",
-      href: "/roles",
-      icon: ShieldAlert ,
-    },
+    // {
+    //   name: "Roles",
+    //   href: "/roles",
+    //   icon: ShieldAlert,
+    //   allowedRoles: ["admin"],
+    // },
   ];
+
+  const filteredLinks = NAV_LINKS.filter(
+    (link) => !link.allowedRoles || link.allowedRoles.includes(user?.role as string)
+  );
 
   return (
     <Sidebar>
@@ -105,7 +123,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {NAV_LINKS.map((link, index) => (
+            {filteredLinks.map((link, index) => (
               <SidebarMenuItem key={index}>
                 <SidebarMenuButton
                   asChild

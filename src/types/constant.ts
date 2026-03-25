@@ -7,5 +7,6 @@ export interface ILink {
   icon: ForwardRefExoticComponent<
     Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
   >;
-  isButton?:boolean
+  isButton?:boolean;
+  allowedRoles?: string[];
 }

@@ -30,13 +30,18 @@ import SendReportDialog from "./send-report-dialog";
 import { useState } from "react";
 import LogoutBtn from "./logout-btn";
 import UserInfo from "./user-info";
+import { useUserStore } from "@/stores/user-store";
+
 const NavbarSheet = () => {
   const [open, setOpen] = useState(false);
+  const { user } = useUserStore();
+
   const Sheet_Links: ILink[] = [
     {
       name: "Refill Tasks",
       href: "/refill",
       icon: Pill,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
 
     // {
@@ -53,11 +58,13 @@ const NavbarSheet = () => {
       name: "Products Database ",
       href: "/products",
       icon: Package,
+      allowedRoles: ["admin", "supervisor", "pharmacist"],
     },
     {
       name: "Import Product",
       href: "/import-product",
       icon: Upload,
+      allowedRoles: ["admin"],
     },
     // {
     //   name: "Manage Members ",
@@ -65,6 +72,11 @@ const NavbarSheet = () => {
     //   icon: Users,
     // },
   ];
+
+  const filteredLinks = Sheet_Links.filter(
+    (link) => !link.allowedRoles || link.allowedRoles.includes(user?.role as string)
+  );
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
@@ -82,7 +94,7 @@ const NavbarSheet = () => {
             <div className="flex flex-col gap-4">
               {/* navs */}
               <ul className="border rounded-xl overflow-hidden">
-                {Sheet_Links.map((link, index) => (
+                {filteredLinks.map((link, index) => (
                   <li
                     key={index}
                     className="p-4 border-b hover:bg-primary/30 hover:text-primary"
