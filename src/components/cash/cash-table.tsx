@@ -16,13 +16,15 @@ import { useQueryClient } from "@tanstack/react-query";
 import { deleteCashApi } from "@/api/cash";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useUserStore } from "@/stores/user-store";
 
 const CashTable = ({
   invoices,
 }: {
   invoices: Cash[];
   }) => {
-  const [loading,setLoading]=useState(false)
+  const [loading, setLoading] = useState(false)
+  const {user}=useUserStore()
   const queryClient = useQueryClient();
   const deleteCash = async (id: number) => {
     setLoading(true)
@@ -48,7 +50,11 @@ const CashTable = ({
               <TableHead>Rep</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              {
+                user?.role!="pharmacist"&&(
+                  <TableHead>Actions</TableHead>
+                )
+              }
             </TableRow>
           </TableHeader>
 
@@ -63,8 +69,10 @@ const CashTable = ({
                   <Badge className="capitalize">
                     {inv.status.replaceAll("_", " ")}
                   </Badge>
-                  </TableCell>
-                <TableCell className="flex gap-2">
+                </TableCell>
+                {
+                  user?.role!="pharmacist"&&(
+                    <TableCell className="flex gap-2">
                   <EditCashDialog invoice={inv} />
 
                   <Button
@@ -75,6 +83,8 @@ const CashTable = ({
                     <Trash />
                   </Button>
                 </TableCell>
+                  )
+                }
               </TableRow>
             ))}
           </TableBody>

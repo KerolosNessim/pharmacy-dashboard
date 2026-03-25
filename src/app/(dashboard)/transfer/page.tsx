@@ -30,9 +30,9 @@ const TransferPage = () => {
           <p className="text-muted-foreground text-sm">Welcome back,</p>
           <h2 className="text-2xl font-bold">{user?.name}</h2>
         </div>
-        <Button>
+        {/* <Button>
           <File /> Send Report
-        </Button>
+        </Button> */}
       </div>
       {/* in & out */}
       <div className="grid grid-cols-2 gap-4">

@@ -3,12 +3,13 @@ import { getRequestsApi } from "@/api/transfar";
 import OutCard from "@/components/request/out-card";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
+import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Inbox, Loader2, Plus } from "lucide-react";
 import Link from "next/link";
 const RequestPage = () => {
   const goBack = useGoBack();
-
+const {user}= useUserStore()
   const { data,isLoading } = useQuery({
     queryKey: ["transfer-out"],
     queryFn: () => getRequestsApi("?type=out&status=all"),
@@ -30,9 +31,11 @@ const RequestPage = () => {
             </p>
           </div>
         </div>
-        <Link href={"request/create"}>
-          <Button><Plus className="mr-2 h-4 w-4"/>Request Items</Button>
-        </Link>
+        {user?.role!="super_admin"&&(
+          <Link href={"request/create"}>
+            <Button><Plus className="mr-2 h-4 w-4"/>Request Items</Button>
+          </Link>
+        )}
       </div>
         {isLoading ? (
           <div className="flex items-center justify-center">
