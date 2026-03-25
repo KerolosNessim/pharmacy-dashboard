@@ -119,6 +119,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4 border-b flex-row ">
         <Image src="/logo.png" alt="logo" width={50} height={50} />
         <p className="font-bold">Pharmacy <br /> Platform</p>
+        
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
