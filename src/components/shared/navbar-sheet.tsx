@@ -41,7 +41,7 @@ const NavbarSheet = () => {
       name: "Refill Tasks",
       href: "/refill",
       icon: Pill,
-      allowedRoles: ["admin", "supervisor", "pharmacist"],
+      allowedRoles: ["super_admin", "supervisor", "pharmacist"],
     },
 
     // {
@@ -58,13 +58,13 @@ const NavbarSheet = () => {
       name: "Products Database ",
       href: "/products",
       icon: Package,
-      allowedRoles: ["admin", "supervisor", "pharmacist"],
+      allowedRoles: ["super_admin", "supervisor", "pharmacist"],
     },
     {
       name: "Import Product",
       href: "/import-product",
       icon: Upload,
-      allowedRoles: ["admin"],
+      allowedRoles: ["super_admin"],
     },
     // {
     //   name: "Manage Members ",
