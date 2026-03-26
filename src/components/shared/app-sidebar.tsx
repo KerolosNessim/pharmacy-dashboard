@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Home,
   LibraryBig,
+  Megaphone,
   MessagesSquare,
   Motorbike,
   Phone,
@@ -55,11 +56,11 @@ export function AppSidebar() {
       icon: ClipboardList,
       allowedRoles: ["super_admin", "supervisor", "pharmacist"],
     },
-    // {
-    //   name: "Chat",
-    //   href: "/chat",
-    //   icon: MessagesSquare,
-    // },
+    {
+      name: "Chat",
+      href: "/chat",
+      icon: MessagesSquare,
+    },
     {
       name: "Extintions",
       href: "/extintions",
@@ -101,6 +102,12 @@ export function AppSidebar() {
       href: "/pharmacists-staff",
       icon: Users,
       allowedRoles: ["super_admin", "supervisor"],
+    },
+    {
+      name: "Alerts",
+      href: "/alerts/create",
+      icon: Megaphone,
+      allowedRoles: ["super_admin"],
     },
     // {
     //   name: "Roles",

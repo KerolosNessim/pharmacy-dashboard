@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-export function proxy(request: NextRequest) {
+export  function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
+  const role = request.cookies.get("role")?.value;
   const { pathname } = request.nextUrl;
 
   const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register")||pathname.startsWith("/activate");
 
-  if (token) {
+  if (token&&role) {
     // If authenticated and trying to access login/register, redirect to home
     if (isAuthPage) {
       return NextResponse.redirect(new URL("/", request.url));

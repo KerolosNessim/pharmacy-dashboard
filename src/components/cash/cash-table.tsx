@@ -46,6 +46,8 @@ const CashTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Invoice Number</TableHead>
+              <TableHead>Customer Name</TableHead>
+              <TableHead>Mobile No</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Rep</TableHead>
               <TableHead>Amount</TableHead>
@@ -61,10 +63,12 @@ const CashTable = ({
           <TableBody>
             {invoices.map((inv) => (
               <TableRow key={inv.id}>
-                <TableCell>{inv.invoice_number}</TableCell>
-                <TableCell>{new Date(inv.created_at).toLocaleDateString()}</TableCell>
-                <TableCell>{inv.delivery_representative.name}</TableCell>
-                <TableCell>{inv.amount}</TableCell>
+                <TableCell>{inv?.invoice_number}</TableCell>
+                <TableCell>{inv?.customer_name || "-"}</TableCell>
+                <TableCell>{inv?.mobile_no || "-"}</TableCell>
+                <TableCell>{new Date(inv?.created_at).toLocaleDateString()}</TableCell>
+                <TableCell>{inv?.delivery_representative?.name || "-"}</TableCell>
+                <TableCell>{inv?.amount}</TableCell>
                 <TableCell>
                   <Badge className="capitalize">
                     {inv.status.replaceAll("_", " ")}
@@ -77,7 +81,7 @@ const CashTable = ({
 
                   <Button
                     variant="destructive"
-                    onClick={() => deleteCash(inv.id)}
+                    onClick={() => deleteCash(inv?.id)}
                     disabled={loading}
                   >
                     <Trash />

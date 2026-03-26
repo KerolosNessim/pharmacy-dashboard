@@ -7,7 +7,10 @@ export const useUserStore = create<userState>()(
     (set) => ({
   user: null,
   setUser: (user:user|undefined) => set({ user }),
-  removeUser: () => set({ user: null }),
+  removeUser: () => {
+    set({ user: null });
+    localStorage.removeItem('user-storage');
+  },
   }),
   {
     name: 'user-storage',

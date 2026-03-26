@@ -3,7 +3,7 @@ import { useUserStore } from "@/stores/user-store";
 import { Button } from "../ui/button";
 import { Loader2, LogOut } from "lucide-react";
 import { logoutApi } from "@/api/auth";
-import { deleteToken } from "@/actions/auth";
+import { deleteRole, deleteToken } from "@/actions/auth";
 import { toast } from "sonner";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,12 +16,16 @@ const LogoutBtn = () => {
     setLoading(true);
     const res = await logoutApi();
     console.log(res);
-    
+
     if (res?.ok) {
-      await deleteToken();
-      removeUser();
-      toast.success(res?.data?.message);
-      router.push("/login");
+      fetch("/api/logout", {
+        method: "POST",
+      }).then(() => {
+        removeUser();
+        toast.success(res?.data?.message);
+        router.refresh();
+        router.push("/login");
+      });
     } else {
       toast.error(res?.error);
     }

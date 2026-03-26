@@ -36,7 +36,7 @@ const Navbar = () => {
         <HoverCard openDelay={50} closeDelay={50}>
           <HoverCardTrigger asChild>
             <Button variant="ghost" size="icon">
-              <Link href="/updates">
+              <Link href="/alerts">
                 <Megaphone className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
