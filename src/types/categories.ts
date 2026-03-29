@@ -9,7 +9,7 @@ export type addCategoryResponse = {
     }
 }
 
-export type category =  {
+export type category = {
   id: number,
   name: string,
   pharmacy_id: null,
@@ -18,8 +18,17 @@ export type category =  {
   created_at: string,
   updated_at: string,
   products_count: number,
-  children: []
-  }
+  children?: {
+    id: number,
+    name: string,
+    pharmacy_id: null,
+    parent_id: null,
+    status: string,
+    created_at: string,
+    updated_at: string,
+    products_count: number,
+  }[]
+}
 
 
   export type getCategoriesResponse = {

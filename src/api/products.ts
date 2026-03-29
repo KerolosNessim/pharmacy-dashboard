@@ -1,6 +1,6 @@
 import { ProductFormValues } from "@/components/import-product/add-product-form";
 import { apiRequest } from "@/lib/api-request";
-import { AddProductResponse, CategoryStatsResponse, ProductsListResponse, SingleProductResponse } from "@/types/products";
+import { AddProductResponse, CategoryStatsResponse, DashboardStatsResponse, ProductsListResponse, SingleProductResponse } from "@/types/products";
 
 
 
@@ -12,6 +12,8 @@ export const addProductApi = (data: ProductFormValues) =>
 
 export const getCategoriesStatsApi = () =>
   apiRequest<CategoryStatsResponse>("/products/stats");
+export const getDashboardStatsApi = () =>
+  apiRequest<DashboardStatsResponse>("/dashboard/stats");
 
 
 export const getProductsListApi = (search?: string) => {
@@ -20,4 +22,10 @@ export const getProductsListApi = (search?: string) => {
 }
 export const getSingleProductApi = (id: string) => {
   return apiRequest<SingleProductResponse>(`/products/${id}`);
+}
+
+export const checkAvailabilityApi = (id: string) => {
+  return apiRequest(`/inventory/${id}`, {
+    method: "POST",
+  });
 }

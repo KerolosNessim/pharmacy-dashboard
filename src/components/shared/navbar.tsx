@@ -13,7 +13,7 @@ import { SidebarTrigger } from "../ui/sidebar";
 import Image from "next/image";
 const Navbar = () => {
   return (
-    <div className="p-2 lg:pe-6 border-b flex items-center justify-between sticky top-0 z-50 bg-background">
+    <div className="p-2 lg:pe-6 border-b  flex items-center justify-between sticky top-0 z-50 bg-bg">
       <Link href="/">
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="logo" width={25} height={25} />

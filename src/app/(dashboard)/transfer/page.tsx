@@ -30,9 +30,11 @@ const TransferPage = () => {
           <p className="text-muted-foreground text-sm">Welcome back,</p>
           <h2 className="text-2xl font-bold">{user?.name}</h2>
         </div>
-        {/* <Button>
-          <File /> Send Report
-        </Button> */}
+        {/* {user?.role !== "super_admin" && (
+          <Button>
+            <File /> Send Report
+          </Button>
+        )} */}
       </div>
       {/* in & out */}
       <div className="grid grid-cols-2 gap-4">
@@ -69,11 +71,11 @@ const TransferPage = () => {
           <History className="size-5 text-primary" />
           <h2 className=" font-bold">Transfers</h2>
         </div>
-        <div className="border rounded-xl overflow-hidden">
+        <div className="border rounded-xl overflow-hidden flex items-center">
           <Link href={"/transfer/history"} className="w-full ">
             <Button
               variant={"secondary"}
-              className="w-full h-fit flex-row justify-between border-b rounded-none"
+              className="w-full h-fit flex-row justify-between border-e rounded-none"
             >
               <div className="flex items-center gap-2">
                 <div className="size-10 rounded-lg bg-primary/30 text-primary flex justify-center items-center">

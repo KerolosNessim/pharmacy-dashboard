@@ -1,6 +1,6 @@
 "use client";
 import { getPharmaciesApi } from "@/api/pharmacies";
-import { addPharmacistApi } from "@/api/pharmacists";
+import { addPharmacistApi, updatePharmacistApi } from "@/api/pharmacists";
 import {
   Form,
   FormControl,
@@ -19,25 +19,27 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { useUserStore } from "@/stores/user-store";
+import { Pharmacist } from "@/types/pharmacists";
 const formSchema = z.object({
   name: z.string().min(3, "Pharmacist name is required"),
-  email: z.string().email("Pharmacist email is required"),
   pharmacy_id: z.string().nonempty("Pharmacist pharmacy must be selected"),
 });
 
-export type pharmacistValues = z.infer<typeof formSchema>;
+export type editPharmacistValues = z.infer<typeof formSchema>;
 
-export const AddPharmacistForm = ({
+export const EditPharmacistForm = ({
   setOpen,
+  pharmacist
 }: {
   setOpen: (open: boolean) => void;
+  pharmacist:Pharmacist
 }) => {
   const { user } = useUserStore();
   const queryClient = useQueryClient();
@@ -47,17 +49,17 @@ export const AddPharmacistForm = ({
     queryFn: getPharmaciesApi,
   });
   const pharmacies = data?.data?.data?.data ?? [];
-  const form = useForm<pharmacistValues>({
+  const form = useForm<editPharmacistValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      pharmacy_id: user?.role === "super_admin" ? "" : String(user?.pharmacy_id),
+      name: pharmacist?.name,
+      pharmacy_id: String(pharmacist?.pharmacy_id) || "",
     },
   });
-  async function onSubmit(values: pharmacistValues) {
+  async function onSubmit(values: editPharmacistValues) {
+    console.log("pharmacist",values);
     console.log(values);
-    const res = await addPharmacistApi(values);
+    const res = await updatePharmacistApi(String(pharmacist?.id),values);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
@@ -92,24 +94,7 @@ export const AddPharmacistForm = ({
             </FormItem>
           )}
         />
-        {/* Pharmacist address */}
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pharmacist Email</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Pharmacist Email"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
         {/* Pharmacist pharmacy */}
         {user?.role === "super_admin" && (
           <FormField
@@ -167,8 +152,8 @@ export const AddPharmacistForm = ({
               <Loader2 className="animate-spin" />
             ) : (
               <>
-                <Plus />
-                Add Pharmacist
+                <Pencil />
+                Update Pharmacist
               </>
             )}
           </Button>

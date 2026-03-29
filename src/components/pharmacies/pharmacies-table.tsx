@@ -1,5 +1,5 @@
 "use client";
-import { getPharmaciesApi } from "@/api/pharmacies";
+import { deletePharmacyApi, getPharmaciesApi } from "@/api/pharmacies";
 import {
   Table,
   TableBody,
@@ -8,15 +8,32 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery } from "@tanstack/react-query";
-import { Building2, Loader2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Building2, Loader2, Trash2 } from "lucide-react";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import { toast } from "sonner";
+import EditPharmacyDialog from "./edit-pharmacies-dialog";
 
 const PharmaciesTable = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["pharmacies",],
     queryFn: getPharmaciesApi,
   });
+
+  const queryClient = useQueryClient();
+  const handleDeletePharmacy = async (id: string) => {
+    const res = await deletePharmacyApi(id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ["pharmacies"],
+      });
+    }
+    else{
+      toast.error(res?.error);
+    }
+  };
   console.log(data);
   const pharmacies = data?.data?.data?.data ?? [];
   return (
@@ -36,6 +53,7 @@ const PharmaciesTable = () => {
               <TableHead>Supervisor</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created at</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-bg/50">
@@ -53,6 +71,16 @@ const PharmaciesTable = () => {
                 </TableCell>
                 <TableCell>
                   {new Date(pharmacy?.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="flex items-center gap-2">
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => handleDeletePharmacy(String(pharmacy.id))}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <EditPharmacyDialog pharmacy={pharmacy} />
                 </TableCell>
               </TableRow>
             ))}

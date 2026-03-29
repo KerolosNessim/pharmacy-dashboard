@@ -12,3 +12,13 @@ export const addPharmacyApi = (data: pharmacyValues) =>
     apiRequest<GetPharmaciesResponse>(`/pharmacies`, {
       method: "GET",
     });
+
+    export const deletePharmacyApi = (id: string) =>
+    apiRequest<GetPharmaciesResponse>(`/pharmacies/${id}`, {
+      method: "DELETE",
+    });
+    export const updatePharmacyApi = (id: string , data: pharmacyValues) =>
+    apiRequest<GetPharmaciesResponse>(`/pharmacies/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });

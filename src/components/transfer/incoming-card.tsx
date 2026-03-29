@@ -16,6 +16,7 @@ import { acceptRequestApi, rejectRequestApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "../ui/textarea";
+import { useUserStore } from "@/stores/user-store";
 const TransferIncomingCard = ({
   order,
   transfar,
@@ -28,6 +29,7 @@ const TransferIncomingCard = ({
   const [isRejected, setIsRejected] = useState(false);
   const [reason, setReason] = useState("");
   const queryClient = useQueryClient();
+  const {user} = useUserStore();
   const handleAccept = async () => {
     setAcceptLoading(true);
     const res = await acceptRequestApi(transfar?.id);
@@ -79,9 +81,9 @@ const TransferIncomingCard = ({
           <Badge variant={"outline"} className="rounded border-2">
             {transfar?.creator_name}
           </Badge>
-          <Button variant={"ghost"}>
+          {/* <Button variant={"ghost"}>
             <Printer className="size-5" />
-          </Button>
+          </Button> */}
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -112,9 +114,12 @@ const TransferIncomingCard = ({
       </CardContent>
       <CardFooter className="border-t  flex flex-col gap-2">
         <div className="flex items-center justify-between w-full">
+          {
+            user?.role !== "super_admin" && (
+              
           <div className="flex items-center gap-2">
             {transfar?.status === "Approved" ||
-            transfar?.status === "Rejected" || transfar?.status === "Completed" ? null : (
+            transfar?.status === "Rejected" || transfar?.status === "Completed"? null : (
               <>
                 <Button onClick={handleAccept} disabled={acceptLoading}>
                   {acceptLoading ? (
@@ -134,6 +139,9 @@ const TransferIncomingCard = ({
               </>
             )}
           </div>
+            )
+          }
+          
           <Badge
             variant={
               transfar?.status == "pending"

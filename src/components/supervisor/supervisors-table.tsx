@@ -1,5 +1,5 @@
 "use client";
-import { getSupervisorApi, toggleSupervisorStatusApi } from "@/api/supervisor";
+import { deleteSupervisorApi, getSupervisorApi, toggleSupervisorStatusApi } from "@/api/supervisor";
 import {
   Table,
   TableBody,
@@ -9,10 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, UserStar } from "lucide-react";
+import { Loader2, Trash2, UserStar } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "../ui/switch";
 import UpdateSupervisorDialog from "./update-supervisor-dialog";
+import { Button } from "../ui/button";
 
 
 const SupervisorsTable = () => {
@@ -34,7 +35,18 @@ async function toggleStatus(id: string) {
   else {
     toast.error(res?.error|| "Failed to update status");
   }
-}
+  }
+  
+  async function deleteSupervisor(id: string) {
+    const res = await deleteSupervisorApi(id);
+    console.log(res);
+    if (res?.ok) {
+      queryClient.invalidateQueries({ queryKey: ["supervisors"] });
+      toast.success(res?.data?.message || "Supervisor deleted successfully!");
+    } else {
+      toast.error(res?.error || "Failed to delete supervisor");
+    }
+  }
 
   return (
     <div className="border rounded-lg! overflow-hidden ">
@@ -69,7 +81,10 @@ async function toggleStatus(id: string) {
                     onCheckedChange={() => toggleStatus(String(supervisor.id))}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell className="flex items-center gap-2">
+                  <Button onClick={() => deleteSupervisor(String(supervisor.id))} variant={"destructive"} >
+                    <Trash2 />
+                  </Button>
                   <UpdateSupervisorDialog supervisor={supervisor} />
                 </TableCell>
               </TableRow>

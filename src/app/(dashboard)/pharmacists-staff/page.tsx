@@ -17,7 +17,6 @@ import { Users } from "lucide-react";
 
 const PharmacistsStaffPage = async () => {
   const queryClient = new QueryClient();
-
   await queryClient.prefetchQuery({
     queryKey: ["pharmacists"],
     queryFn: () => getPharmacistsApi(),

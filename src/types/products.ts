@@ -1,3 +1,5 @@
+import { RequestItem } from "./transfar";
+
 export type AddProductResponse = {
     status: string;
     message: string;
@@ -50,7 +52,8 @@ export type ProductItem = {
                 manufacturer: string,
                 pharmacy_id: string,
                 category_id: number,
-                status: string,
+    status: string,
+                is_available: boolean,
                 category: {
                     id: number,
                     name: string,
@@ -80,3 +83,21 @@ export type SingleProductResponse = {
     data: ProductItem
 }
 
+export type DashboardStatsResponse = {
+    status: string,
+    message: string,
+    data: {
+        pharmacies_count: number,
+        supervisors_count: number,
+        pharmacists_count: number,
+        products_count: number,
+        categories_count: number,
+        transfers: {
+            total: number,
+            pending: number,
+            completed: number,
+            rejected: number
+        },
+recent_transfers:RequestItem[]
+    }
+}

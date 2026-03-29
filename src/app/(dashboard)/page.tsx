@@ -8,6 +8,8 @@ import { useState } from "react";
 import { SingleProductDetails } from "@/components/home/single-product-details";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDashboardStatsApi } from "@/api/products";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Home() {
   const { user } = useUserStore();
@@ -15,33 +17,48 @@ export default function Home() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(
     null,
   );
-  const cards = [
-    {
-      title: "Total Products",
-      value: "4",
-    },
-    {
-      title: "Total Transfers",
-      value: "12965",
-    },
-    {
-      title: "Most Active Branch",
-      value: "الرياض",
-    },
-    {
-      title: "Most Selling Product",
-      value: "concor",
-    },
-    {
-      title: "Most Tasked Pharmacist",
-      value: "kerolos nessim",
-    },
-    {
-      title: "Most Delivered ",
-      value: "محمد احمد",
-    },
-  ];
 
+
+  const { data: stats, isLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    queryFn: () => getDashboardStatsApi(),
+  });
+
+  const dashboardStats = stats?.data?.data;
+const cards = [
+  {
+    title: "Total Products",
+    value: dashboardStats?.products_count ?? 0,
+  },
+  {
+    title: "Total Pharmacies",
+    value: dashboardStats?.pharmacies_count ?? 0,
+  },
+  {
+    title: "Total Supervisors",
+    value: dashboardStats?.supervisors_count ?? 0,
+  },
+  {
+    title: "Total Pharmacists",
+    value: dashboardStats?.pharmacists_count ?? 0,
+  },
+  {
+    title: "Total Categories",
+    value: dashboardStats?.categories_count ?? 0,
+  },
+  {
+    title: "Total Transfers",
+    value: dashboardStats?.transfers?.total ?? 0,
+  },
+  {
+    title: "Completed Transfers",
+    value: dashboardStats?.transfers?.completed ?? 0,
+  },
+  {
+    title: "Rejected Transfers",
+    value: dashboardStats?.transfers?.rejected ?? 0,
+  },
+];
   return (
     <section className="p-4 flex flex-col gap-4">
       {/* Back button visible when a product is selected */}
@@ -96,8 +113,8 @@ export default function Home() {
               </div>
             </div>
           </div>
-          {user?.role == "super_admin" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {user?.role !== "pharmacist" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {cards.map((card, index) => (
                 <Card key={index} className=" gap-0">
                   <CardHeader>

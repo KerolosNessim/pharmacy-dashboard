@@ -1,5 +1,5 @@
 "use client";
-import { getCategoriesApi } from "@/api/categories";
+import { deleteCategoriesApi, getCategoriesApi } from "@/api/categories";
 import {
   Table,
   TableBody,
@@ -8,17 +8,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useQuery } from "@tanstack/react-query";
-import { LibraryBig, Loader2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { LibraryBig, Loader2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import EditCategoryDialog from "./edit-category-dialog";
+import AddSubCategoryDialog from "./add-subcategorey-dialog";
 
 const CategoriesTable = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["categories"],
     queryFn: getCategoriesApi,
   });
+  const queryClient = useQueryClient();
   console.log(data);
- const categories = data?.data?.data ?? [];
+  const categories = data?.data?.data ?? [];
+  const handleDeleteCategory = async (id: string) => {
+    const res = await deleteCategoriesApi(id);
+    if (res.ok) {
+      toast.success("Category deleted successfully");
+      queryClient?.invalidateQueries({ queryKey: ["categories"] });
+    } else {
+      toast.error("Failed to delete category");
+    }
+  };
   return (
     <div className="border rounded-lg! overflow-hidden ">
       {isLoading && (
@@ -34,23 +48,57 @@ const CategoriesTable = () => {
               <TableHead>Products Count</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created at</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-bg/50">
-            {data?.data?.data?.map((category, index) => (
-              <TableRow
-                key={index}
-                className="hover:bg-muted-foreground/5  h-14  px-4 "
-              >
-                <TableCell>{category?.name}</TableCell>
-                <TableCell>{category?.products_count}</TableCell>
-                <TableCell>
-                  <Badge variant="outline">{category?.status}</Badge>
-                </TableCell>
-                <TableCell>
-                  {new Date(category?.created_at).toLocaleDateString()}
-                </TableCell>
-              </TableRow>
+            {data?.data?.data?.map((category) => (
+              <>
+                <TableRow key={category.id}>
+                  <TableCell>{category.name}</TableCell>
+                  <TableCell>{category.products_count}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{category.status}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(category.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="flex items-center gap-2">
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => handleDeleteCategory(String(category.id))}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    <EditCategoryDialog category={category} />
+                    <AddSubCategoryDialog parentId={category.id} />
+                  </TableCell>
+                </TableRow>
+                {/* subcategories */}
+                {category.children?.map((child) => (
+                  <TableRow key={child.id} className="bg-bg">
+                    <TableCell className="pl-8">{child.name}</TableCell>
+                    <TableCell>{child.products_count}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{child.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(child.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDeleteCategory(String(child.id))}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <EditCategoryDialog category={child} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </>
             ))}
           </TableBody>
         </Table>

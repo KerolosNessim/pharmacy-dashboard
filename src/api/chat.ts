@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api-request";
-import { InboxResponse, getMessagesResponse } from "@/types/chat";
+import { InboxAdminResponse, InboxResponse, getMessagesResponse } from "@/types/chat";
 
 export const sendMessageApi = (data: FormData) =>
   apiRequest("/chat/send", {
@@ -12,3 +12,5 @@ export const sendMessageApi = (data: FormData) =>
 
     export const getInboxApi = () =>
       apiRequest<InboxResponse>(`/chat/my-messages`);
+    export const getAdminInboxApi = () =>
+      apiRequest<InboxAdminResponse>(`/chats`);

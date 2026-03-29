@@ -44,15 +44,10 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
           }}
         />
         <InputGroupAddon align="inline-end">
-          {isFetching ? (
+          {isFetching && (
             <div className="flex items-center justify-center px-4">
               <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : (
-            <InputGroupButton className="bg-primary/30 text-primary h-9! hover:bg-primary/50! hover:text-primary">
-              <Camera className="size-5" />
-            </InputGroupButton>
-          )}
+            </div>)}
         </InputGroupAddon>
       </InputGroup>
 

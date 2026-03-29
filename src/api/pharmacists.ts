@@ -1,3 +1,4 @@
+import { editPharmacistValues } from "@/components/pharmacists/edit-pharmaciest-form";
 import { supervisorValues } from "@/components/supervisor/add-supervisor-form";
 import { apiRequest } from "@/lib/api-request";
 import { GetPharmacistsResponse } from "@/types/pharmacists";
@@ -15,4 +16,14 @@ export const getPharmacistsApi = () =>
 export const togglePharmacistStatusApi = (id:string) =>
   apiRequest<addSupervisorResponse>(`/pharmacists/${id}/toggle-status`, {
     method: "PATCH",
+  });
+export const deletePharmacistApi = (id:string) =>
+  apiRequest<addSupervisorResponse>(`/pharmacists/${id}`, {
+    method: "DELETE",
+  });
+
+  export const updatePharmacistApi = (id:string,data: editPharmacistValues) =>
+  apiRequest<addSupervisorResponse>(`/pharmacists/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
   });

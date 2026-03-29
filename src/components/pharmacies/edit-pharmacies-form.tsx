@@ -1,4 +1,4 @@
-import { addPharmacyApi } from "@/api/pharmacies";
+import { addPharmacyApi, updatePharmacyApi } from "@/api/pharmacies";
 import {
   Form,
   FormControl,
@@ -9,38 +9,41 @@ import {
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Pencil, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { Pharmacy } from "@/types/pharmacies";
 const formSchema = z.object({
   name: z.string().min(3, "Pharmacy name is required"),
   address: z.string().min(3, "Pharmacy address is required"),
-  phone: z.string().min(3, "Pharmacy phone is required"),  
+  phone: z.string().min(3, "Pharmacy phone is required"),
 });
 
 export type pharmacyValues = z.infer<typeof formSchema>;
 
-export const AddPharmacyForm = ({
+export const EditPharmacyForm = ({
   setOpen,
-  
+  pharmacy
 }: {
   setOpen: (open: boolean) => void;
+  pharmacy: Pharmacy;
 }) => {
   const queryClient = useQueryClient();
 
   const form = useForm<pharmacyValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      address: "",
-      phone: "",
+      name: pharmacy?.name || "",
+      address: pharmacy?.address || "",
+      phone: pharmacy?.phone || "",
     },
   });
   async function onSubmit(values: pharmacyValues) {
-    const res = await addPharmacyApi(values);
+    const res = await updatePharmacyApi(String(pharmacy.id), values);
+    console.log(res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
@@ -124,8 +127,8 @@ export const AddPharmacyForm = ({
               <Loader2 className="animate-spin" />
             ) : (
               <>
-                <Plus />
-                Add Pharmacy
+                <Pencil />
+                Edit Pharmacy
               </>
             )}
           </Button>

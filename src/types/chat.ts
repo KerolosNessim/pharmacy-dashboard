@@ -27,8 +27,24 @@ export interface InboxItem {
             last_message: string | null,
             last_message_at: string | null
 }
+export interface InboxAdminItem  {
+            conversation_id: number,
+            from_pharmacy_id: number,
+            from_pharmacy_name: string,
+            to_pharmacy_id: number,
+            to_pharmacy_name: string,
+            last_message_at: string,
+            messages: Message[]
+        }
 export interface InboxResponse {
             status: string,
             message: string,
             inbox: InboxItem[]
+}
+
+
+export interface InboxAdminResponse {
+            status: string,
+            message: string,
+            data: InboxAdminItem[]
 }

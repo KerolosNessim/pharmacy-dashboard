@@ -15,9 +15,11 @@ import { useState } from "react";
 import { completeRequestApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserStore } from "@/stores/user-store";
 const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
+  const {user} = useUserStore();
   const handleComplete = async() => {
     setLoading(true);
     const res = await completeRequestApi(request?.id);
@@ -49,9 +51,9 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
           <Badge variant={"outline"} className="rounded border-2">
             {request.creator_name}
           </Badge>
-          <Button variant={"ghost"}>
+          {/* <Button variant={"ghost"}>
             <Printer className="size-5" />
-          </Button>
+          </Button> */}
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -81,7 +83,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
           <Badge variant={request?.status=="pending"?"pending":request.status=="completed" || request.status=="approved"?"success":request.status=="rejected" || request.status=="cancelled"?"destructive": "default"}>{request.status}</Badge>
         </div>
         {
-          request.status=="Approved" && (
+          request.status=="Approved" && user?.role!=="super_admin" && (
             <Button onClick={handleComplete} disabled={loading} >
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CircleCheck className="size-5" />}
               Mark as completed

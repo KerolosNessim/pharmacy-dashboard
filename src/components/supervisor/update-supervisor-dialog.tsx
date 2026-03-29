@@ -18,8 +18,8 @@ const UpdateSupervisorDialog = ({ supervisor }: { supervisor :Supervisor}) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Edit /> Edit
+        <Button variant={"outline"}>
+          <Edit /> 
         </Button>
       </DialogTrigger>
       <DialogContent>

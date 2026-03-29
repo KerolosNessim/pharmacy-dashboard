@@ -1,5 +1,5 @@
 "use client";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import {
@@ -13,30 +13,32 @@ import {
 
 import { AddPharmacistForm } from "./add-pharmacist-form";
 import { useUserStore } from "@/stores/user-store";
+import { EditPharmacistForm } from "./edit-pharmaciest-form";
+import { Pharmacist } from "@/types/pharmacists";
 
-const AddPharmacistDialog = () => {
+const EditPharmacistDialog = ({pharmacist}:{
+  pharmacist:Pharmacist
+}) => {
   const [open, setOpen] = useState(false);
   const { user } = useUserStore();
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {user?.role !== "pharmacist" && (
         <DialogTrigger asChild>
-          <Button>
-            <Plus /> Add Pharmacist
+          <Button variant="outline">
+            <Pencil />
           </Button>
         </DialogTrigger>
       )}
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Pharmacist</DialogTitle>
-          <DialogDescription>
-            Create a new system&apos;s Pharmacist
-          </DialogDescription>
+          <DialogTitle>Edit Pharmacist</DialogTitle>
+          <DialogDescription>Edit system&apos;s Pharmacist</DialogDescription>
         </DialogHeader>
-        <AddPharmacistForm setOpen={setOpen} />
+        <EditPharmacistForm setOpen={setOpen}  pharmacist={pharmacist} />
       </DialogContent>
     </Dialog>
   );
 };
 
-export default AddPharmacistDialog;
+export default EditPharmacistDialog;

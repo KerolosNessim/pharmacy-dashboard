@@ -7,7 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import {useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMessagesApi, sendMessageApi } from "@/api/chat";
 import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
@@ -111,54 +111,61 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
         ))}
       </div>
 
-      {/* preview للصورة */}
-      {img && (
-        <div className="px-4 pb-2">
-          <Image
-            src={img}
-            alt="preview"
-            width={100}
-            height={100}
-            className="w-24 rounded-lg"
-          />
-        </div>
+      {user?.role !== "super_admin" && (
+        <>
+          {/* preview للصورة */}
+          {img && (
+            <div className="px-4 pb-2">
+              <Image
+                src={img}
+                alt="preview"
+                width={100}
+                height={100}
+                className="w-24 rounded-lg"
+              />
+            </div>
+          )}
+          {/* input */}
+          <div className="p-3 border-t border-white/10 flex items-center gap-2 ">
+            {/* زر اختيار صورة */}
+            <div>
+              <Label htmlFor="camera" className="cursor-pointer">
+                <Camera className="size-5 text-white/70 hover:text-white" />
+              </Label>
+
+              <Input
+                id="camera"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
+            </div>
+
+            {/* كتابة رسالة */}
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1  border-none rounded-full px-4 py-2 text-sm focus-visible:ring-primary"
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            />
+
+            {/* ارسال */}
+            <Button
+              disabled={loading}
+              onClick={sendMessage}
+              className="rounded-full"
+            >
+              {loading ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                <Send size={18} />
+              )}
+            </Button>
+          </div>
+        </>
       )}
-
-      {/* input */}
-      <div className="p-3 border-t border-white/10 flex items-center gap-2 ">
-        {/* زر اختيار صورة */}
-        <div>
-          <Label htmlFor="camera" className="cursor-pointer">
-            <Camera className="size-5 text-white/70 hover:text-white" />
-          </Label>
-
-          <Input
-            id="camera"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageChange}
-          />
-        </div>
-
-        {/* كتابة رسالة */}
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message..."
-          className="flex-1  border-none rounded-full px-4 py-2 text-sm focus-visible:ring-primary"
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-
-        {/* ارسال */}
-        <Button
-          disabled={loading}
-          onClick={sendMessage}
-          className="rounded-full"
-        >
-          {loading ? <Loader2 className="animate-spin" /> : <Send size={18} />}
-        </Button>
-      </div>
     </div>
   );
 }

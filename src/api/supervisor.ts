@@ -23,3 +23,8 @@ export const updateSupervisorApi = (data: updateSupervisorValues,id:number) =>
     method: "PUT",
     body: JSON.stringify(data),
   });
+
+  export const deleteSupervisorApi = (id: string) =>
+  apiRequest<addSupervisorResponse>(`/supervisors/${id}`, {
+    method: "DELETE",
+  });

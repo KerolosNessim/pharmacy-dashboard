@@ -1,4 +1,4 @@
-import { addPharmacyApi } from "@/api/pharmacies";
+import { addCategoryApi, addSubCategoryApi } from "@/api/categories";
 import {
   Form,
   FormControl,
@@ -16,35 +16,34 @@ import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 const formSchema = z.object({
-  name: z.string().min(3, "Pharmacy name is required"),
-  address: z.string().min(3, "Pharmacy address is required"),
-  phone: z.string().min(3, "Pharmacy phone is required"),  
+  name: z.string().min(3, "Category name is required"),
+  parent_id: z.string().min(1, "Parent category is required"),
 });
 
-export type pharmacyValues = z.infer<typeof formSchema>;
+export type SubcategoyValues = z.infer<typeof formSchema>;
 
-export const AddPharmacyForm = ({
+export const AddSubCategoryForm = ({
   setOpen,
-  
+  parentId,
 }: {
   setOpen: (open: boolean) => void;
+  parentId: number;
 }) => {
   const queryClient = useQueryClient();
 
-  const form = useForm<pharmacyValues>({
+  const form = useForm<SubcategoyValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      address: "",
-      phone: "",
+      parent_id: String(parentId),
     },
   });
-  async function onSubmit(values: pharmacyValues) {
-    const res = await addPharmacyApi(values);
+  async function onSubmit(values: SubcategoyValues) {
+    const res = await addSubCategoryApi(values);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
-        queryKey: ["pharmacies"],
+        queryKey: ["categories"],
       });
       form.reset();
       setOpen(false);
@@ -57,52 +56,16 @@ export const AddPharmacyForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {/* Pharmacy Name */}
+        {/* Doctor Name */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Pharmacy Name</FormLabel>
+              <FormLabel>Sub Category Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Pharmacy Name"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Pharmacy address */}
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pharmacy Address</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Pharmacy Address"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Pharmacy phone */}
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pharmacy Phone</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., 01000000000"
+                  placeholder="e.g., Pain Relief"
                   {...field}
                   className="focus-visible:ring-primary"
                 />
@@ -125,7 +88,7 @@ export const AddPharmacyForm = ({
             ) : (
               <>
                 <Plus />
-                Add Pharmacy
+                Add Sub Category
               </>
             )}
           </Button>

@@ -1,4 +1,4 @@
-import { addPharmacyApi } from "@/api/pharmacies";
+import { addCategoryApi, updateCategoryApi } from "@/api/categories";
 import {
   Form,
   FormControl,
@@ -7,44 +7,42 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { category } from "@/types/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Loader2, Plus } from "lucide-react";
+import { Edit, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 const formSchema = z.object({
-  name: z.string().min(3, "Pharmacy name is required"),
-  address: z.string().min(3, "Pharmacy address is required"),
-  phone: z.string().min(3, "Pharmacy phone is required"),  
+  name: z.string().min(3, "Category name is required"),
 });
 
-export type pharmacyValues = z.infer<typeof formSchema>;
+export type editCategoryValues = z.infer<typeof formSchema>;
 
-export const AddPharmacyForm = ({
+export const EditCategoryForm = ({
   setOpen,
-  
+  category,
 }: {
   setOpen: (open: boolean) => void;
+  category: category;
 }) => {
   const queryClient = useQueryClient();
 
-  const form = useForm<pharmacyValues>({
+  const form = useForm<editCategoryValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      address: "",
-      phone: "",
+      name: category.name || "",
     },
   });
-  async function onSubmit(values: pharmacyValues) {
-    const res = await addPharmacyApi(values);
+  async function onSubmit(values: editCategoryValues) {
+    const res = await updateCategoryApi(values,category.id.toString());
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
-        queryKey: ["pharmacies"],
+        queryKey: ["categories"],
       });
       form.reset();
       setOpen(false);
@@ -57,52 +55,16 @@ export const AddPharmacyForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-        {/* Pharmacy Name */}
+        {/* Doctor Name */}
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Pharmacy Name</FormLabel>
+              <FormLabel>Category Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Pharmacy Name"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Pharmacy address */}
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pharmacy Address</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Enter Pharmacy Address"
-                  {...field}
-                  className="focus-visible:ring-primary"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        {/* Pharmacy phone */}
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Pharmacy Phone</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., 01000000000"
+                  placeholder="e.g., Pain Relief"
                   {...field}
                   className="focus-visible:ring-primary"
                 />
@@ -124,8 +86,8 @@ export const AddPharmacyForm = ({
               <Loader2 className="animate-spin" />
             ) : (
               <>
-                <Plus />
-                Add Pharmacy
+                <Edit />
+                Edit Category
               </>
             )}
           </Button>

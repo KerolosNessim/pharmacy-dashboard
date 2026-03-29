@@ -1,6 +1,9 @@
 "use client";
-import { useState } from "react";
-import { useDebounce } from "@/hooks/use-debounce";
+import {
+  checkAvailabilityApi,
+  getCategoriesStatsApi,
+  getProductsListApi,
+} from "@/api/products";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,6 +11,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -16,16 +20,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useGoBack } from "@/hooks/use-goback";
+import { useUserStore } from "@/stores/user-store";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Database, Download, Loader2, Search } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { getCategoriesStatsApi, getProductsListApi } from "@/api/products";
+import { useState } from "react";
+import { toast } from "sonner";
 const ProductsPage = () => {
   const goBack = useGoBack();
+  const { user } = useUserStore();
 
   const [search, setSearch] = useState("");
+  const [isCheckAvailabilityPending, setIsCheckAvailabilityPending] =
+    useState(false);
   const debouncedSearch = useDebounce(search, 500);
-
+  const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["categories-stats"],
     queryFn: getCategoriesStatsApi,
@@ -37,6 +47,20 @@ const ProductsPage = () => {
     queryFn: () => getProductsListApi(debouncedSearch),
   });
   const products = productsList?.data?.data;
+
+  async function handleCheckAvailability(id: string) {
+    setIsCheckAvailabilityPending(true);
+    const response = await checkAvailabilityApi(id);
+    console.log(response);
+    if (response?.ok) {
+      toast.success("Availability changed successfully");
+      queryClient.invalidateQueries({ queryKey: ["products", debouncedSearch] });
+    } else {
+      toast.error("Failed to change availability");
+    }
+    setIsCheckAvailabilityPending(false);
+  }
+
   return (
     <section className="flex flex-col gap-4 p-4">
       {/* header */}
@@ -56,7 +80,7 @@ const ProductsPage = () => {
         </div>
       </div>
       {/* downloads */}
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         <Button variant="outline" className="cursor-pointer">
           <Download />
           Download CSV
@@ -65,7 +89,7 @@ const ProductsPage = () => {
           <Download />
           Download JSON
         </Button>
-      </div>
+      </div> */}
       {isLoading && !productsList ? (
         <div className="flex items-center justify-center">
           <Loader2 className="animate-spin" />
@@ -73,44 +97,46 @@ const ProductsPage = () => {
       ) : (
         <>
           {/* statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className=" gap-0">
-              <CardHeader>
-                <CardTitle className="text-muted-foreground">
-                  Total Products
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold text-primary">
-                  {productsStats?.total_products}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className=" gap-0">
-              <CardHeader>
-                <CardTitle className="text-muted-foreground">
-                  Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold text-primary">
-                  {productsStats?.total_categories}
-                </p>
-              </CardContent>
-            </Card>
-            <Card className=" gap-0">
-              <CardHeader>
-                <CardTitle className="text-muted-foreground">
-                  With Prices
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-4xl font-bold text-primary">
-                  {productsStats?.products_with_price}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          {user?.role === "super_admin" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card className=" gap-0">
+                <CardHeader>
+                  <CardTitle className="text-muted-foreground">
+                    Total Products
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-primary">
+                    {productsStats?.total_products}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className=" gap-0">
+                <CardHeader>
+                  <CardTitle className="text-muted-foreground">
+                    Categories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-primary">
+                    {productsStats?.total_categories}
+                  </p>
+                </CardContent>
+              </Card>
+              <Card className=" gap-0">
+                <CardHeader>
+                  <CardTitle className="text-muted-foreground">
+                    With Prices
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold text-primary">
+                    {productsStats?.products_with_price}
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
           {/* categories */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {productsStats?.per_category.map((category) => (
@@ -125,7 +151,7 @@ const ProductsPage = () => {
                 </CardContent>
               </Card>
             ))}
-            </div>
+          </div>
         </>
       )}
       {productsList && (
@@ -136,8 +162,8 @@ const ProductsPage = () => {
               <InputGroupAddon>
                 <Search className="text-primary" />
               </InputGroupAddon>
-              <InputGroupInput 
-                placeholder="Search products" 
+              <InputGroupInput
+                placeholder="Search products"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -159,6 +185,9 @@ const ProductsPage = () => {
                   <TableHead>SKU</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
+                  {user?.role === "supervisor" && (
+                    <TableHead>Check Availability</TableHead>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-bg/50">
@@ -167,24 +196,34 @@ const ProductsPage = () => {
                     key={product.id}
                     className="hover:bg-muted-foreground/5  h-14  px-4 "
                   >
-                    <TableCell>
-                      {product?.name}
-                    </TableCell>
+                    <TableCell>{product?.name}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {product?.sku || "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {product?.category?.name}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{product?.price || "-"}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {product?.price || "-"}
+                    </TableCell>
+                    {user?.role === "supervisor" && (
+                      <TableCell>
+                        <Switch
+                          onCheckedChange={() =>
+                            handleCheckAvailability(String(product?.id))
+                          }
+                          disabled={isCheckAvailabilityPending}
+                          checked={product?.is_available}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>)}
+            </Table>
+          )}
         </>
       )}
-
-
     </section>
   );
 };

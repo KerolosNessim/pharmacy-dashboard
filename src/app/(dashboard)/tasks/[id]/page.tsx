@@ -4,23 +4,20 @@ import UploadResult from "@/components/tasks/upload-result";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { useGoBack } from "@/hooks/use-goback";
+import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, UploadCloud } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
+import { useParams } from "next/navigation";
 
 const UploadTaskResultPage = () => {
   const goBack = useGoBack();
-  const router = useRouter();
   const { id } = useParams();
-
+  const { user } = useUserStore();
   const { data: task } = useQuery({
     queryKey: ["tasks", id],
     queryFn: () => getSingleTaskApi(`/${id}`),
@@ -35,9 +32,9 @@ const UploadTaskResultPage = () => {
           <ArrowLeft />
         </Button>
         <div>
-          <h2 className="text-2xl font-bold">Upload Task Result</h2>
+          <h2 className="text-2xl font-bold">Task Details</h2>
           <p className="text-muted-foreground text-sm">
-            Provide the result and attachments for the requested task.
+            Here are the details of the requested task.
           </p>
         </div>
       </div>
@@ -65,8 +62,7 @@ const UploadTaskResultPage = () => {
           </CardDescription>
         </CardHeader>
       </Card>
-
-      <UploadResult id={id as string} />
+      {user?.role == "pharmacist" && <UploadResult id={id as string} />}
     </section>
   );
 };

@@ -8,12 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Task } from "@/types/tasks";
-import { Calendar, Clock, Upload, UserRound } from "lucide-react";
+import { Calendar, Clock, Eye, UserRound } from "lucide-react";
 import Link from "next/link";
 
-
-
-export const PendingTaskCard = ({task}: {task: Task}) => {
+export const PendingTaskCard = ({ task }: { task: Task }) => {
   return (
     <Card className="flex flex-col">
       <CardHeader>
@@ -29,7 +27,7 @@ export const PendingTaskCard = ({task}: {task: Task}) => {
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar className="size-4" />
-          <span>Date: {new Date(task?.created_at).toLocaleDateString()}</span>
+            <span>Date: {new Date(task?.created_at).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Clock className="size-4" />
@@ -40,8 +38,8 @@ export const PendingTaskCard = ({task}: {task: Task}) => {
       <CardFooter>
         <Button className="w-full gap-2" asChild>
           <Link href={`/tasks/${task?.id}`}>
-            <Upload className="size-4" />
-            Upload Result
+            <Eye className="size-4" />
+            Details
           </Link>
         </Button>
       </CardFooter>

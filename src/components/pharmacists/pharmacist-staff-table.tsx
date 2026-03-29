@@ -1,5 +1,5 @@
 "use client";
-import { getPharmacistsApi, togglePharmacistStatusApi } from "@/api/pharmacists";
+import { deletePharmacistApi, getPharmacistsApi, togglePharmacistStatusApi } from "@/api/pharmacists";
 import {
   Table,
   TableBody,
@@ -9,10 +9,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Users } from "lucide-react";
-import { Badge } from "../ui/badge";
-import { Switch } from "../ui/switch";
+import { Loader2, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
+import { Switch } from "../ui/switch";
+import EditPharmacistDialog from "./edit-pharmacist-dialog";
 
 const PharmacistStaffTable = () => {
   const { data, isLoading } = useQuery({
@@ -32,6 +33,19 @@ const PharmacistStaffTable = () => {
       toast.error(res?.error || "Failed to update status");
     }
   }
+
+  async function deletePharmacist(id: string) {
+    const res = await deletePharmacistApi(id);
+    console.log(res);
+    if (res?.ok) {
+      queryClient.invalidateQueries({ queryKey: ["pharmacists"] });
+      toast.success(res?.data?.message || "Pharmacist deleted successfully!");
+    } else {
+      toast.error(res?.error || "Failed to delete pharmacist");
+    }
+  }
+
+
   return (
     <div className="border rounded-lg! overflow-hidden ">
       {isLoading && (
@@ -47,6 +61,7 @@ const PharmacistStaffTable = () => {
               <TableHead>Id</TableHead>
               <TableHead>Pharmacy</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className="bg-bg/50">
@@ -59,10 +74,24 @@ const PharmacistStaffTable = () => {
                 <TableCell>{pharmacist?.id_number}</TableCell>
                 <TableCell>{pharmacist?.pharmacy?.name}</TableCell>
                 <TableCell>
-                  <Switch
-                    checked={pharmacist.status === "active"}
-                    onCheckedChange={() => toggleStatus(String(pharmacist.id))}
-                  />
+                  
+                    <Switch
+                      checked={pharmacist.status === "active"}
+                      onCheckedChange={() =>
+                        toggleStatus(String(pharmacist.id))
+                      }
+                    />
+                </TableCell>
+                <TableCell className="flex items-center gap-2">
+
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => deletePharmacist(String(pharmacist.id))}
+                    >
+                      <Trash2   />
+                  </Button>
+                  <EditPharmacistDialog  pharmacist={pharmacist} />
                 </TableCell>
               </TableRow>
             ))}

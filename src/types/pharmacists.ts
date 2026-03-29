@@ -9,6 +9,7 @@ export type Pharmacist = {
   created_at: string;
   updated_at: string;
   pharmacy?: Pharmacy;
+  email?:string;
 };
 
 export type pharmacistValues = {
