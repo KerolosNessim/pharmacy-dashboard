@@ -99,19 +99,7 @@ const NavbarSheet = () => {
                     key={index}
                     className="p-4 border-b hover:bg-primary/30 hover:text-primary"
                   >
-                    {link.isButton ? (
-                      <SendReportDialog
-                        button={
-                          <Button
-                            variant="ghost"
-                            className="flex items-center gap-2 text-lg font-normal  hover:bg-transparent! hover:text-primary! p-0! "
-                          >
-                            <link.icon className="size-5" />
-                            <p>{link.name}</p>
-                          </Button>
-                        }
-                      />
-                    ) : (
+  
                       <Link
                         onClick={() => setOpen(false)}
                         href={link.href}
@@ -120,7 +108,7 @@ const NavbarSheet = () => {
                         <link.icon />
                         <p>{link.name}</p>
                       </Link>
-                    )}
+                    
                   </li>
                 ))}
               </ul>
