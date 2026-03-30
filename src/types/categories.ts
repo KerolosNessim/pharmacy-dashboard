@@ -18,6 +18,7 @@ export type category = {
   created_at: string,
   updated_at: string,
   products_count: number,
+  category_code: string|null|number,
   children?: {
     id: number,
     name: string,
@@ -26,6 +27,7 @@ export type category = {
     status: string,
     created_at: string,
     updated_at: string,
+    category_code: string|null|number,
     products_count: number,
   }[]
 }

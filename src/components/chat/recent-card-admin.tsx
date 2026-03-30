@@ -6,6 +6,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "../ui/hover-card";
+import Link from "next/link";
 
 const RecentAdminChatCard = ({
   item,
@@ -13,6 +14,7 @@ const RecentAdminChatCard = ({
   item: InboxAdminItem;
 }) => {
   return (
+    <Link href={`/chat/${item?.conversation_id}`}>
     <Button
       variant={"secondary"}
       className="h-fit py-3 hover:bg-bg! border border-transparent hover:border-primary! justify-between max-md:flex-col max-md:items-start w-full cursor-pointer"
@@ -50,6 +52,7 @@ const RecentAdminChatCard = ({
         </div>
       </div>
     </Button>
+    </Link>
   );
 };
 

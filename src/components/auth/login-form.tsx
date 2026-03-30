@@ -47,6 +47,7 @@ export default function LoginForm() {
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
+      localStorage.setItem("token", res?.data?.data?.token as string);
       await setRole(res?.data?.data?.admin?.role || res?.data?.data?.pharmacist?.role);      
       if (res?.data?.data?.admin || res?.data?.data?.pharmacist) {
         setUser(res?.data?.data?.admin || res?.data?.data?.pharmacist);

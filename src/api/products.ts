@@ -1,6 +1,6 @@
 import { ProductFormValues } from "@/components/import-product/add-product-form";
 import { apiRequest } from "@/lib/api-request";
-import { AddProductResponse, CategoryStatsResponse, DashboardStatsResponse, ProductsListResponse, SingleProductResponse } from "@/types/products";
+import { AddProductFileResponse, AddProductResponse, CategoryStatsResponse, DashboardStatsResponse, ProductsListResponse, SingleProductResponse } from "@/types/products";
 
 
 
@@ -29,3 +29,15 @@ export const checkAvailabilityApi = (id: string) => {
     method: "POST",
   });
 }
+export const deleteProductApi = (id: string) => {
+  return apiRequest(`/products/${id}`, {
+    method: "DELETE",
+  });
+}
+export const addProductsBulkApi = (data: FormData) => {
+  return apiRequest<AddProductFileResponse>(`/products/import`, {
+    method: "POST",
+    body: data,
+  });
+}
+

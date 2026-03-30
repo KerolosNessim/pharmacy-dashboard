@@ -10,7 +10,16 @@ import { Badge } from "../ui/badge";
 import { Clock, Printer } from "lucide-react";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
+import { useRef } from "react";
+import { useReactToPrint } from "react-to-print";
+import PrintCard from "./print-card";
 const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem}) => {
+  const printRef = useRef<HTMLDivElement>(null);
+
+const handlePrint = useReactToPrint({
+  contentRef: printRef,
+  documentTitle: `Transfer-${order}`,
+});
   return (
     <Card>
       <CardHeader className="items-center!">
@@ -28,7 +37,7 @@ const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem
           <Badge variant={"outline"} className="rounded border-2">
             {transfar?.creator_name}
           </Badge>
-          <Button variant={"ghost"}>
+          <Button variant="ghost" onClick={handlePrint}>
             <Printer className="size-5" />
           </Button>
         </CardAction>
@@ -58,6 +67,9 @@ const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem
             </div>
           ))}
         </div>
+        <div className="hidden">
+          <PrintCard ref={printRef}    transfar={transfar} />
+        </div>
       </CardContent>
       <CardFooter className="border-t">
         <div className="flex items-center gap-2">
@@ -66,9 +78,11 @@ const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem
             variant={
               transfar?.status == "pending"
                 ? "pending"
-                : transfar.status == "completed" || transfar.status == "approved"
+                : transfar.status == "completed" ||
+                    transfar.status == "approved"
                   ? "success"
-                  : transfar.status == "rejected" || transfar.status == "cancelled"
+                  : transfar.status == "Rejected" ||
+                      transfar.status == "cancelled"
                     ? "destructive"
                     : "default"
             }

@@ -130,7 +130,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
             {/* زر اختيار صورة */}
             <div>
               <Label htmlFor="camera" className="cursor-pointer">
-                <Camera className="size-5 text-white/70 hover:text-white" />
+                <Camera className="size-8 text-white/70 hover:text-white" />
               </Label>
 
               <Input
@@ -147,7 +147,10 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1  border-none rounded-full px-4 py-2 text-sm focus-visible:ring-primary"
+              className="flex-1 border-none rounded-full px-4 py-2 text-sm 
+  text-black dark:text-white 
+  focus-visible:ring-primary 
+  placeholder:text-black/70 dark:placeholder:text-white/70 min-h-14"
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             />
 
@@ -155,7 +158,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
             <Button
               disabled={loading}
               onClick={sendMessage}
-              className="rounded-full"
+              className="rounded-full size-12"
             >
               {loading ? (
                 <Loader2 className="animate-spin" />

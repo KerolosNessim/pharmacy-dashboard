@@ -97,4 +97,11 @@ export type RequestItem=            {
                         quantity: number
                     }[],
                 status: string
-            }
+}
+            
+
+export type SendReportData= {
+    email: string,
+    from_date: string,
+    to_date: string,
+}

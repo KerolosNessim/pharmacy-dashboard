@@ -16,15 +16,13 @@ export async function apiRequest<T>(
 ): Promise<ApiResponse<T>> {
   const token = await getToken();
   const role = await getRole();
-
   const isFormData = options?.body instanceof FormData;
-
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,
       headers: {
         ...(isFormData
-          ? {} // ❗ سيب المتصفح يحدد الـ Content-Type
+          ? {} 
           : {
               "Content-Type": "application/json",
               Accept: "application/json",
@@ -51,6 +49,7 @@ export async function apiRequest<T>(
       data,
     };
   } catch (error) {
+    
     return {
       ok: false,
       status: 500,

@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api-request";
-import { AddRequestData, AddRequestResponse, TransferResponse } from "@/types/transfar";
+import { AddRequestData, AddRequestResponse, SendReportData, TransferResponse } from "@/types/transfar";
 
 export const addRequestApi = (data: AddRequestData) =>
   apiRequest<AddRequestResponse>("/transfers", {
@@ -24,4 +24,10 @@ export const rejectRequestApi = (id: number,rejection_reason:string) =>
 export const completeRequestApi = (id: number) =>
   apiRequest<AddRequestResponse>(`/transfers/${id}/complete`, {
     method: "POST",
+  });
+
+export const sendReportApi = (data: SendReportData) =>
+  apiRequest<AddRequestResponse>("/reports/send-transfer-report", {
+    method: "POST",
+    body: JSON.stringify(data),
   });

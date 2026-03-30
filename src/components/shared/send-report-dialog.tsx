@@ -1,3 +1,4 @@
+"use client";
 import {
   Dialog,
   DialogContent,
@@ -8,11 +9,18 @@ import {
 } from "@/components/ui/dialog";
 import { File } from "lucide-react";
 import SendReportForm from "./send-report-form";
+import { Button } from "../ui/button";
+import { useState } from "react";
 
-const SendReportDialog = ({ button }: { button: React.ReactNode }) => {
+const SendReportDialog = () => {
+  const [open, setOpen] = useState(false);
   return (
-    <Dialog>
-      <DialogTrigger asChild>{button}</DialogTrigger>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <File /> Send Report
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader className="gap-4">
           <DialogTitle asChild>
@@ -28,7 +36,7 @@ const SendReportDialog = ({ button }: { button: React.ReactNode }) => {
             </div>
           </DialogTitle>
           <DialogDescription asChild>
-            <SendReportForm />
+            <SendReportForm setOpen={setOpen} />
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

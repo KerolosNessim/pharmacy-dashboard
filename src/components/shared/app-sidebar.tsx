@@ -109,12 +109,12 @@ export function AppSidebar() {
       icon: Megaphone,
       allowedRoles: ["super_admin"],
     },
-    {
-      name: "Roles",
-      href: "/roles",
-      icon: ShieldAlert,
-      allowedRoles: ["super_admin"],
-    },
+    // {
+    //   name: "Roles",
+    //   href: "/roles",
+    //   icon: ShieldAlert,
+    //   allowedRoles: ["super_admin"],
+    // },
   ];
 
   const filteredLinks = NAV_LINKS.filter(

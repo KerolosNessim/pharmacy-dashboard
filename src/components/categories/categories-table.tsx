@@ -46,6 +46,7 @@ const CategoriesTable = () => {
             <TableRow className="hover:bg-bg ">
               <TableHead>Name</TableHead>
               <TableHead>Products Count</TableHead>
+              <TableHead>Category Code</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Created at</TableHead>
               <TableHead>Actions</TableHead>
@@ -57,6 +58,7 @@ const CategoriesTable = () => {
                 <TableRow key={category.id}>
                   <TableCell>{category.name}</TableCell>
                   <TableCell>{category.products_count}</TableCell>
+                  <TableCell>{category.category_code}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{category.status}</Badge>
                   </TableCell>
@@ -80,6 +82,7 @@ const CategoriesTable = () => {
                   <TableRow key={child.id} className="bg-bg">
                     <TableCell className="pl-8">{child.name}</TableCell>
                     <TableCell>{child.products_count}</TableCell>
+                    <TableCell>{child.category_code}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{child.status}</Badge>
                     </TableCell>

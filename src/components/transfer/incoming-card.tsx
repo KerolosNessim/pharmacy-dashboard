@@ -149,7 +149,7 @@ const TransferIncomingCard = ({
                 : transfar?.status == "completed" ||
                     transfar?.status == "approved"
                   ? "success"
-                  : transfar?.status == "rejected" ||
+                  : transfar?.status == "Rejected" ||
                       transfar?.status == "cancelled"
                     ? "destructive"
                     : "default"

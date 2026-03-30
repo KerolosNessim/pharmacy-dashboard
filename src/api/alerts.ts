@@ -10,3 +10,8 @@ export const createAlertApi = (data: craeteAlertsValues) =>
 
 export const getAlertsApi = () =>
   apiRequest <GetAlertsResponse>("/instructions");
+
+export const deleteAlertApi = (id: string) =>
+  apiRequest(`/instructions/${id}`, {
+    method: "DELETE",
+  });

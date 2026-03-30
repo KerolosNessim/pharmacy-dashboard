@@ -15,6 +15,14 @@ export type AddProductResponse = {
         id: number;
     }
 }
+export type AddProductFileResponse = {
+    status: string;
+    message: string;
+    data: {
+        created_count: number,
+        errors: string[]
+    }
+}
 
 export type PerCategoreyItem = {
     id: number,

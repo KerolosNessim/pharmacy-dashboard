@@ -11,7 +11,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Mail } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, Mail } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -22,25 +22,46 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Input } from "../ui/input";
+import { sendReportApi } from "@/api/transfar";
+import { toast } from "sonner";
 const formSchema = z.object({
   email: z
     .string()
     .email({ message: "Invalid email" })
     .nonempty({ message: "Email is required" }),
-  fromDate: z.date({ message: "Date is required" }),
-  toDate: z.date({ message: "Date is required" }),
+  from_date: z.date({ message: "Date is required" }),
+  to_date: z.date({ message: "Date is required" }),
 });
-const SendReportForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+
+export type SendReportValues = z.infer<typeof formSchema>;
+const SendReportForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+  const form = useForm<SendReportValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      fromDate: new Date(),
-      toDate: new Date(),
+      from_date: new Date(),
+      to_date: new Date(),
     },
   });
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    console.log(data);
+  const {isSubmitting}=form.formState;
+  async function onSubmit(data: SendReportValues) {
+    const { email, from_date, to_date } = data;
+    const fromDate = format(from_date, "yyyy-MM-dd");
+    const toDate = format(to_date, "yyyy-MM-dd");
+
+    const payload = {
+      email,
+      from_date: fromDate,
+      to_date: toDate,
+    };
+    const res = await sendReportApi(payload);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      form.reset();
+      setOpen(false);
+    } else {
+      toast.error(res?.error);
+    }
   }
   return (
     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -50,19 +71,34 @@ const SendReportForm = () => {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-2">
-              <FieldLabel className="text-black dark:text-white" htmlFor="email">Email Address</FieldLabel>
-              <Input type="email" {...field} placeholder="Enter your email" className="focus-visible:ring-primary h-12! " />
+              <FieldLabel
+                className="text-black dark:text-white"
+                htmlFor="email"
+              >
+                Email Address
+              </FieldLabel>
+              <Input
+                type="email"
+                {...field}
+                placeholder="Enter your email"
+                className="focus-visible:ring-primary h-12! "
+              />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
           )}
         />
         <div className="flex gap-2 max-md:flex-col max-md:gap-4">
           <Controller
-            name="fromDate"
+            name="from_date"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-2">
-                <FieldLabel className="text-black dark:text-white" htmlFor="fromDate">From </FieldLabel>
+                <FieldLabel
+                  className="text-black dark:text-white"
+                  htmlFor="from_date"
+                >
+                  From{" "}
+                </FieldLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -97,11 +133,16 @@ const SendReportForm = () => {
             )}
           />
           <Controller
-            name="toDate"
+            name="to_date"
             control={form.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid} className="gap-2">
-                <FieldLabel className="text-black dark:text-white" htmlFor="toDate">To </FieldLabel>
+                <FieldLabel
+                  className="text-black dark:text-white"
+                  htmlFor="to_date"
+                >
+                  To{" "}
+                </FieldLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -136,7 +177,24 @@ const SendReportForm = () => {
             )}
           />
         </div>
-        <Button type="submit" className="h-12"> <Mail/>Send Report</Button>
+        <div className="flex gap-2">
+          <Button type="submit" className="h-12" disabled={isSubmitting}>
+            {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> :
+              <>
+              <Mail />
+              Send Report
+              </>
+              }
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-12"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+        </div>
       </FieldGroup>
     </form>
   );

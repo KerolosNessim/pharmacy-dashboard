@@ -27,13 +27,13 @@ const AlertPage = () => {
           <p className="text-muted-foreground">See all system&apos;s alerts</p>
         </div>
       </div>
-        {alerts.length > 0 && (
-          <div className="flex flex-col gap-4">
-            {alerts.map((alert) => (
-              <AlertsCard key={alert.id} alert={alert} />
-            ))}
-          </div>
-        )}
+      {alerts.length > 0 && (
+        <div className="flex flex-col gap-4">
+          {alerts.map((alert) => (
+            <AlertsCard key={alert.id} alert={alert} />
+          ))}
+        </div>
+      )}
     </section>
   );
 };

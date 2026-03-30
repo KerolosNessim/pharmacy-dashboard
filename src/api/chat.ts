@@ -1,5 +1,5 @@
 import { apiRequest } from "@/lib/api-request";
-import { InboxAdminResponse, InboxResponse, getMessagesResponse } from "@/types/chat";
+import { AdminSingleInboxResponse, InboxAdminResponse, InboxResponse, getMessagesResponse } from "@/types/chat";
 
 export const sendMessageApi = (data: FormData) =>
   apiRequest("/chat/send", {
@@ -11,6 +11,11 @@ export const sendMessageApi = (data: FormData) =>
     apiRequest<getMessagesResponse>(`/chat/messages/${pharmacyId}`);
 
     export const getInboxApi = () =>
-      apiRequest<InboxResponse>(`/chat/my-messages`);
+  apiRequest<InboxResponse>(`/chat/my-messages`);
+    
+
     export const getAdminInboxApi = () =>
-      apiRequest<InboxAdminResponse>(`/chats`);
+  apiRequest<InboxAdminResponse>(`/chats`);
+    
+    export const getAdminSingleInboxApi = (id: string) =>
+      apiRequest<AdminSingleInboxResponse>(`/chats/${id}`);

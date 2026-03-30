@@ -1,11 +1,19 @@
 "use client";
 import { getRequestsApi } from "@/api/transfar";
+import SendReportDialog from "@/components/shared/send-report-dialog";
 import MyTransferCard from "@/components/transfer/my-transfer-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, CircleCheck, File, History, Inbox, User } from "lucide-react";
+import {
+  ChevronRight,
+  CircleCheck,
+  File,
+  History,
+  Inbox,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { GoArrowDownLeft, GoArrowUpRight } from "react-icons/go";
 
@@ -16,7 +24,7 @@ const TransferPage = () => {
     queryFn: () => getRequestsApi("?type=all&status=all"),
   });
   console.log(data);
-  const { data:completedData } = useQuery({
+  const { data: completedData } = useQuery({
     queryKey: ["completed-transfers"],
     queryFn: () => getRequestsApi("?type=all&status=completed"),
   });
@@ -30,11 +38,7 @@ const TransferPage = () => {
           <p className="text-muted-foreground text-sm">Welcome back,</p>
           <h2 className="text-2xl font-bold">{user?.name}</h2>
         </div>
-        {/* {user?.role !== "super_admin" && (
-          <Button>
-            <File /> Send Report
-          </Button>
-        )} */}
+        {user?.role !== "super_admin" && <SendReportDialog />}
       </div>
       {/* in & out */}
       <div className="grid grid-cols-2 gap-4">
@@ -48,7 +52,9 @@ const TransferPage = () => {
             </div>
             <h2 className="text-2xl font-bold">IN</h2>
             <p className="text-muted-foreground">Incoming</p>
-            <Badge variant={"success"}>{data?.data?.data?.totals?.total_in}</Badge>
+            <Badge variant={"success"}>
+              {data?.data?.data?.totals?.total_in}
+            </Badge>
           </Button>
         </Link>
         <Link href={"/request"} className="w-full ">
@@ -61,7 +67,9 @@ const TransferPage = () => {
             </div>
             <h2 className="text-2xl font-bold">OUT</h2>
             <p className="text-muted-foreground">Requested Items</p>
-            <Badge variant={"success"}>{data?.data?.data?.totals?.total_out}</Badge>
+            <Badge variant={"success"}>
+              {data?.data?.data?.totals?.total_out}
+            </Badge>
           </Button>
         </Link>
       </div>

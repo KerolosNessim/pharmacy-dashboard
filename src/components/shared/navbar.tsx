@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link";
 import { ModeToggle } from "./mode-toggle";
 import {
@@ -11,7 +12,16 @@ import UserAvatar from "./user-avatar";
 import NavbarSheet from "./navbar-sheet";
 import { SidebarTrigger } from "../ui/sidebar";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { getAlertsApi } from "@/api/alerts";
 const Navbar = () => {
+    const { data } = useQuery({
+      queryKey: ["alerts"],
+      queryFn: getAlertsApi,
+      refetchInterval: 10000,
+    });
+
+    const alerts = data?.data?.data ?? [];
   return (
     <div className="p-2 lg:pe-6 border-b  flex items-center justify-between sticky top-0 z-50 bg-bg">
       <Link href="/">
@@ -35,11 +45,16 @@ const Navbar = () => {
         {/* updates */}
         <HoverCard openDelay={50} closeDelay={50}>
           <HoverCardTrigger asChild>
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="relative">
               <Link href="/alerts">
                 <Megaphone className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
+              {alerts.length > 0 && (
+                <span className="absolute top-0 right-0 size-4 flex items-center justify-center bg-red-500 rounded-full text-white text-xs" >
+                  {alerts?.length}
+                </span>
+              )}
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Alerts</HoverCardContent>

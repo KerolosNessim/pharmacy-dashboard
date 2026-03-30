@@ -1,6 +1,7 @@
 "use client";
 import {
   checkAvailabilityApi,
+  deleteProductApi,
   getCategoriesStatsApi,
   getProductsListApi,
 } from "@/api/products";
@@ -24,7 +25,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useGoBack } from "@/hooks/use-goback";
 import { useUserStore } from "@/stores/user-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Database, Download, Loader2, Search } from "lucide-react";
+import { ArrowLeft, Database, Download, Loader2, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 const ProductsPage = () => {
@@ -59,6 +60,16 @@ const ProductsPage = () => {
       toast.error("Failed to change availability");
     }
     setIsCheckAvailabilityPending(false);
+  }
+
+  async function handleDelete(id: string) {
+    const response = await deleteProductApi(id);
+    if (response?.ok) {
+      toast.success("Product deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["products", debouncedSearch] });
+    } else {
+      toast.error(response?.error || "Failed to delete product");
+    }
   }
 
   return (
@@ -184,7 +195,12 @@ const ProductsPage = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>SKU</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
+                    <TableHead>Price</TableHead>
+                    {
+                      user?.role === "super_admin" && (
+                        <TableHead>Actions</TableHead>
+                      )
+                    }
                   {user?.role === "supervisor" && (
                     <TableHead>Check Availability</TableHead>
                   )}
@@ -206,6 +222,15 @@ const ProductsPage = () => {
                     <TableCell className="text-muted-foreground">
                       {product?.price || "-"}
                     </TableCell>
+                    {
+                      user?.role === "super_admin" && (
+                        <TableCell>
+                          <Button  variant="destructive" className="hover:bg-bg" onClick={() => handleDelete(String(product?.id))}>
+                            <Trash2 />
+                          </Button>
+                        </TableCell>
+                      )
+                    }
                     {user?.role === "supervisor" && (
                       <TableCell>
                         <Switch

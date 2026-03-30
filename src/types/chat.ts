@@ -48,3 +48,11 @@ export interface InboxAdminResponse {
             message: string,
             data: InboxAdminItem[]
 }
+
+
+export interface AdminSingleInboxResponse {
+            status: string,
+  conversation_id: number,
+  pharmacy_name: string,
+  messages: Message[]
+}

@@ -25,7 +25,7 @@ const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
             ? "pending"
             : transfar.status == "completed" || transfar.status == "approved"
               ? "success"
-              : transfar.status == "rejected" || transfar.status == "cancelled"
+              : transfar.status == "Rejected" || transfar.status == "cancelled"
                 ? "destructive"
                 : "default"
         }
