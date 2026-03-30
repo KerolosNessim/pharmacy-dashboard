@@ -18,7 +18,6 @@ const Navbar = () => {
     const { data } = useQuery({
       queryKey: ["alerts"],
       queryFn: getAlertsApi,
-      refetchInterval: 10000,
     });
 
     const alerts = data?.data?.data ?? [];
