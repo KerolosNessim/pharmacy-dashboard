@@ -8,10 +8,14 @@ export const addSupervisorApi = (data: supervisorValues) =>
     method: "POST",
     body: JSON.stringify(data),
   });
-export const getSupervisorApi = () =>
-  apiRequest<getSupervisorsResponse>("/supervisors", {
+export const getSupervisorApi = (queryParams?: { search?: string; status?: string; pharmacy_id?: string }) => {
+  const filteredParams = Object.fromEntries(
+    Object.entries(queryParams || {}).filter(([, v]) => v != null && v !== "")
+  );
+  return apiRequest<getSupervisorsResponse>(`/supervisors?${new URLSearchParams(filteredParams)}`, {
     method: "GET",
   });
+};
 export const toggleSupervisorStatusApi = (id:string) =>
   apiRequest<addSupervisorResponse>(`/supervisors/${id}/toggle-status`, {
     method: "PATCH",

@@ -9,10 +9,14 @@ export const addPharmacistApi = (data: supervisorValues) =>
     method: "POST",
     body: JSON.stringify(data),
   });
-export const getPharmacistsApi = () =>
-  apiRequest<GetPharmacistsResponse>("/pharmacists", {
+export const getPharmacistsApi = (queryParams?: { search?: string; status?: string; pharmacy?: string }) => {
+  const filteredParams = Object.fromEntries(
+    Object.entries(queryParams || {}).filter(([, v]) => v != null && v !== "")
+  );
+  return apiRequest<GetPharmacistsResponse>(`/pharmacists?${new URLSearchParams(filteredParams)}`, {
     method: "GET",
   });
+};
 export const togglePharmacistStatusApi = (id:string) =>
   apiRequest<addSupervisorResponse>(`/pharmacists/${id}/toggle-status`, {
     method: "PATCH",

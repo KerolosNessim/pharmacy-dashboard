@@ -24,10 +24,15 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
+import { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "../ui/label";
+
 const formSchema = z.object({
   name: z.string().min(3, "Supervisor name is required"),
   email: z.string().email("Supervisor email is required"),
   pharmacy_id: z.string().nonempty("Supervisor pharmacy must be selected"),
+  password: z.string("Supervisor password is required").optional(),
 });
 
 export type supervisorValues = z.infer<typeof formSchema>;
@@ -38,6 +43,7 @@ export const AddSupervisorForm = ({
   setOpen: (open: boolean) => void;
 }) => {
   const queryClient = useQueryClient();
+  const [withinvetaion, setWithinvetaion] = useState<boolean>(true);
 
   const { data, isLoading } = useQuery({
     queryKey: ["pharmacies"],
@@ -50,10 +56,13 @@ export const AddSupervisorForm = ({
       name: "",
       email: "",
       pharmacy_id: "",
+      password: "",
     },
   });
   async function onSubmit(values: supervisorValues) {
     console.log(values);
+    console.log("click");
+    
     const res = await addSupervisorApi(values);
     if (res?.ok) {
       toast.success(res?.data?.message);
@@ -152,6 +161,52 @@ export const AddSupervisorForm = ({
           )}
         />
 
+
+        <RadioGroup className="flex items-center gap-3" defaultValue="option-one">
+          <div className="flex items-center gap-3">
+            <RadioGroupItem
+              onClick={() => setWithinvetaion(true)}
+              value="option-one"
+              id="option-one"
+            />
+            <Label htmlFor="option-one" className="cursor-pointer">
+              Send Invitation
+            </Label>
+          </div>
+          <div className="flex items-center gap-3">
+            <RadioGroupItem
+              onClick={() => setWithinvetaion(false)}
+              value="option-two"
+              id="option-two"
+            />
+            <Label htmlFor="option-two" className="cursor-pointer">
+              Don&apos;t Send Invitation
+            </Label>
+          </div>
+        </RadioGroup>
+      
+        
+        {
+          !withinvetaion && (
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Supervisor Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter Supervisor Password"
+                      {...field}
+                      className="focus-visible:ring-primary"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )
+        }
         <div className="flex justify-end gap-3 pt-4">
           <Button
             type="button"

@@ -1,5 +1,5 @@
 "use client";
-import { deletePharmacyApi, getPharmaciesApi } from "@/api/pharmacies";
+import { deletePharmacyApi, getPharmaciesApi, updatePharmacyStatusApi } from "@/api/pharmacies";
 import {
   Table,
   TableBody,
@@ -14,6 +14,7 @@ import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { toast } from "sonner";
 import EditPharmacyDialog from "./edit-pharmacies-dialog";
+import { Switch } from "../ui/switch";
 
 const PharmaciesTable = () => {
   const { data, isLoading } = useQuery({
@@ -34,7 +35,17 @@ const PharmaciesTable = () => {
       toast.error(res?.error);
     }
   };
-  console.log(data);
+
+    async function toggleStatus(id: string) {
+      const res = await updatePharmacyStatusApi(id);
+      console.log(res);
+      if (res?.ok) {
+        queryClient.invalidateQueries({ queryKey: ["pharmacies"] });
+        toast.success(res?.data?.message || "Pharmacy status updated!");
+      } else {
+        toast.error(res?.error || "Failed to update status");
+      }
+    }
   const pharmacies = data?.data?.data?.data ?? [];
   return (
     <div className="border rounded-lg! overflow-hidden ">
@@ -67,7 +78,10 @@ const PharmaciesTable = () => {
                 <TableCell>{pharmacy?.phone}</TableCell>
                 <TableCell>{pharmacy?.supervisor?.name ?? "-"}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">{pharmacy?.status}</Badge>
+                  <Switch checked={pharmacy?.status === "active"}
+                  onCheckedChange={() => toggleStatus(String(pharmacy.id))}
+                  >
+                    </Switch>
                 </TableCell>
                 <TableCell>
                   {new Date(pharmacy?.created_at).toLocaleDateString()}
