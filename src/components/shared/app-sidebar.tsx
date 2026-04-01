@@ -32,7 +32,7 @@ import { useUserStore } from "@/stores/user-store";
 import { ModeToggle } from "./mode-toggle";
 import UserAvatar from "./user-avatar";
 import Image from "next/image";
-
+import logoImg from "../../assets/logo.png"
 export function AppSidebar() {
   const pathName = usePathname();
   const { user } = useUserStore();
@@ -124,7 +124,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-4 border-b flex-row ">
-        <Image src="/logo.png" alt="logo" width={50} height={50} />
+        <Image src={logoImg} alt="logo" width={50} height={50} />
         <p className="font-bold">Pharmacy <br /> Platform</p>
       </SidebarHeader>
       <SidebarContent>

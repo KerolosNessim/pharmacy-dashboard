@@ -8,10 +8,19 @@ export const addPharmacyApi = (data: pharmacyValues) =>
     body: JSON.stringify(data),
   });
 
-  export const getPharmaciesApi = () =>
-    apiRequest<GetPharmaciesResponse>(`/pharmacies`, {
+  export const getPharmaciesApi = (queryParams?: { search?: string; status?: string }) => {
+    const filteredParams = Object.fromEntries(
+      Object.entries(queryParams || {}).filter(([, v]) => v != null && v !== "")
+    );
+    if(Object.keys(filteredParams).length === 0){
+      return apiRequest<GetPharmaciesResponse>(`/pharmacies`, {
+        method: "GET",
+      });
+    }
+    return apiRequest<GetPharmaciesResponse>(`/pharmacies?${new URLSearchParams(filteredParams)}`, {
       method: "GET",
     });
+  };
 
     export const deletePharmacyApi = (id: string) =>
     apiRequest<GetPharmaciesResponse>(`/pharmacies/${id}`, {

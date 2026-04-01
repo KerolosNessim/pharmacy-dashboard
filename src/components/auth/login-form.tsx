@@ -20,6 +20,7 @@ import { loginApi } from "@/api/auth";
 import { Loader2 } from "lucide-react";
 import { setRole, setToken } from "@/actions/auth";
 import { useUserStore } from "@/stores/user-store";
+import { getFCMToken } from "@/lib/firebase/client";
 
 // ================= Schema =================
 const formSchema = z.object({
@@ -27,7 +28,9 @@ const formSchema = z.object({
   password: z.string().min(3, "Password is required"),
 });
 
-export type loginValues = z.infer<typeof formSchema>;
+export type loginValues = z.infer<typeof formSchema> & {
+  fcm_token?: string | null;
+};
 
 // ================= Component =================
 export default function LoginForm() {
@@ -41,14 +44,18 @@ export default function LoginForm() {
     },
   });
   const { isSubmitting } = form.formState;
-  async function onSubmit(values: loginValues) {
-    const res = await loginApi(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const fcm_token = await getFCMToken();
+    console.log(fcm_token);
+    const res = await loginApi({ ...values, fcm_token });
     console.log(res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
       localStorage.setItem("token", res?.data?.data?.token as string);
-      await setRole(res?.data?.data?.admin?.role || res?.data?.data?.pharmacist?.role);      
+      await setRole(
+        res?.data?.data?.admin?.role || res?.data?.data?.pharmacist?.role,
+      );
       if (res?.data?.data?.admin || res?.data?.data?.pharmacist) {
         setUser(res?.data?.data?.admin || res?.data?.data?.pharmacist);
       }

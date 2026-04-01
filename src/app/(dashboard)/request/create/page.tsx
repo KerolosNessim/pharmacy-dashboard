@@ -31,7 +31,7 @@ const RequestPage = () => {
   const goBack = useGoBack();
   const { data: pharmaciesData, isLoading: loadingPharmacies } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
 
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct[]>([]);

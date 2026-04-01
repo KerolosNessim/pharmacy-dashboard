@@ -19,6 +19,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { Input } from "../ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { getPharmaciesApi } from "@/api/pharmacies";
+import { Pharmacy } from "@/types/pharmacies";
 
 
 const SupervisorsTable = () => {
@@ -65,7 +66,7 @@ async function toggleStatus(id: string) {
   
     const { data: pharmaciesData } = useQuery({
       queryKey: ["pharmacies"],
-      queryFn: getPharmaciesApi,
+      queryFn: () => getPharmaciesApi(),
     });
 
     const pharmacies = pharmaciesData?.data?.data?.data ?? [];
@@ -76,7 +77,8 @@ async function toggleStatus(id: string) {
       <Input
         placeholder="Search by Supervisor name"
         value={search}
-        onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
+          className=" focus-visible:ring-primary"
       />
       <Select value={status} onValueChange={setStatus}>
         <SelectTrigger>
@@ -95,7 +97,7 @@ async function toggleStatus(id: string) {
         </SelectTrigger>
         <SelectContent position="popper">
           <SelectItem value="all">All Pharmacies</SelectItem>
-          {pharmacies.map((pharmacy) => (
+          {pharmacies.map((pharmacy:Pharmacy) => (
             <SelectItem key={pharmacy.id} value={String(pharmacy.id)}>
               {pharmacy.name}
             </SelectItem>

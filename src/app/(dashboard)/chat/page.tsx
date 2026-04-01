@@ -23,7 +23,7 @@ const ChatPage = () => {
   const { user } = useUserStore();
   const { data } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
   const { data: inboxData } = useQuery({
     queryKey: ["inbox"],

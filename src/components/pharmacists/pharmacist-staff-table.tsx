@@ -71,6 +71,7 @@ const PharmacistStaffTable = () => {
           placeholder="Search Pharmacist"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          className="focus-visible:ring-primary"
         />
         <Select value={status} onValueChange={setStatus}>
           <SelectTrigger>

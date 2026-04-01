@@ -1,31 +1,29 @@
 "use client"
-import Link from "next/link";
-import { ModeToggle } from "./mode-toggle";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { useFirebaseNotifications } from "@/providers/firebase-provider";
 import { Bell, Megaphone } from "lucide-react";
-import { Button } from "../ui/button";
-import UserAvatar from "./user-avatar";
-import NavbarSheet from "./navbar-sheet";
-import { SidebarTrigger } from "../ui/sidebar";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
-import { getAlertsApi } from "@/api/alerts";
+import Link from "next/link";
+import logoImg from "../../assets/logo.png";
+import { Button } from "../ui/button";
+import { SidebarTrigger } from "../ui/sidebar";
+import { ModeToggle } from "./mode-toggle";
+import NavbarSheet from "./navbar-sheet";
+import UserAvatar from "./user-avatar";
 const Navbar = () => {
-    const { data } = useQuery({
-      queryKey: ["alerts"],
-      queryFn: getAlertsApi,
-    });
 
-    const alerts = data?.data?.data ?? [];
+
+    const { unreadCount } = useFirebaseNotifications();
+
   return (
     <div className="p-2 lg:pe-6 border-b  flex items-center justify-between sticky top-0 z-50 bg-bg">
       <Link href="/">
         <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="logo" width={25} height={25} />
+          <Image src={logoImg} alt="logo" width={25} height={25} />
           <p className="font-bold max-md:hidden">Pharmacies </p>
         </div>
       </Link>
@@ -49,29 +47,30 @@ const Navbar = () => {
                 <Megaphone className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
-              {alerts.length > 0 && (
-                <span className="absolute top-0 right-0 size-4 flex items-center justify-center bg-red-500 rounded-full text-white text-xs" >
-                  {alerts?.length}
-                </span>
-              )}
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Alerts</HoverCardContent>
         </HoverCard>
         {/* notifications */}
-        {/* <HoverCard openDelay={50} closeDelay={50}>
+        <HoverCard openDelay={50} closeDelay={50}>
           <HoverCardTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Link href="/notifications">
+            <Button variant="ghost" size="icon" className="relative">
+              <Link href="/notification">
                 <Bell className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 size-4 flex items-center justify-center bg-red-500 rounded-full text-white text-xs">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Notifications</HoverCardContent>
-        </HoverCard> */}
+        </HoverCard>
         {/* user Avatar */}
         <UserAvatar withName={false} size="sm" />
+
         {/* navbar sheet */}
         <NavbarSheet />
       </div>
