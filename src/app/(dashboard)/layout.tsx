@@ -1,7 +1,6 @@
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/shared/app-sidebar";
 import Navbar from "@/components/shared/navbar";
-import { FCMProvider } from "@/components/providers/fcm-provider";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function DashboardLayout({
   children,
@@ -9,7 +8,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <FCMProvider>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
@@ -17,6 +15,5 @@ export default function DashboardLayout({
           <main>{children}</main>
         </SidebarInset>
       </SidebarProvider>
-    </FCMProvider>
   );
 }
