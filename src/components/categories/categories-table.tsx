@@ -19,7 +19,7 @@ import AddSubCategoryDialog from "./add-subcategorey-dialog";
 const CategoriesTable = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["categories"],
-    queryFn: getCategoriesApi,
+    queryFn: () => getCategoriesApi(),
   });
   const queryClient = useQueryClient();
   console.log(data);

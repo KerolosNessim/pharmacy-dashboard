@@ -46,8 +46,8 @@ export const AddCashForm = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
-  }) => {
-  const {user}=useUserStore()
+}) => {
+  const { user } = useUserStore();
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,7 +55,7 @@ export const AddCashForm = ({
       status: "delivery",
       delivery_representative_id: "",
       products_information: "",
-      pharmacy_id: user?.pharmacy_id?.toString()||"",
+      pharmacy_id: user?.pharmacy_id?.toString() || "",
       neighborhood: "",
       customer_name: "",
       mobile_no: "",
@@ -66,7 +66,7 @@ export const AddCashForm = ({
 
   const { data } = useQuery({
     queryKey: ["deliveries"],
-    queryFn: getDeliveriesApi,
+    queryFn: () => getDeliveriesApi(),
   });
   const deliveryReps = data?.data?.data ?? [];
   const queryClient = useQueryClient();
@@ -94,7 +94,9 @@ export const AddCashForm = ({
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Amount <span className="text-destructive">*</span></FormLabel>
+                <FormLabel>
+                  Amount <span className="text-destructive">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -114,8 +116,13 @@ export const AddCashForm = ({
             name="status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Status <span className="text-destructive">*</span></FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel>
+                  Status <span className="text-destructive">*</span>
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Status" />
@@ -123,15 +130,18 @@ export const AddCashForm = ({
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="delivery">Delivery</SelectItem>
-                    <SelectItem value="received_from_driver">Received from Driver</SelectItem>
-                    <SelectItem value="delivered_to_finance">Delivered to Finance</SelectItem>
+                    <SelectItem value="received_from_driver">
+                      Received from Driver
+                    </SelectItem>
+                    <SelectItem value="delivered_to_finance">
+                      Delivered to Finance
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
-
 
           {/* Delivery Rep */}
           <FormField
@@ -140,7 +150,10 @@ export const AddCashForm = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Delivery Representative</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select Delivery Rep" />
@@ -167,7 +180,11 @@ export const AddCashForm = ({
               <FormItem>
                 <FormLabel>Customer Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Customer name" {...field} className="focus-visible:ring-primary" />
+                  <Input
+                    placeholder="Customer name"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -182,7 +199,11 @@ export const AddCashForm = ({
               <FormItem>
                 <FormLabel>Mobile No</FormLabel>
                 <FormControl>
-                  <Input placeholder="Mobile number" {...field} className="focus-visible:ring-primary" />
+                  <Input
+                    placeholder="Mobile number"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -197,7 +218,11 @@ export const AddCashForm = ({
               <FormItem>
                 <FormLabel>Neighborhood</FormLabel>
                 <FormControl>
-                  <Input placeholder="Neighborhood" {...field} className="focus-visible:ring-primary" />
+                  <Input
+                    placeholder="Neighborhood"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -212,7 +237,11 @@ export const AddCashForm = ({
               <FormItem className="col-span-2">
                 <FormLabel>Location</FormLabel>
                 <FormControl>
-                  <Input placeholder="Location" {...field} className=" focus-visible:ring-primary" />
+                  <Input
+                    placeholder="Location"
+                    {...field}
+                    className=" focus-visible:ring-primary"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -259,7 +288,11 @@ export const AddCashForm = ({
         />
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>

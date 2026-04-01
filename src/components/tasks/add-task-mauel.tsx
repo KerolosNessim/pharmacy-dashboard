@@ -16,7 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useUserStore } from "@/stores/user-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Plus } from "lucide-react";
@@ -43,7 +42,7 @@ export const AddtaskForm = () => {
 
   const { data } = useQuery({
     queryKey: ["pharmacists"],
-    queryFn: getPharmacistsApi,
+    queryFn: () => getPharmacistsApi(),
   });
   const pharmacists = data?.data?.data?.data ?? [];
   const form = useForm<taskValues>({
@@ -55,15 +54,13 @@ export const AddtaskForm = () => {
     },
   });
   async function onSubmit(values: taskValues) {
-
     const res = await addTaskApi(values);
     console.log(res);
     if (res.ok) {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       form.reset();
       toast.success(res?.data?.message);
-    }
-    else {
+    } else {
       toast.error(res?.error);
     }
   }

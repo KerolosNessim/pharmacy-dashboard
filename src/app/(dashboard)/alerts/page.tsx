@@ -2,7 +2,6 @@
 
 import { getAlertsApi } from "@/api/alerts";
 import AlertsCard from "@/components/alerts/alerts-card";
-import CraeteAlertsForm from "@/components/alerts/create-alert-form";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +11,7 @@ const AlertPage = () => {
   const goBack = useGoBack();
   const { data } = useQuery({
     queryKey: ["alerts"],
-    queryFn: getAlertsApi,
+    queryFn: () => getAlertsApi(),
   });
 
   const alerts = data?.data?.data ?? [];

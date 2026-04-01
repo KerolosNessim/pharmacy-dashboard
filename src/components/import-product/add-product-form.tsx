@@ -42,13 +42,12 @@ const formSchema = z.object({
 export type ProductFormValues = z.infer<typeof formSchema>;
 
 export const AddProductForm = () => {
-
   const { data } = useQuery({
     queryKey: ["categories"],
-    queryFn: getCategoriesApi,
+    queryFn: () => getCategoriesApi(),
   });
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const form = useForm<ProductFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(formSchema) as any,
@@ -65,14 +64,13 @@ export const AddProductForm = () => {
   });
 
   async function onSubmit(values: ProductFormValues) {
-    const res = await addProductApi(values)
-    if(res?.ok){
-      toast.success("Product added successfully")
-      queryClient.invalidateQueries({ queryKey: ["products"] })
-      queryClient.invalidateQueries({ queryKey: ["categories-stats"] })
-    }
-    else{
-      toast.error(res?.error)
+    const res = await addProductApi(values);
+    if (res?.ok) {
+      toast.success("Product added successfully");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
+    } else {
+      toast.error(res?.error);
     }
   }
 
@@ -109,7 +107,9 @@ export const AddProductForm = () => {
                 <FormControl>
                   <Input
                     className="focus-visible:ring-primary"
-                    placeholder="e.g. PANA-405" {...field} />
+                    placeholder="e.g. PANA-405"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -143,9 +143,7 @@ export const AddProductForm = () => {
               <FormItem>
                 <FormLabel>Category ID</FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={field.onChange}
-                  >
+                  <Select onValueChange={field.onChange}>
                     <SelectTrigger className="w-full focus-visible:ring-primary">
                       <SelectValue placeholder="Select a category" />
                     </SelectTrigger>
@@ -231,7 +229,7 @@ export const AddProductForm = () => {
                     <SelectTrigger className="w-full focus-visible:ring-primary">
                       <SelectValue placeholder="Select a status" />
                     </SelectTrigger>
-                  </FormControl >
+                  </FormControl>
                   <SelectContent position="popper">
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="inactive">Inactive</SelectItem>

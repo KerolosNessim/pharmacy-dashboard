@@ -1,5 +1,9 @@
 "use client";
-import { deletePharmacistApi, getPharmacistsApi, togglePharmacistStatusApi } from "@/api/pharmacists";
+import {
+  deletePharmacistApi,
+  getPharmacistsApi,
+  togglePharmacistStatusApi,
+} from "@/api/pharmacists";
 import {
   Table,
   TableBody,
@@ -15,7 +19,13 @@ import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import EditPharmacistDialog from "./edit-pharmacist-dialog";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 import { getPharmaciesApi } from "@/api/pharmacies";
 import { useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -24,7 +34,7 @@ const PharmacistStaffTable = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [pharmacy_id, setPharmacy] = useState("");
- const debouncedSearch = useDebounce(search, 500);
+  const debouncedSearch = useDebounce(search, 500);
   const queryParams = {
     search: debouncedSearch,
     status: status === "all" ? "" : status,
@@ -57,10 +67,10 @@ const PharmacistStaffTable = () => {
     }
   }
 
-    const { data:pharmaciesData} = useQuery({
-      queryKey: ["pharmacies"],
-      queryFn: getPharmaciesApi,
-    });
+  const { data: pharmaciesData } = useQuery({
+    queryKey: ["pharmacies"],
+    queryFn: () => getPharmaciesApi(),
+  });
 
   const pharmacies = pharmaciesData?.data?.data?.data ?? [];
 

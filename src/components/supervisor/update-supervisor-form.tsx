@@ -43,7 +43,7 @@ export const UpdateSupervisorForm = ({
 
   const { data, isLoading } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
   const pharmacies = data?.data?.data?.data ?? [];
   const form = useForm<updateSupervisorValues>({
@@ -54,7 +54,7 @@ export const UpdateSupervisorForm = ({
     },
   });
   async function onSubmit(values: updateSupervisorValues) {
-    const res = await updateSupervisorApi(values,supervisor?.id);
+    const res = await updateSupervisorApi(values, supervisor?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({

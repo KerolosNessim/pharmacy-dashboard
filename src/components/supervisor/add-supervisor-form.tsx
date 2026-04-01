@@ -47,7 +47,7 @@ export const AddSupervisorForm = ({
 
   const { data, isLoading } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
   const pharmacies = data?.data?.data?.data ?? [];
   const form = useForm<supervisorValues>({
@@ -62,7 +62,7 @@ export const AddSupervisorForm = ({
   async function onSubmit(values: supervisorValues) {
     console.log(values);
     console.log("click");
-    
+
     const res = await addSupervisorApi(values);
     if (res?.ok) {
       toast.success(res?.data?.message);
@@ -161,8 +161,10 @@ export const AddSupervisorForm = ({
           )}
         />
 
-
-        <RadioGroup className="flex items-center gap-3" defaultValue="option-one">
+        <RadioGroup
+          className="flex items-center gap-3"
+          defaultValue="option-one"
+        >
           <div className="flex items-center gap-3">
             <RadioGroupItem
               onClick={() => setWithinvetaion(true)}
@@ -184,29 +186,26 @@ export const AddSupervisorForm = ({
             </Label>
           </div>
         </RadioGroup>
-      
-        
-        {
-          !withinvetaion && (
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Supervisor Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter Supervisor Password"
-                      {...field}
-                      className="focus-visible:ring-primary"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )
-        }
+
+        {!withinvetaion && (
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Supervisor Password</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter Supervisor Password"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
         <div className="flex justify-end gap-3 pt-4">
           <Button
             type="button"

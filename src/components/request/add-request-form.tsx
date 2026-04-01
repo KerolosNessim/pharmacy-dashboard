@@ -47,8 +47,7 @@ export const AddRequestForm = ({
   setOpen,
 }: {
   setOpen: (open: boolean) => void;
-  }) => {
-  
+}) => {
   const queryClient = useQueryClient();
   const form = useForm<RequestFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,10 +64,10 @@ export const AddRequestForm = ({
     name: "items",
   });
 
-  const {isSubmitting}=form.formState
+  const { isSubmitting } = form.formState;
   const { data: pharmaciesData, isLoading: loadingPharmacies } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
 
   const { data: productsData, isLoading: loadingProducts } = useQuery({
@@ -89,15 +88,15 @@ export const AddRequestForm = ({
       })),
     };
 
-    const res = await addRequestApi(payload)
+    const res = await addRequestApi(payload);
     if (res?.ok) {
       toast.success(res?.data?.message);
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
-    }else{
+    } else {
       toast.error(res?.error);
     }
-  }
+  };
 
   return (
     <Form {...form}>

@@ -43,8 +43,6 @@ const formSchema = z.object({
 
 export type cashValues = z.infer<typeof formSchema>;
 
-
-
 export const EditCashForm = ({
   setOpen,
   invoice,
@@ -57,8 +55,12 @@ export const EditCashForm = ({
     defaultValues: {
       invoice_number: invoice?.invoice_number || "",
       amount: String(invoice?.amount) || "",
-      status: invoice?.status as "delivery" | "received_from_driver" | "delivered_to_finance",
-      delivery_representative_id: String(invoice?.delivery_representative?.id) || "",
+      status: invoice?.status as
+        | "delivery"
+        | "received_from_driver"
+        | "delivered_to_finance",
+      delivery_representative_id:
+        String(invoice?.delivery_representative?.id) || "",
       products_information: invoice?.products_information || "",
       neighborhood: invoice?.neighborhood || "",
       customer_name: invoice?.customer_name || "",
@@ -70,26 +72,21 @@ export const EditCashForm = ({
 
   const { data } = useQuery({
     queryKey: ["deliveries"],
-    queryFn: getDeliveriesApi,
-  })
+    queryFn: () => getDeliveriesApi(),
+  });
 
-  
-  const deliveries = data?.data?.data?? [];
-const queryClient = useQueryClient();
-  const onSubmit = async(values:cashValues) => {
+  const deliveries = data?.data?.data ?? [];
+  const queryClient = useQueryClient();
+  const onSubmit = async (values: cashValues) => {
     const res = await updateCashApi(invoice.id, values);
-    if(res?.ok){
+    if (res?.ok) {
       toast.success(res?.data?.message);
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ["cash"] });
-    }
-    else{
+    } else {
       toast.error(res?.error);
-
     }
-
   };
-
 
   const { isSubmitting } = form.formState;
 
@@ -103,9 +100,7 @@ const queryClient = useQueryClient();
             name="invoice_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>
-                  Invoice Number 
-                </FormLabel>
+                <FormLabel>Invoice Number</FormLabel>
                 <FormControl>
                   <Input
                     disabled
@@ -264,7 +259,7 @@ const queryClient = useQueryClient();
             control={form.control}
             name="location"
             render={({ field }) => (
-              <FormItem >
+              <FormItem>
                 <FormLabel>Location</FormLabel>
                 <FormControl>
                   <Input

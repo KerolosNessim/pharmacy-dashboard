@@ -49,7 +49,7 @@ export const AddPharmacistForm = ({
 
   const { data, isLoading } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
   const pharmacies = data?.data?.data?.data ?? [];
   const form = useForm<pharmacistValues>({
@@ -57,7 +57,8 @@ export const AddPharmacistForm = ({
     defaultValues: {
       name: "",
       email: "",
-      pharmacy_id: user?.role === "super_admin" ? "" : String(user?.pharmacy_id),
+      pharmacy_id:
+        user?.role === "super_admin" ? "" : String(user?.pharmacy_id),
       password: "",
     },
   });

@@ -24,8 +24,14 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGoBack } from "@/hooks/use-goback";
 import { useUserStore } from "@/stores/user-store";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Database, Download, Loader2, Search, Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft,
+  Database,
+  Loader2,
+  Search,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 const ProductsPage = () => {
@@ -39,7 +45,7 @@ const ProductsPage = () => {
   const queryClient = useQueryClient();
   const { data, isLoading } = useQuery({
     queryKey: ["categories-stats"],
-    queryFn: getCategoriesStatsApi,
+    queryFn: () => getCategoriesStatsApi(),
   });
   const productsStats = data?.data?.data;
 
@@ -55,7 +61,9 @@ const ProductsPage = () => {
     console.log(response);
     if (response?.ok) {
       toast.success("Availability changed successfully");
-      queryClient.invalidateQueries({ queryKey: ["products", debouncedSearch] });
+      queryClient.invalidateQueries({
+        queryKey: ["products", debouncedSearch],
+      });
     } else {
       toast.error("Failed to change availability");
     }
@@ -66,7 +74,9 @@ const ProductsPage = () => {
     const response = await deleteProductApi(id);
     if (response?.ok) {
       toast.success("Product deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["products", debouncedSearch] });
+      queryClient.invalidateQueries({
+        queryKey: ["products", debouncedSearch],
+      });
     } else {
       toast.error(response?.error || "Failed to delete product");
     }
@@ -195,12 +205,10 @@ const ProductsPage = () => {
                   <TableHead>Name</TableHead>
                   <TableHead>SKU</TableHead>
                   <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
-                    {
-                      user?.role === "super_admin" && (
-                        <TableHead>Actions</TableHead>
-                      )
-                    }
+                  <TableHead>Price</TableHead>
+                  {user?.role === "super_admin" && (
+                    <TableHead>Actions</TableHead>
+                  )}
                   {user?.role === "supervisor" && (
                     <TableHead>Check Availability</TableHead>
                   )}
@@ -222,15 +230,17 @@ const ProductsPage = () => {
                     <TableCell className="text-muted-foreground">
                       {product?.price || "-"}
                     </TableCell>
-                    {
-                      user?.role === "super_admin" && (
-                        <TableCell>
-                          <Button  variant="destructive" className="hover:bg-bg" onClick={() => handleDelete(String(product?.id))}>
-                            <Trash2 />
-                          </Button>
-                        </TableCell>
-                      )
-                    }
+                    {user?.role === "super_admin" && (
+                      <TableCell>
+                        <Button
+                          variant="destructive"
+                          className="hover:bg-bg"
+                          onClick={() => handleDelete(String(product?.id))}
+                        >
+                          <Trash2 />
+                        </Button>
+                      </TableCell>
+                    )}
                     {user?.role === "supervisor" && (
                       <TableCell>
                         <Switch

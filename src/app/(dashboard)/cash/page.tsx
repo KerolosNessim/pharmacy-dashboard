@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import AddCashDialog from "@/components/cash/add-cash-dialog";
 import CashTable from "@/components/cash/cash-table";
 import { Button } from "@/components/ui/button";
@@ -8,16 +7,14 @@ import { ArrowLeft } from "lucide-react";
 import { getCashApi } from "@/api/cash";
 import { useQuery } from "@tanstack/react-query";
 
-
-
 const CashPage = () => {
   const goBack = useGoBack();
-const {data} = useQuery({
-  queryKey: ["cash"],
-  queryFn: getCashApi,
-})
+  const { data } = useQuery({
+    queryKey: ["cash"],
+    queryFn: () => getCashApi(),
+  });
 
-  const invoices=data?.data?.data?.data??[]
+  const invoices = data?.data?.data?.data ?? [];
 
   return (
     <section className="flex flex-col gap-4 p-4">
@@ -32,12 +29,10 @@ const {data} = useQuery({
           </div>
         </div>
 
-        <AddCashDialog  />
+        <AddCashDialog />
       </div>
 
-      <CashTable
-        invoices={invoices}
-      />
+      <CashTable invoices={invoices} />
     </section>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 import { getPharmaciesApi } from "@/api/pharmacies";
-import { addPharmacistApi, updatePharmacistApi } from "@/api/pharmacists";
+import { updatePharmacistApi } from "@/api/pharmacists";
 import {
   Form,
   FormControl,
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Pencil, Plus } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -36,17 +36,17 @@ export type editPharmacistValues = z.infer<typeof formSchema>;
 
 export const EditPharmacistForm = ({
   setOpen,
-  pharmacist
+  pharmacist,
 }: {
   setOpen: (open: boolean) => void;
-  pharmacist:Pharmacist
+  pharmacist: Pharmacist;
 }) => {
   const { user } = useUserStore();
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ["pharmacies"],
-    queryFn: getPharmaciesApi,
+    queryFn: () => getPharmaciesApi(),
   });
   const pharmacies = data?.data?.data?.data ?? [];
   const form = useForm<editPharmacistValues>({
@@ -57,9 +57,9 @@ export const EditPharmacistForm = ({
     },
   });
   async function onSubmit(values: editPharmacistValues) {
-    console.log("pharmacist",values);
+    console.log("pharmacist", values);
     console.log(values);
-    const res = await updatePharmacistApi(String(pharmacist?.id),values);
+    const res = await updatePharmacistApi(String(pharmacist?.id), values);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
