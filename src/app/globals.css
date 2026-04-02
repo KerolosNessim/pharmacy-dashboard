@@ -138,3 +138,47 @@
 }
 
 
+
+@layer utilities {
+  .prose-editor .ProseMirror {
+    outline: none;
+    padding: 0.5rem;
+    min-height: 200px;
+  }
+
+  .prose-editor .ProseMirror h1 {
+    @apply text-3xl font-bold mb-4 mt-2;
+  }
+
+  .prose-editor .ProseMirror h2 {
+    @apply text-2xl font-bold mb-3 mt-2;
+  }
+
+  .prose-editor .ProseMirror p {
+    @apply mb-2;
+  }
+
+  .prose-editor .ProseMirror ul {
+    @apply list-disc ml-6 mb-4;
+  }
+
+  .prose-editor .ProseMirror ol {
+    @apply list-decimal ml-6 mb-4;
+  }
+
+  .prose-editor .ProseMirror blockquote {
+    @apply border-l-4 border-primary pl-4 italic mb-4;
+  }
+
+  .prose-editor .ProseMirror strong {
+    @apply font-bold;
+  }
+
+  .prose-editor .ProseMirror em {
+    @apply italic;
+  }
+
+  .prose-editor .ProseMirror code {
+    @apply bg-muted px-1.5 py-0.5 rounded-sm font-mono text-sm;
+  }
+}

@@ -78,7 +78,7 @@ const queryClient = useQueryClient();
               <FormLabel>Delivery Representative Phone Number</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Enter Delivery Representative Phone Number"
                   {...field}
                   className="focus-visible:ring-primary"

@@ -1,9 +1,8 @@
-import { craeteAlertsValues } from "@/components/alerts/create-alert-form";
 import { apiRequest } from "@/lib/api-request";
 import { CreateAlertResponse, GetAlertsResponse } from "@/types/alerts";
 
-export const createAlertApi = (data: craeteAlertsValues) =>
-  apiRequest <CreateAlertResponse>("/instructions", {
+export const createAlertApi = (data: { title: string; body: string }) =>
+  apiRequest<CreateAlertResponse>("/instructions", {
     method: "POST",
     body: JSON.stringify(data),
   });

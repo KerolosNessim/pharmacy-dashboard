@@ -26,10 +26,15 @@ import { getDeliveriesApi } from "@/api/delivery";
 import { addCashApi } from "@/api/cash";
 import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
+import { useState } from "react";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import { Label } from "../ui/label";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
-  status: z.enum(["delivery", "received_from_driver", "delivered_to_finance"]),
+  status: z
+    .enum(["delivery", "received_from_driver", "delivered_to_finance"])
+    .optional(),
   delivery_representative_id: z.string().optional(),
   products_information: z.string().min(1, "Products information is required"),
   pharmacy_id: z.string().min(1, "Pharmacy is required"),
@@ -47,6 +52,8 @@ export const AddCashForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
+  const [withdelivery, setWithdelivery] = useState<boolean>(false);
+
   const { user } = useUserStore();
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
@@ -72,13 +79,22 @@ export const AddCashForm = ({
   const queryClient = useQueryClient();
 
   async function onSubmit(values: cashValues) {
+    if (!withdelivery) {
+      delete values.delivery_representative_id;
+      delete values.status;
+    }
+
+    if (!values.pharmacy_id && user?.pharmacy_id) {
+      values.pharmacy_id = user.pharmacy_id.toString();
+    }
+
     const res = await addCashApi(values);
     if (res?.ok) {
-      toast.success(res?.data?.message);
+      toast.success(res?.data?.message || "Invoice created successfully");
       queryClient.invalidateQueries({ queryKey: ["cash"] });
       setOpen(false);
     } else {
-      toast.error(res?.error);
+      toast.error(res?.error || "An error occurred");
     }
   }
 
@@ -86,7 +102,10 @@ export const AddCashForm = ({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form 
+        onSubmit={form.handleSubmit(onSubmit, (errors) => console.log("Validation Errors:", errors))} 
+        className="space-y-4"
+      >
         <div className="grid grid-cols-2 gap-4">
           {/* Amount */}
           <FormField
@@ -105,68 +124,6 @@ export const AddCashForm = ({
                     className="focus-visible:ring-primary"
                   />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Status */}
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Status <span className="text-destructive">*</span>
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="delivery">Delivery</SelectItem>
-                    <SelectItem value="received_from_driver">
-                      Received from Driver
-                    </SelectItem>
-                    <SelectItem value="delivered_to_finance">
-                      Delivered to Finance
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Delivery Rep */}
-          <FormField
-            control={form.control}
-            name="delivery_representative_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Delivery Representative</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Delivery Rep" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {deliveryReps.map((rep) => (
-                      <SelectItem key={rep?.id} value={rep?.id.toString()}>
-                        {rep?.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -235,10 +192,10 @@ export const AddCashForm = ({
             name="location"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Location</FormLabel>
+                <FormLabel>Address</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="Location"
+                    placeholder="Address"
                     {...field}
                     className=" focus-visible:ring-primary"
                   />
@@ -248,6 +205,99 @@ export const AddCashForm = ({
             )}
           />
         </div>
+        {/* with delivery or without delivery */}
+        <RadioGroup
+          className="flex items-center gap-3"
+          defaultValue="option-two"
+        >
+          <div className="flex items-center gap-3">
+            <RadioGroupItem
+              onClick={() => setWithdelivery(false)}
+              value="option-two"
+              id="option-two"
+            />
+            <Label htmlFor="option-two" className="cursor-pointer">
+              Without Delivery
+            </Label>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <RadioGroupItem
+              onClick={() => setWithdelivery(true)}
+              value="option-one"
+              id="option-one"
+            />
+            <Label htmlFor="option-one" className="cursor-pointer">
+              With Delivery
+            </Label>
+          </div>
+        </RadioGroup>
+
+        {withdelivery && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Delivery Rep */}
+            <FormField
+              control={form.control}
+              name="delivery_representative_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Delivery Representative</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Delivery Rep" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {deliveryReps.map((rep) => (
+                        <SelectItem key={rep?.id} value={rep?.id.toString()}>
+                          {rep?.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Status */}
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Status 
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="delivery">Delivery</SelectItem>
+                      <SelectItem value="received_from_driver">
+                        Received from Driver
+                      </SelectItem>
+                      <SelectItem value="delivered_to_finance">
+                        Delivered to Finance
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
 
         {/* Products Information */}
         <FormField

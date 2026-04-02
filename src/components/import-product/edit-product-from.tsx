@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2, Plus, X } from "lucide-react";
+import { Loader2, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -25,10 +25,10 @@ import {
 } from "@/components/ui/select";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCategoriesApi } from "@/api/categories";
-import { addProductApi } from "@/api/products";
+import { updateProductApi } from "@/api/products";
+import { ProductItem } from "@/types/products";
 import { useState } from "react";
 import Image from "next/image";
-
 
 // Update this schema later if you have more complex validations or API constraints
 const formSchema = z.object({
@@ -50,8 +50,8 @@ const formSchema = z.object({
 
 export type ProductFormValues = z.infer<typeof formSchema>;
 
-export const AddProductForm = () => {
-  const [preview, setPreview] = useState<string | null>(null);
+export const EditProductForm = ({product, setOpen}: {product: ProductItem, setOpen: (open: boolean) => void}) => {
+  const [preview, setPreview] = useState<string | null>(product?.image || null);
   const [fileKey, setFileKey] = useState(0);
   const { data } = useQuery({
     queryKey: ["categories"],
@@ -64,19 +64,19 @@ export const AddProductForm = () => {
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       image: undefined,
-      name: "",
-      description: "",
-      sku: "",
-      code: "",
-      price: "",
-      category_id: "", // Defaulting to 1, or can be 0 and left empty to force user to fill
-      active_ingredients: "",
-      concentration: "",
-      side_effects: "",
-      storage_instructions: "",
-      dosage_form: "",
-      manufacturer: "",
-      status: "active",
+      name: product?.name||"",
+      description: product?.description || "",
+      sku: product?.sku || "",
+      code: product?.code||"",
+      price: product?.price||"",
+      category_id: String(product?.category_id)||"", // Defaulting to 1, or can be 0 and left empty to force user to fill
+      active_ingredients: product?.active_ingredients||"",
+      concentration: product?.concentration || "",
+      side_effects: product?.side_effects || "",
+      storage_instructions: product?.storage_instructions || "",
+      dosage_form: product?.dosage_form||"",
+      manufacturer: product?.manufacturer||"",
+      status: (product?.status as "active" | "inactive") || "active",
     },
   });
 
@@ -85,11 +85,10 @@ export const AddProductForm = () => {
     setPreview(null);
     setFileKey(prev => prev + 1);
   }
-    
+
   async function onSubmit(values: ProductFormValues) {
     const formData = new FormData();
     Object.entries(values).forEach(([key, value]) => {
-      // If it's the image but not a file (like undefined), skip it
       if (key === "image" && !(value instanceof File)) {
         return;
       }
@@ -97,17 +96,17 @@ export const AddProductForm = () => {
         formData.append(key, value as string | Blob);
       }
     });
+    // For Laravel/PHP backends, PUT with FormData sometimes doesn't work, so it might need '_method=PUT'.
+    // If the backend requires it, uncomment the following line and change updateProductApi to POST:
+    // formData.append("_method", "PUT");
 
-    const res = await addProductApi(formData);
-    console.log(res);
-    
+    const res = await updateProductApi(String(product?.id), formData);
     if (res?.ok) {
-      toast.success("Product added successfully");
+      toast.success("Product updated successfully");
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["categories-stats"] });
+      setOpen(false);
       form.reset();
-      setPreview(null);
-      setFileKey(prev => prev + 1);
     } else {
       toast.error(res?.error);
     }
@@ -156,7 +155,8 @@ export const AddProductForm = () => {
               />
               <Button
                 onClick={clearImage}
-                className="absolute -top-4 -right-4 rounded-full  p-0! size-8 flex items-center justify-center"
+                type="button"
+                className="absolute -top-4 -right-4 rounded-full p-0! size-8 flex items-center justify-center"
                 variant="destructive"
                 size="sm"
               >
@@ -164,6 +164,7 @@ export const AddProductForm = () => {
               </Button>
             </div>
           )}
+
           <FormField
             control={form.control}
             name="name"
@@ -432,13 +433,16 @@ export const AddProductForm = () => {
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <Loader2 className="animate-spin w-4 h-4 mr-2" />
             ) : (
               <>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
+                <Pencil className="w-4 h-4 mr-2" />
+                Edit Product
               </>
             )}
           </Button>

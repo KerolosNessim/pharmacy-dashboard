@@ -6,9 +6,11 @@ import { useGoBack } from "@/hooks/use-goback";
 import { ArrowLeft } from "lucide-react";
 import { getCashApi } from "@/api/cash";
 import { useQuery } from "@tanstack/react-query";
+import { useUserStore } from "@/stores/user-store";
 
 const CashPage = () => {
   const goBack = useGoBack();
+  const { user } = useUserStore();
   const { data } = useQuery({
     queryKey: ["cash"],
     queryFn: () => getCashApi(),
@@ -28,8 +30,7 @@ const CashPage = () => {
             <p className="text-muted-foreground text-sm">Manage invoices</p>
           </div>
         </div>
-
-        <AddCashDialog />
+        {user?.role !== "super_admin" && <AddCashDialog />}
       </div>
 
       <CashTable invoices={invoices} />

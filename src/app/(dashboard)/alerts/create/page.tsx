@@ -2,7 +2,7 @@
 
 import { getAlertsApi } from "@/api/alerts";
 import AlertsCard from "@/components/alerts/alerts-card";
-import CraeteAlertsForm from "@/components/alerts/create-alert-form";
+import TextEditor from "@/components/alerts/tiptap";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { useQuery } from "@tanstack/react-query";
@@ -10,12 +10,12 @@ import { ChevronLeft } from "lucide-react";
 
 const CreateAlertPage = () => {
   const goBack = useGoBack();
-  const {data}=useQuery({
-    queryKey:["alerts"],
-    queryFn:getAlertsApi
-  })
+  const { data } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: getAlertsApi,
+  });
 
-  const alerts =data?.data?.data??[]
+  const alerts = data?.data?.data ?? [];
   return (
     <section className="p-4">
       <div className="flex items-center gap-2">
@@ -27,8 +27,8 @@ const CreateAlertPage = () => {
           <p className="text-muted-foreground">Manage your alerts</p>
         </div>
       </div>
+      <TextEditor />
       <div className="mt-4 flex flex-col gap-4">
-        <CraeteAlertsForm />
         {alerts.length > 0 && (
           <div className="flex flex-col gap-4">
             <h2 className="text-2xl font-bold">Alerts</h2>

@@ -30,9 +30,7 @@ async function deleteAlert(id:string){
   return (
     <Card className="relative">
       <CardHeader>
-        <CardTitle>{alert?.title}</CardTitle>
-        <CardDescription>{alert?.body}</CardDescription>
-        <CardAction className="text-xs text-muted-foreground">{new Date(alert?.created_at).toLocaleDateString()}</CardAction>
+        <div  dangerouslySetInnerHTML={{ __html: alert?.body }} />
       </CardHeader>
       {user?.role=="super_admin"&&(
         <Button className="absolute -top-2 -right-2 rounded-full p-0! size-6" variant="destructive" size="sm" onClick={() => deleteAlert(alert.id.toString())}>

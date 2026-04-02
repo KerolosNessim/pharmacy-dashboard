@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDashboardStatsApi } from "@/api/products";
 import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { user } = useUserStore();
@@ -29,34 +30,42 @@ const cards = [
   {
     title: "Total Products",
     value: dashboardStats?.products_count ?? 0,
+    allow: ["super_admin", "supervisor"],
   },
   {
     title: "Total Pharmacies",
     value: dashboardStats?.pharmacies_count ?? 0,
+    allow: ["super_admin"],
   },
   {
     title: "Total Supervisors",
     value: dashboardStats?.supervisors_count ?? 0,
+    allow: ["super_admin"],
   },
   {
     title: "Total Pharmacists",
     value: dashboardStats?.pharmacists_count ?? 0,
+    allow: ["super_admin", "supervisor"],
   },
   {
     title: "Total Categories",
     value: dashboardStats?.categories_count ?? 0,
+    allow: ["super_admin"],
   },
   {
     title: "Total Transfers",
     value: dashboardStats?.transfers?.total ?? 0,
+    allow: ["super_admin", "supervisor"],
   },
   {
     title: "Completed Transfers",
     value: dashboardStats?.transfers?.completed ?? 0,
+    allow: ["super_admin", "supervisor"],
   },
   {
     title: "Rejected Transfers",
     value: dashboardStats?.transfers?.rejected ?? 0,
+    allow: ["super_admin", "supervisor"],
   },
 ];
   return (
@@ -116,7 +125,7 @@ const cards = [
           {user?.role !== "pharmacist" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {cards.map((card, index) => (
-                <Card key={index} className=" gap-0">
+                <Card key={index} className={cn("gap-0", !card?.allow?.includes(user?.role ?? "") && "hidden")}>
                   <CardHeader>
                     <CardTitle className="text-muted-foreground">
                       {card?.title}

@@ -1,14 +1,14 @@
-import { ProductFormValues } from "@/components/import-product/add-product-form";
-import { apiRequest } from "@/lib/api-request";
+
+import { apiRequest, apiFormDataRequest } from "@/lib/api-request";
 import { AddProductFileResponse, AddProductResponse, CategoryStatsResponse, DashboardStatsResponse, ProductsListResponse, SingleProductResponse } from "@/types/products";
 
+export const addProductApi = (data: FormData) =>
+  apiFormDataRequest<AddProductResponse>("/products", data, "POST");
 
-
-export const addProductApi = (data: ProductFormValues) =>
-  apiRequest<AddProductResponse>("/products", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export const updateProductApi = (id: string, data: FormData) => {
+  data.append("_method", "PUT");
+  return apiFormDataRequest<AddProductResponse>(`/products/${id}`, data, "POST");
+}
 
 export const getCategoriesStatsApi = () =>
   apiRequest<CategoryStatsResponse>("/products/stats");
@@ -25,7 +25,7 @@ export const getSingleProductApi = (id: string) => {
 }
 
 export const checkAvailabilityApi = (id: string) => {
-  return apiRequest(`/inventory/${id}`, {
+  return apiRequest<AddProductResponse>(`/inventory/${id}`, {
     method: "POST",
   });
 }
@@ -35,9 +35,6 @@ export const deleteProductApi = (id: string) => {
   });
 }
 export const addProductsBulkApi = (data: FormData) => {
-  return apiRequest<AddProductFileResponse>(`/products/import`, {
-    method: "POST",
-    body: data,
-  });
+  return apiFormDataRequest<AddProductFileResponse>(`/products/import`, data, "POST");
 }
 

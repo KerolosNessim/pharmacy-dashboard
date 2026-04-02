@@ -55,11 +55,18 @@ export const SingleProductDetails = ({ productId }: { productId: string }) => {
               <Box className="size-10 " />
             </div>
           )}
-          <div className="flex flex-col gap-1">
-            <h1 className="text-lg font-bold">{product.name}</h1>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-1 flex-1">
+            <div className="flex items-start justify-between w-full">
+              <h1 className="text-lg font-bold">{product.name}</h1>
+              {product.price && (
+                <span className="text-xl font-bold text-primary">
+                  {product.price} 
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
               <span className="text-sm text-foreground/80 font-mono tracking-wide">
-                SKU: {product.code}
+                code: {product.code}
               </span>
               {product.sku && (
                 <span className="text-sm text-foreground/80 font-mono tracking-wide">
@@ -74,12 +81,30 @@ export const SingleProductDetails = ({ productId }: { productId: string }) => {
                   {product.category.name}
                 </Badge>
               )}
+              {product.status && (
+                <Badge
+                  variant={product.status === "active" ? "success" : "destructive"}
+                  className="px-2 py-0.5 text-xs font-normal capitalize"
+                >
+                  {product.status}
+                </Badge>
+              )}
             </div>
-            {product.manufacturer && (
-              <span className="text-sm text-muted-foreground mt-1">
-                Manufacturer: {product.manufacturer}
-              </span>
-            )}
+            <div className="flex flex-wrap items-center gap-3 mt-1 text-sm text-muted-foreground">
+              {product.manufacturer && (
+                <span>Manufacturer: {product.manufacturer}</span>
+              )}
+              {product.type && (
+                <span className="flex items-center gap-1">
+                  • Type: {product.type}
+                </span>
+              )}
+              {product.pharmacy_id && (
+                <span className="flex items-center gap-1">
+                  • Pharmacy ID: {product.pharmacy_id}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>

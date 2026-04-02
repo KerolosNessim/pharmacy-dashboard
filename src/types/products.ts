@@ -61,6 +61,7 @@ export type ProductItem = {
                 pharmacy_id: string,
                 category_id: number,
     status: string,
+    inventory_availability: string,
                 is_available: boolean,
                 category: {
                     id: number,

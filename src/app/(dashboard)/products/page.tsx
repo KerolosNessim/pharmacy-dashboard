@@ -5,6 +5,7 @@ import {
   getCategoriesStatsApi,
   getProductsListApi,
 } from "@/api/products";
+import EditProductDialog from "@/components/import-product/edit-product-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,13 +26,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useGoBack } from "@/hooks/use-goback";
 import { useUserStore } from "@/stores/user-store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft,
-  Database,
-  Loader2,
-  Search,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, Database, Loader2, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 const ProductsPage = () => {
@@ -55,17 +50,20 @@ const ProductsPage = () => {
   });
   const products = productsList?.data?.data;
 
-  async function handleCheckAvailability(id: string) {
+  async function handleCheckAvailability(id: string ) {
     setIsCheckAvailabilityPending(true);
-    const response = await checkAvailabilityApi(id);
+    const status = "available";
+    const response = await checkAvailabilityApi(id , status);
+    console.log("response", response);
+
     console.log(response);
     if (response?.ok) {
-      toast.success("Availability changed successfully");
+      toast.success(response?.data?.message);
       queryClient.invalidateQueries({
         queryKey: ["products", debouncedSearch],
       });
     } else {
-      toast.error("Failed to change availability");
+      toast.error(response?.error || "Failed to change availability");
     }
     setIsCheckAvailabilityPending(false);
   }
@@ -231,14 +229,14 @@ const ProductsPage = () => {
                       {product?.price || "-"}
                     </TableCell>
                     {user?.role === "super_admin" && (
-                      <TableCell>
+                      <TableCell className="flex items-center gap-2">
                         <Button
                           variant="destructive"
-                          className="hover:bg-bg"
                           onClick={() => handleDelete(String(product?.id))}
                         >
                           <Trash2 />
                         </Button>
+                        <EditProductDialog product={product} />
                       </TableCell>
                     )}
                     {user?.role === "supervisor" && (
@@ -248,7 +246,7 @@ const ProductsPage = () => {
                             handleCheckAvailability(String(product?.id))
                           }
                           disabled={isCheckAvailabilityPending}
-                          checked={product?.is_available}
+                          checked={product?.inventory_availability == "available"}
                         />
                       </TableCell>
                     )}

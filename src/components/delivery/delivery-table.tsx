@@ -16,8 +16,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteDeliveryApi } from "@/api/delivery";
 import { toast } from "sonner";
 import { useState } from "react";
+import { user } from "@/types/auth";
 
-const DeliveryTable = ({ deliveries }: { deliveries: Delivery[] }) => {
+const DeliveryTable = ({ deliveries, user }: { deliveries: Delivery[], user: user | null }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
 
@@ -41,7 +42,7 @@ const DeliveryTable = ({ deliveries }: { deliveries: Delivery[] }) => {
             <TableRow className="hover:bg-bg ">
               <TableHead>Name</TableHead>
               <TableHead>Phone</TableHead>
-              <TableHead>Actions</TableHead>
+              {user?.role === "super_admin" && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody className="bg-bg/50">
@@ -52,16 +53,17 @@ const DeliveryTable = ({ deliveries }: { deliveries: Delivery[] }) => {
               >
                 <TableCell>{deliveryRep?.name}</TableCell>
                 <TableCell>{deliveryRep?.phone}</TableCell>
-                <TableCell className="flex items-center gap-2">
-                  <EditDeliveryDialog deliveryRep={deliveryRep}/>
-                  <Button
-                    disabled={loading}
-                    onClick={() => deleteDelivery(deliveryRep?.id)}
-                    variant={"destructive"}
-                  >
-                    <Trash />
-                  </Button>
-                </TableCell>
+                {user?.role === "super_admin" && (
+                  <TableCell className="flex items-center gap-2">
+                    <EditDeliveryDialog deliveryRep={deliveryRep} />
+                    <Button
+                      disabled={loading}
+                      onClick={() => deleteDelivery(deliveryRep?.id)}
+                      variant={"destructive"}
+                    >
+                      <Trash />
+                    </Button>
+                  </TableCell>)}
               </TableRow>
             ))}
           </TableBody>

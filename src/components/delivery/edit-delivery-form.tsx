@@ -62,7 +62,6 @@ export const EditDeliveryForm = ({
               <FormLabel>Delivery Representative Name</FormLabel>
               <FormControl>
                 <Input
-                  disabled
                   placeholder="Enter Delivery Representative Name"
                   {...field}
                   className="focus-visible:ring-primary"
@@ -81,7 +80,7 @@ export const EditDeliveryForm = ({
               <FormLabel>Delivery Representative Phone Number</FormLabel>
               <FormControl>
                 <Input
-                  type="number"
+                  type="text"
                   placeholder="Enter Delivery Representative Phone Number"
                   {...field}
                   className="focus-visible:ring-primary"

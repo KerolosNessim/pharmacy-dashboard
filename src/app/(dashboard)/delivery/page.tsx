@@ -1,13 +1,15 @@
 "use client";
+import { getDeliveriesApi } from "@/api/delivery";
 import AddDeliveryDialog from "@/components/delivery/add-delivery-dialog";
 import DeliveryTable from "@/components/delivery/delivery-table";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
-import { ArrowLeft } from "lucide-react";
+import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
-import { getDeliveriesApi } from "@/api/delivery";
+import { ArrowLeft } from "lucide-react";
 
 const DeliveryPage = () => {
+  const { user } = useUserStore();
   const goBack = useGoBack();
   const { data } = useQuery({
     queryKey: ["deliveries"],
@@ -29,10 +31,10 @@ const DeliveryPage = () => {
             </p>
           </div>
         </div>
-        <AddDeliveryDialog />
+        {user?.role === "super_admin" && <AddDeliveryDialog />}
       </div>
       {/* delivery representatives */}
-      <DeliveryTable deliveries={deliveries} />
+      <DeliveryTable user={user} deliveries={deliveries} />
     </section>
   );
 };
