@@ -52,11 +52,7 @@ const ProductsPage = () => {
 
   async function handleCheckAvailability(id: string ) {
     setIsCheckAvailabilityPending(true);
-    const status = "available";
-    const response = await checkAvailabilityApi(id , status);
-    console.log("response", response);
-
-    console.log(response);
+    const response = await checkAvailabilityApi(id );
     if (response?.ok) {
       toast.success(response?.data?.message);
       queryClient.invalidateQueries({
