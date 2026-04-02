@@ -133,7 +133,6 @@ const ExtintionsPage = () => {
               <Building2 className="text-primary" />
               <h2 className="text-xl font-bold"> Departments</h2>
             </div>
-
             {user?.role === "super_admin" && <AddDepartmentDialog />}
           </div>
           <div className="flex flex-col gap-4">

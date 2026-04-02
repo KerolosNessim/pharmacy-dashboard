@@ -35,7 +35,7 @@ export type loginValues = z.infer<typeof formSchema> & {
 // ================= Component =================
 export default function LoginForm() {
   const router = useRouter();
-  const { setUser } = useUserStore();
+  const { setUser,setClientToken } = useUserStore();
   const form = useForm<loginValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,13 +46,11 @@ export default function LoginForm() {
   const { isSubmitting } = form.formState;
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const fcm_token = await getFCMToken();
-    console.log(fcm_token);
     const res = await loginApi({ ...values, fcm_token });
-    console.log(res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
-      localStorage.setItem("token", res?.data?.data?.token as string);
+      setClientToken(res?.data?.data?.token);
       await setRole(
         res?.data?.data?.admin?.role || res?.data?.data?.pharmacist?.role,
       );

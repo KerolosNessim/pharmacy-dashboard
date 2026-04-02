@@ -30,6 +30,8 @@ export type user = {
 
 export type userState = {
     user: user | null,
+    clientToken: string | null,
+    setClientToken: (token: string | undefined) => void,
     setUser: (user:user | undefined) => void,
     removeUser: () => void
 }

@@ -1,12 +1,11 @@
 "use client";
-import { useUserStore } from "@/stores/user-store";
-import { Button } from "../ui/button";
-import { Loader2, LogOut } from "lucide-react";
 import { logoutApi } from "@/api/auth";
-import { deleteRole, deleteToken } from "@/actions/auth";
-import { toast } from "sonner";
-import { useState } from "react";
+import { useUserStore } from "@/stores/user-store";
+import { Loader2, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 const LogoutBtn = () => {
   const [loading, setLoading] = useState(false);
