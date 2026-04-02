@@ -19,14 +19,14 @@ const AddClinicDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus /> Add Clinic
+          <Plus /> Add Specialty
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Clinic</DialogTitle>
+          <DialogTitle>Add New Specialty</DialogTitle>
           <DialogDescription>
-            Create a new system&apos;s Clinic
+            Create a new system&apos;s Specialty
           </DialogDescription>
         </DialogHeader>
         <AddClinicForm setOpen={setOpen} />

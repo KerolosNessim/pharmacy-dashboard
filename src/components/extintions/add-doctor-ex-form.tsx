@@ -104,11 +104,11 @@ export const AddDoctorExtensionForm = ({
           name="clinic_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Clinic </FormLabel>
+              <FormLabel>Specialty </FormLabel>
               <FormControl>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select Clinic" />
+                    <SelectValue placeholder="Select Specialty" />
                   </SelectTrigger>
                   <SelectContent position="popper">
                     {clinicsList?.map((clinic: singleClinic) => (

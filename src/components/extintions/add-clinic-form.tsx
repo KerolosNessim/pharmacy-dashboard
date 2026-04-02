@@ -1,4 +1,4 @@
-import { addClinicApi, addDepartmentApi } from "@/api/extintions";
+import { addClinicApi } from "@/api/extintions";
 import {
   Form,
   FormControl,
@@ -17,8 +17,8 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 const formSchema = z.object({
   name: z.string().min(3, "Clinic name is required"),
-  phone: z.string().min(3, "Clinic phone is required"),
-  address: z.string().min(3, "Clinic address is required"),
+  // phone: z.string().min(3, "Clinic phone is required"),
+  // address: z.string().min(3, "Clinic address is required"),
 });
 
 export type ClinicValues = z.infer<typeof formSchema>;
@@ -32,8 +32,8 @@ export const AddClinicForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      phone: "",
-      address: "",
+      // phone: "",
+      // address: "",
     },
   });
 
@@ -60,10 +60,10 @@ export const AddClinicForm = ({
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Clinic Name</FormLabel>
+              <FormLabel>Specialty Name</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter Clinic Name"
+                  placeholder="Enter Specialty Name"
                   {...field}
                   className="focus-visible:ring-primary"
                 />
@@ -73,7 +73,7 @@ export const AddClinicForm = ({
           )}
         />
         {/* Supervisor address */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="phone"
           render={({ field }) => (
@@ -89,9 +89,9 @@ export const AddClinicForm = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
         {/* Supervisor address */}
-        <FormField
+        {/* <FormField
           control={form.control}
           name="address"
           render={({ field }) => (
@@ -107,7 +107,7 @@ export const AddClinicForm = ({
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <div className="flex justify-end gap-3 pt-4">
           <Button
@@ -123,7 +123,7 @@ export const AddClinicForm = ({
             ) : (
               <>
                 <Plus />
-                Add Clinic
+                Add Specialty
               </>
             )}
           </Button>
