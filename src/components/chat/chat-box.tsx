@@ -115,7 +115,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   };
 
   return (
-    <div className="flex flex-col    text-white rounded-xl overflow-hidden">
+    <div className="flex flex-col    text-white overflow-hidden">
       {/* الرسائل */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {liveMessages.map((msg) => (
@@ -129,7 +129,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
               className={`max-w-xs px-3 py-2 rounded-2xl ${
                 msg?.sender?.id === user?.id
                   ? "bg-green-700 rounded-br-none"
-                  : "bg-bg rounded-bl-none"
+                  : "dark:bg-bg bg-black rounded-bl-none"
               }`}
             >
               {/* صورة */}
@@ -184,11 +184,11 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
           )}
 
           {/* input */}
-          <div className="p-3 border-t border-white/10 flex items-center gap-2">
+          <div className=" p-3 border-t border  bg-bg flex items-center gap-2">
             {/* اختيار صورة */}
             <div>
               <Label htmlFor="camera" className="cursor-pointer">
-                <Camera className="size-8 text-white/70 hover:text-white" />
+                <Camera className="size-8 text-primary" />
               </Label>
 
               <Input
@@ -205,7 +205,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 border-none rounded-full px-4 py-2 text-sm 
+              className="flex-1 bg-background rounded-full px-4 py-2 text-sm 
               text-black dark:text-white 
               focus-visible:ring-primary 
               placeholder:text-black/70 dark:placeholder:text-white/70 min-h-14"
