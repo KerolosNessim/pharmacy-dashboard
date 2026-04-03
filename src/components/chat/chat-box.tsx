@@ -19,7 +19,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const [input, setInput] = useState("");
   const [img, setImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [liveMessages, setLiveMessages] = useState<unknown[]>([]);
+  const [liveMessages, setLiveMessages] = useState<Record<string, any>[]>([]);
 
   // 📥 أول تحميل للرسائل
   const { data } = useQuery({
