@@ -43,15 +43,35 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     const echo = initEcho(clientToken);
     if (!echo) return;
 
-    const channel = echo.private(`pharmacy.${pharmacyId}`);
-    console.log(channel);
+    const myChannelName = `pharmacy.${user?.pharmacy_id || user?.id}`;
+    console.log("📡 Subscribing to my channel:", myChannelName);
+    
+    const channel = echo.private(myChannelName);
+
+    channel.on("pusher:subscription_succeeded", () => {
+      console.log("✅ Subscription succeeded to:", myChannelName);
+    });
+
+    channel.on("pusher:subscription_error", (status: any) => {
+      console.error("❌ Subscription error for:", myChannelName, status);
+      toast.error("Real-time connection failed (Auth error)");
+    });
 
     channel.listen(".message.new", (data: any) => {
-      console.log("🔥 New message:", data);
+      console.log("🔥 New message received:", data);
       const newMessage = data?.message || data;
 
+      // Only add to list if it's from the person I'm currently chatting with
+      // OR if I sent it myself from another device (sender.id === user.id)
+      const isFromCurrentChat = newMessage?.sender?.id?.toString() === pharmacyId.toString();
+      const isFromMe = newMessage?.sender?.id === user?.id;
+
+      if (!isFromCurrentChat && !isFromMe) {
+          console.log("⏭️ Message filtered out (belongs to another chat)");
+          return;
+      }
+
       setLiveMessages((prev) => {
-        // منع التكرار (بناءً على الـ ID الحقيقي أو المحتوى والوقت لو ID مختلف)
         const exists = prev.find(
           (m: any) =>
             m?.id === newMessage?.id ||
@@ -76,7 +96,8 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     });
 
     return () => {
-      echo.leave(`pharmacy.${pharmacyId}`);
+      console.log("🔌 Leaving channel:", myChannelName);
+      echo.leave(myChannelName);
       echo.leave("my-channel");
     };
   }, [pharmacyId, clientToken]);
@@ -132,7 +153,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   };
 
   return (
-    <div className="flex flex-col    text-white overflow-hidden">
+    <div className="flex flex-col text-white overflow-hidden relative">
       {/* الرسائل */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {liveMessages.map((msg) => (
@@ -201,7 +222,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
           )}
 
           {/* input */}
-          <div className=" p-3 border-t border  bg-bg flex items-center gap-2">
+          <div className=" p-3 border-t border  bg-bg flex items-center gap-2   w-full ">
             {/* اختيار صورة */}
             <div>
               <Label htmlFor="camera" className="cursor-pointer">
