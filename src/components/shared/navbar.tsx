@@ -14,10 +14,16 @@ import { SidebarTrigger } from "../ui/sidebar";
 import { ModeToggle } from "./mode-toggle";
 import NavbarSheet from "./navbar-sheet";
 import UserAvatar from "./user-avatar";
+import { useQuery } from "@tanstack/react-query";
+import { getAlertsApi } from "@/api/alerts";
 const Navbar = () => {
-
-
-    const { unreadCount } = useFirebaseNotifications();
+  const { unreadCount } = useFirebaseNotifications();
+// get alerts
+  const { data } = useQuery({
+    queryKey: ["alerts"],
+    queryFn: () => getAlertsApi(),
+  });
+  const alerts = data?.data?.data ?? [];
 
   return (
     <div className="p-2 lg:pe-6 border-b  flex items-center justify-between sticky top-0 z-50 bg-bg">
@@ -47,6 +53,11 @@ const Navbar = () => {
                 <Megaphone className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
+              {alerts.length > 0 && (
+                <span className="absolute top-0 right-0 size-4 flex items-center justify-center bg-red-500 rounded-full text-white text-xs">
+                  {alerts.length > 99 ? "99+" : alerts.length}
+                </span>
+              )}
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Alerts</HoverCardContent>
@@ -59,11 +70,10 @@ const Navbar = () => {
                 <Bell className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
-              {unreadCount > 0 && (
-                <span className="absolute top-0 right-0 size-4 flex items-center justify-center bg-red-500 rounded-full text-white text-xs">
-                  {unreadCount > 99 ? "99+" : unreadCount}
+         
+                <span className="absolute top-1 right-1 size-2 flex items-center justify-center bg-red-500 rounded-full text-white text-xs">
+                  
                 </span>
-              )}
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Notifications</HoverCardContent>

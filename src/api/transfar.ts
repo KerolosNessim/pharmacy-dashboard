@@ -7,10 +7,11 @@ export const addRequestApi = (data: AddRequestData) =>
     body: JSON.stringify(data),
   });
 
-export const getRequestsApi = (params?: string) => {
+export const getRequestsApi = (params?: string) => {  
   const url = params ? `/transfers${params}` : "/transfers";
   return apiRequest<TransferResponse>(url);
 }
+
 
 export const acceptRequestApi = (id: number) =>
   apiRequest<AddRequestResponse>(`/transfers/${id}/approve`, {

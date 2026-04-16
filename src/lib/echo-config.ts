@@ -23,7 +23,7 @@ export const initEcho = (token: string) => {
   currentToken = token;
   echo = new Echo<"pusher">({
     broadcaster: "pusher",
-    key: "45aaffc024ffed97e1cd",
+    key: "ea540644f44cd2d651cf",
     cluster: "eu",
     forceTLS: true,
     authEndpoint: `${process.env.NEXT_PUBLIC_BASE_URL}/broadcasting/auth`,

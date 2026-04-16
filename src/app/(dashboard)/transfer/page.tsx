@@ -1,5 +1,6 @@
 "use client";
 import { getRequestsApi } from "@/api/transfar";
+import DownloadReportDialog from "@/components/shared/download-report-dialog";
 import SendReportDialog from "@/components/shared/send-report-dialog";
 import MyTransferCard from "@/components/transfer/my-transfer-card";
 import { Badge } from "@/components/ui/badge";
@@ -9,10 +10,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight,
   CircleCheck,
-  File,
   History,
   Inbox,
-  User,
+  User
 } from "lucide-react";
 import Link from "next/link";
 import { GoArrowDownLeft, GoArrowUpRight } from "react-icons/go";
@@ -23,13 +23,14 @@ const TransferPage = () => {
     queryKey: ["transfers"],
     queryFn: () => getRequestsApi("?type=all&status=all"),
   });
-  console.log(data);
   const { data: completedData } = useQuery({
     queryKey: ["completed-transfers"],
     queryFn: () => getRequestsApi("?type=all&status=completed"),
   });
+
   const transfers = data?.data?.data?.data ?? [];
   const completedTransfers = completedData?.data?.data?.data ?? [];
+
   return (
     <section className="flex flex-col gap-4 p-4">
       {/* header */}
@@ -75,9 +76,12 @@ const TransferPage = () => {
       </div>
       {/* transfer History */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          <History className="size-5 text-primary" />
-          <h2 className=" font-bold">Transfers</h2>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <History className="size-5 text-primary" />
+            <h2 className=" font-bold">Transfers</h2>
+          </div>
+          <DownloadReportDialog />
         </div>
         <div className="border rounded-xl overflow-hidden flex items-center">
           <Link href={"/transfer/history"} className="w-full ">
