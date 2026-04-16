@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Loader2, Send } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -20,18 +20,23 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const [img, setImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [liveMessages, setLiveMessages] = useState<Record<string, any>[]>([]);
+  const initialized = useRef(false);
 
   // 📥 أول تحميل للرسائل
   const { data } = useQuery({
     queryKey: ["messages", pharmacyId],
     queryFn: () => getMessagesApi(pharmacyId),
+    staleTime: Infinity,      // ← منع React Query من إعادة الفيتش التلقائي
+    refetchOnWindowFocus: false, // ← منع refetch لما اليوزر يرجع للـ tab
   });
 
   const messages = data?.data?.messages ?? [];
 
-  // sync أول مرة
+  // sync أول مرة فقط — لا نرجع نعمل reset تاني
   useEffect(() => {
-    console.log("hello from useEffect live");
+    if (initialized.current) return; // ← لو اتحمل قبل كده، سيب
+    if (messages.length === 0) return; // ← مستنيين الداتا تيجي
+    initialized.current = true;
     setLiveMessages(messages);
   }, [messages]);
 
