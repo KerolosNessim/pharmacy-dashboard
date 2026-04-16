@@ -43,8 +43,12 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     const echo = initEcho(clientToken);
     if (!echo) return;
 
-    const myChannelName = `pharmacy.${user?.pharmacy_id || user?.id}`;
-    console.log("📡 Subscribing to my channel:", myChannelName);
+    const isSuperAdmin = user?.role === "super_admin";
+    const myChannelName = isSuperAdmin 
+      ? "chat.management" 
+      : `chat.${user?.pharmacy_id}`;
+    
+    console.log("📡 Subscribing to channel:", myChannelName);
     
     const channel = echo.private(myChannelName);
 
@@ -57,7 +61,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
       toast.error("Real-time connection failed (Auth error)");
     });
 
-    channel.listen(".message.new", (data: any) => {
+    channel.listen(".message.sent", (data: any) => {
       console.log("🔥 New message received:", data);
       const newMessage = data?.message || data;
 
@@ -67,8 +71,11 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
       const isFromMe = newMessage?.sender?.id === user?.id;
 
       if (!isFromCurrentChat && !isFromMe) {
-          console.log("⏭️ Message filtered out (belongs to another chat)");
-          return;
+          // If we are admin, we might want to see everything, but this component is per-id
+          if (!isSuperAdmin) {
+             console.log("⏭️ Message filtered out (belongs to another chat)");
+             return;
+          }
       }
 
       setLiveMessages((prev) => {

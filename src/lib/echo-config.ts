@@ -36,4 +36,4 @@ export const initEcho = (token: string) => {
   });
 
   return echo;
-};
+};
