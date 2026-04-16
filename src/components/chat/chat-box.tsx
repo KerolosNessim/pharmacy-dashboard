@@ -43,20 +43,28 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     const echo = initEcho(clientToken);
     if (!echo) return;
 
-    const channel = echo.private(`${pharmacyId}`);
+    const channel = echo.private(`pharmacy.${pharmacyId}`);
     console.log(channel);
 
-    channel.listen(".message.new", (data: unknown) => {
+    channel.listen(".message.new", (data: any) => {
       console.log("🔥 New message:", data);
+      const newMessage = data?.message || data;
 
       setLiveMessages((prev) => {
-        // منع التكرار لو optimistic message موجود
+        // منع التكرار (بناءً على الـ ID الحقيقي أو المحتوى والوقت لو ID مختلف)
         const exists = prev.find(
-          (m: any) => m?.id === (data as any)?.message?.id,
+          (m: any) =>
+            m?.id === newMessage?.id ||
+            (m?.message === newMessage?.message &&
+              m?.sender?.id === newMessage?.sender?.id &&
+              Math.abs(
+                new Date(m.created_at).getTime() -
+                  new Date(newMessage.created_at).getTime(),
+              ) < 5000),
         );
         if (exists) return prev;
 
-        return [...prev, (data as any)?.message];
+        return [...prev, newMessage];
       });
     });
 
@@ -68,7 +76,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     });
 
     return () => {
-      echo.leave(`${pharmacyId}`);
+      echo.leave(`pharmacy.${pharmacyId}`);
       echo.leave("my-channel");
     };
   }, [pharmacyId, clientToken]);
@@ -107,8 +115,17 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
 
     const res = await sendMessageApi(formData);
 
-    if (!res?.ok) {
+    if (res?.ok) {
+      // ✅ استبدال الرسالة المؤقتة بالرسالة الحقيقية من السيرفر
+      setLiveMessages((prev) =>
+        prev.map((m) =>
+          m.id === tempMessage.id ? (res.data as any).message : m,
+        ),
+      );
+    } else {
       toast.error("failed to send message");
+      // ❌ حذف الرسالة المؤقتة لو فشل الارسال
+      setLiveMessages((prev) => prev.filter((m) => m.id !== tempMessage.id));
     }
 
     setLoading(false);

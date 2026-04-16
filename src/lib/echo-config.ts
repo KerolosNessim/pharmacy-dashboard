@@ -9,22 +9,24 @@ declare global {
 }
 
 let echo: Echo<"pusher"> | null = null;
+let currentToken: string | null = null;
 
 export const initEcho = (token: string) => {
   if (typeof window === "undefined") return null;
 
-  if (echo) return echo;
+  if (echo && currentToken === token) return echo;
 
   window.Pusher = Pusher;
   // 👇 ده هيخلي كل الـ logs بتاعة Pusher تظهر في الكونسول (نجاح/فشل الاتصال)
   Pusher.logToConsole = true;
 
+  currentToken = token;
   echo = new Echo<"pusher">({
     broadcaster: "pusher",
     key: "45aaffc024ffed97e1cd",
     cluster: "eu",
     forceTLS: true,
-    authEndpoint: "http://localhost:8000/api/broadcasting/auth",
+    authEndpoint: `${process.env.NEXT_PUBLIC_BASE_URL}/broadcasting/auth`,
     auth: {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -34,4 +36,4 @@ export const initEcho = (token: string) => {
   });
 
   return echo;
-};
+};
