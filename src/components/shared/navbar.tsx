@@ -71,7 +71,7 @@ const Navbar = () => {
                 <span className="sr-only"></span>
               </Link>
          
-                <span className="absolute top-1 right-1 size-2 flex items-center justify-center bg-red-500 rounded-full text-white text-xs">
+                <span className="absolute top-1 right-1 size-2 flex items-center justify-center bg-red-500 rounded-full text-white text-xs animate-pulse">
                   
                 </span>
             </Button>

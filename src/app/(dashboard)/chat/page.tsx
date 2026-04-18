@@ -39,9 +39,9 @@ const ChatPage = () => {
   const adminInbox = adminInboxData?.data?.data ?? [];
 
   return (
-    <section className="flex flex-col ">
+    <section className="flex flex-col h-[calc(100vh-70px)]">
       {/* selector */}
-      <div className="bg-bg p-4 flex items-center gap-2 ">
+      <div className="bg-bg p-4 flex items-center gap-2 shrink-0">
         {selectedPharmacy && (
           <Button
             onClick={() => setSelectedPharmacy("")}
@@ -81,11 +81,11 @@ const ChatPage = () => {
           <RefreshCcw />
         </Button>
       </div>
-      <>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {selectedPharmacy ? (
           <Chatbox pharmacyId={selectedPharmacy} />
         ) : (
-          <>
+          <div className="overflow-y-auto">
             {/* content */}
             <div className=" flex flex-col  items-center gap-2 mt-4">
               <div className="size-16 bg-primary/30 text-primary rounded-full flex items-center justify-center">
@@ -130,9 +130,9 @@ const ChatPage = () => {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
-      </>
+      </div>
     </section>
   );
 };

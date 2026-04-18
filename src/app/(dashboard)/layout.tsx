@@ -8,12 +8,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-      <SidebarProvider>
-        <AppSidebar />
-        <SidebarInset>
-          <Navbar />
-          <main>{children}</main>
-        </SidebarInset>
-      </SidebarProvider>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <Navbar />
+        <main>{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
