@@ -16,7 +16,7 @@ export const useChatRealtime = ({
 }: {
   pharmacyId: string;
   user: any;
-  token: string;
+  token: string | null;
 }) => {
   const [realtimeMessages, setRealtimeMessages] = useState<any[]>([]);
   const channelRef = useRef<string | null>(null);
