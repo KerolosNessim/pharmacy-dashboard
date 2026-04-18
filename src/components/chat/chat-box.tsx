@@ -382,7 +382,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     if (res?.ok) {
       // Replace temp with confirmed message
       setOptimisticMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? res.data.message : m))
+        prev.map((m) => (m.id === tempId ? (res.data as any).message : m))
       );
     } else {
       toast.error("Failed to send message");
