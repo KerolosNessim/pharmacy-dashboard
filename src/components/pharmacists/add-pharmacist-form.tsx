@@ -34,6 +34,7 @@ const formSchema = z.object({
   email: z.string().email("Pharmacist email is required"),
   pharmacy_id: z.string().nonempty("Pharmacist pharmacy must be selected"),
   password: z.string("password is required").optional(),
+  id_number: z.string("id number is required").optional(),
 });
 
 export type pharmacistValues = z.infer<typeof formSchema>;
@@ -60,6 +61,7 @@ export const AddPharmacistForm = ({
       pharmacy_id:
         user?.role === "super_admin" ? "" : String(user?.pharmacy_id),
       password: "",
+      id_number: "",
     },
   });
   async function onSubmit(values: pharmacistValues) {
@@ -188,6 +190,24 @@ export const AddPharmacistForm = ({
         </RadioGroup>
 
         {!withinvetaion && (
+          <>
+          <FormField
+            control={form.control}
+            name="id_number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pharmacist ID Number</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter Pharmacist ID Number"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="password"
@@ -205,6 +225,7 @@ export const AddPharmacistForm = ({
               </FormItem>
             )}
           />
+          </>
         )}
         <div className="flex justify-end gap-3 pt-4">
           <Button

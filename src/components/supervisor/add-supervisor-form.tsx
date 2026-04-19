@@ -33,6 +33,7 @@ const formSchema = z.object({
   email: z.string().email("Supervisor email is required"),
   pharmacy_id: z.string().nonempty("Supervisor pharmacy must be selected"),
   password: z.string("Supervisor password is required").optional(),
+  id_number: z.string("Supervisor id number is required").optional(),
 });
 
 export type supervisorValues = z.infer<typeof formSchema>;
@@ -57,6 +58,7 @@ export const AddSupervisorForm = ({
       email: "",
       pharmacy_id: "",
       password: "",
+      id_number: "",
     },
   });
   async function onSubmit(values: supervisorValues) {
@@ -188,6 +190,24 @@ export const AddSupervisorForm = ({
         </RadioGroup>
 
         {!withinvetaion && (
+          <>
+          <FormField
+            control={form.control}
+            name="id_number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Supervisor ID Number</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter Supervisor ID Number"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="password"
@@ -205,6 +225,7 @@ export const AddSupervisorForm = ({
               </FormItem>
             )}
           />
+          </>
         )}
         <div className="flex justify-end gap-3 pt-4">
           <Button

@@ -6,7 +6,7 @@ export  function proxy(request: NextRequest) {
   const role = request.cookies.get("role")?.value;
   const { pathname } = request.nextUrl;
 
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register")||pathname.startsWith("/activate");
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register")||pathname.startsWith("/activate") || pathname.startsWith("/forget-password")||pathname.startsWith("/reset-password");
 
   if (token&&role) {
     // If authenticated and trying to access login/register, redirect to home
