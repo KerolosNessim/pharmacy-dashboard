@@ -305,6 +305,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const [loading, setLoading] = useState(false);
   // Optimistic messages (temp + confirmed from server)
   const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -350,6 +351,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setSelectedFile(file);
     setImg(URL.createObjectURL(file));
   };
 
@@ -372,9 +374,13 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     const formData = new FormData();
     formData.append("message", input);
     formData.append("pharmacy_id", pharmacyId);
+    if (selectedFile) {
+      formData.append("image", selectedFile);
+    }
 
     setInput("");
     setImg(null);
+    setSelectedFile(null);
     setLoading(true);
 
     const res = await sendMessageApi(formData);
@@ -388,7 +394,6 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
       toast.error("Failed to send message");
       setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
     }
-
     setLoading(false);
   };
 
@@ -410,6 +415,9 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
                   : "bg-black rounded-bl-none"
               }`}
             >
+              <p className="text-[10px] font-bold opacity-80 mb-1">
+                {msg?.sender?.name}
+              </p>
               {msg?.file_url && (
                 <Dialog>
                   <DialogTrigger asChild>

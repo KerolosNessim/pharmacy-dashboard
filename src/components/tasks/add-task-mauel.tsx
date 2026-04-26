@@ -28,7 +28,7 @@ import { addTaskApi } from "@/api/tasks";
 import { toast } from "sonner";
 const formSchema = z.object({
   assigned_to: z.string().min(1, "Pharmacist name is required"),
-  file_link: z.string().url("file link is required"),
+  file_link: z.string().optional(),
   description: z
     .string()
     .nonempty("description is required")

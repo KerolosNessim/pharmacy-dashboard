@@ -76,7 +76,7 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
                     <div>
                       <p className="font-medium text-sm">{product.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {product.category?.name} • SKU: {product.sku || "-"}
+                        {product.category?.name} • code: {product?.code || "-"}
                       </p>
                     </div>
                   </div>

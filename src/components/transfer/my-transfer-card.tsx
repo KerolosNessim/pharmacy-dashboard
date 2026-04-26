@@ -21,13 +21,16 @@ const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
       {/* status */}
       <Badge
         variant={
-          transfar?.status == "pending"
+          transfar?.status === "Pending"
             ? "pending"
-            : transfar.status == "completed" || transfar.status == "approved"
+            : transfar?.status === "Completed"
               ? "success"
-              : transfar.status == "Rejected" || transfar.status == "cancelled"
-                ? "destructive"
-                : "default"
+              : transfar?.status === "Approved" || transfar?.status === "Active"
+                ? "approved"
+                : transfar?.status === "Rejected" ||
+                  transfar?.status === "Cancelled"
+                  ? "destructive"
+                  : "default"
         }
       >
         {transfar?.status}

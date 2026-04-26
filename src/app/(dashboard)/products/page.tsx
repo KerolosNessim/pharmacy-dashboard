@@ -197,9 +197,9 @@ const ProductsPage = () => {
               <TableHeader className="bg-bg ">
                 <TableRow className="hover:bg-bg">
                   <TableHead>Name</TableHead>
-                  <TableHead>SKU</TableHead>
+                  <TableHead>Code</TableHead>
                   <TableHead>Category</TableHead>
-                  <TableHead>Price</TableHead>
+                  {/* <TableHead>Price</TableHead> */}
                   {user?.role === "super_admin" && (
                     <TableHead>Actions</TableHead>
                   )}
@@ -216,14 +216,14 @@ const ProductsPage = () => {
                   >
                     <TableCell>{product?.name}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {product?.sku || "-"}
+                      {product?.code || "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {product?.category?.name}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    {/* <TableCell className="text-muted-foreground">
                       {product?.price || "-"}
-                    </TableCell>
+                    </TableCell> */}
                     {user?.role === "super_admin" && (
                       <TableCell className="flex items-center gap-2">
                         <Button

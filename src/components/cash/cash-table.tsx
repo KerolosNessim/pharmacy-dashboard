@@ -8,14 +8,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Cash } from "@/types/cash";
-import { Trash } from "lucide-react";
-import { Button } from "../ui/button";
-import EditCashDialog from "./edit-cash-dialog";
+import CashTableActions from "./cash-table-actions";
 import { Badge } from "../ui/badge";
-import { useQueryClient } from "@tanstack/react-query";
-import { deleteCashApi } from "@/api/cash";
-import { useState } from "react";
-import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
 
 const CashTable = ({
@@ -23,21 +17,7 @@ const CashTable = ({
 }: {
   invoices: Cash[];
   }) => {
-  const [loading, setLoading] = useState(false)
   const {user}=useUserStore()
-  const queryClient = useQueryClient();
-  const deleteCash = async (id: number) => {
-    setLoading(true)
-    const res = await deleteCashApi(id);
-    if(res?.ok){
-      toast.success(res?.data?.message);
-      queryClient.invalidateQueries({ queryKey: ["cash"] });
-    }
-    else{
-      toast.error(res?.error);
-    }
-    setLoading(false)
-  };
   
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -76,17 +56,9 @@ const CashTable = ({
                 </TableCell>
                 {
                   user?.role!="pharmacist"&&(
-                    <TableCell className="flex gap-2">
-                  <EditCashDialog invoice={inv} />
-
-                  <Button
-                    variant="destructive"
-                    onClick={() => deleteCash(inv?.id)}
-                    disabled={loading}
-                  >
-                    <Trash />
-                  </Button>
-                </TableCell>
+                    <TableCell>
+                      <CashTableActions invoice={inv} />
+                    </TableCell>
                   )
                 }
               </TableRow>

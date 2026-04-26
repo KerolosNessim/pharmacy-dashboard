@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useGoBack } from "@/hooks/use-goback";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Box, Loader2, Minus, Plus, X } from "lucide-react";
@@ -22,7 +23,7 @@ export type SelectedProduct = {
   name: string;
   quantity: number;
   id: number;
-  sku: string | null;
+  code: string | null;
   price: string;
   description: string | null;
 };
@@ -36,6 +37,7 @@ const RequestPage = () => {
 
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct[]>([]);
   const [pharmacyId, setPharmacyId] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   // increase
   const increaseQuantity = (id: number) => {
@@ -70,6 +72,7 @@ const RequestPage = () => {
     setLoading(true);
     const payload = {
       from_pharmacy_id: Number(pharmacyId),
+      notes,
       items: selectedProduct.map((product) => ({
         product_id: product.id,
         quantity: product.quantity,
@@ -135,7 +138,7 @@ const RequestPage = () => {
                         <p className="font-medium">{product.name}</p>
                         <p className="font-medium">{product.description}</p>
                         <p className="text-sm text-muted-foreground">
-                          SKU: {product.sku || "-"}
+                          Code: {product?.code || "-"}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           Price: {product.price}
@@ -198,6 +201,15 @@ const RequestPage = () => {
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Label>Notes (Optional)</Label>
+        <Textarea
+          placeholder="Add any additional notes here..."
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          className="min-h-[100px]"
+        />
       </div>
       <Button
         onClick={handleSubmit}

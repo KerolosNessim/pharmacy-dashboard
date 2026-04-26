@@ -12,7 +12,7 @@ import { Check, Clock, Loader2, Printer, X } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { acceptRequestApi, rejectRequestApi } from "@/api/transfar";
+import { acceptRequestApi, activateRequestApi, completeRequestApi, rejectRequestApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "../ui/textarea";
@@ -26,13 +26,17 @@ const TransferIncomingCard = ({
 }) => {
   const [acceptLoading, setAcceptLoading] = useState(false);
   const [rejectLoading, setRejectLoading] = useState(false);
+  const [activateLoading, setActivateLoading] = useState(false);
+  const [completeLoading, setCompleteLoading] = useState(false);
   const [isRejected, setIsRejected] = useState(false);
+  const [isAccepted, setIsAccepted] = useState(false);
   const [reason, setReason] = useState("");
+  const [acceptNotes, setAcceptNotes] = useState("");
   const queryClient = useQueryClient();
   const {user} = useUserStore();
   const handleAccept = async () => {
     setAcceptLoading(true);
-    const res = await acceptRequestApi(transfar?.id);
+    const res = await acceptRequestApi(transfar?.id, acceptNotes);
     if (res?.ok) {
       toast.success(res?.data?.message);
       queryClient.invalidateQueries({
@@ -41,6 +45,8 @@ const TransferIncomingCard = ({
       queryClient.invalidateQueries({
         queryKey: ["transfer-out"],
       });
+      setIsAccepted(false);
+      setAcceptNotes("");
     } else {
       toast.error(res?.error);
     }
@@ -63,6 +69,32 @@ const TransferIncomingCard = ({
     setRejectLoading(false);
     setIsRejected(false);
     setReason("");
+  };
+
+  const handleActivate = async () => {
+    setActivateLoading(true);
+    const res = await activateRequestApi(transfar?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ["transfers-incoming"] });
+      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+    } else {
+      toast.error(res?.error);
+    }
+    setActivateLoading(false);
+  };
+
+  const handleComplete = async () => {
+    setCompleteLoading(true);
+    const res = await completeRequestApi(transfar?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ["transfers-incoming"] });
+      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+    } else {
+      toast.error(res?.error);
+    }
+    setCompleteLoading(false);
   };
   return (
     <Card>
@@ -104,7 +136,12 @@ const TransferIncomingCard = ({
               key={index}
               className="flex items-center justify-between p-2 bg-background/50 rounded"
             >
-              <p>{medication.name}</p>
+              <div className="flex flex-col gap-2">
+                <p>{medication?.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {medication?.product_code}
+                </p>
+              </div>
               <Badge variant={"outline"} className="rounded border-2">
                 x{medication.quantity}
               </Badge>
@@ -114,45 +151,74 @@ const TransferIncomingCard = ({
       </CardContent>
       <CardFooter className="border-t  flex flex-col gap-2">
         <div className="flex items-center justify-between w-full">
-          {
-            user?.role !== "super_admin" && (
-              
-          <div className="flex items-center gap-2">
-            {transfar?.status === "Approved" ||
-            transfar?.status === "Rejected" || transfar?.status === "Completed"? null : (
-              <>
-                <Button onClick={handleAccept} disabled={acceptLoading}>
-                  {acceptLoading ? (
+          {user?.role !== "super_admin" && (
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Accept/Reject logic */}
+              {!transfar?.can_activate && !transfar?.can_complete && (
+                transfar?.status === "Pending" && (
+                  <>
+                    <Button
+                      onClick={() => {
+                        setIsAccepted(!isAccepted);
+                        setIsRejected(false);
+                      }}
+                      disabled={acceptLoading}
+                    >
+                      <Check className="size-5" />
+                      Accept
+                    </Button>
+
+                    <Button
+                      variant={"destructive"}
+                      onClick={() => {
+                        setIsRejected(!isRejected);
+                        setIsAccepted(false);
+                      }}
+                    >
+                      Reject
+                    </Button>
+                  </>
+                )
+              )}
+
+              {/* Mark as Active logic */}
+              {transfar?.can_activate && (
+                <Button onClick={handleActivate} disabled={activateLoading} className="bg-blue-600 hover:bg-blue-700">
+                  {activateLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <Check className="size-5" />
+                    <Clock className="mr-2 size-5" />
                   )}
-                  Accept
+                  Mark as Active
                 </Button>
+              )}
 
-                <Button
-                  variant={"destructive"}
-                  onClick={() => setIsRejected(!isRejected)}
-                >
-                  Reject
+              {/* Mark as Complete logic */}
+              {transfar?.can_complete && (
+                <Button onClick={handleComplete} disabled={completeLoading} className="bg-green-600 hover:bg-green-700">
+                  {completeLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="mr-2 size-5" />
+                  )}
+                  Mark as Complete
                 </Button>
-              </>
-            )}
-          </div>
-            )
-          }
-          
+              )}
+            </div>
+          )}
+
           <Badge
             variant={
-              transfar?.status == "pending"
+              transfar?.status === "Pending"
                 ? "pending"
-                : transfar?.status == "completed" ||
-                    transfar?.status == "approved"
+                : transfar?.status === "Completed"
                   ? "success"
-                  : transfar?.status == "Rejected" ||
-                      transfar?.status == "cancelled"
-                    ? "destructive"
-                    : "default"
+                  : transfar?.status === "Approved" || transfar?.status === "Active"
+                    ? "approved"
+                    : transfar?.status === "Rejected" ||
+                      transfar?.status === "Cancelled"
+                      ? "destructive"
+                      : "default"
             }
           >
             {transfar?.status}
@@ -169,13 +235,43 @@ const TransferIncomingCard = ({
               placeholder="Enter rejection reason"
               className="min-h-[80px] focus-visible:ring-primary"
             />
-            <Button variant={"destructive"} onClick={handleReject} disabled={rejectLoading} className=" ms-auto  ">
+            <Button
+              variant={"destructive"}
+              onClick={handleReject}
+              disabled={rejectLoading}
+              className=" ms-auto  "
+            >
               {rejectLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : (
                 <X className="size-5" />
               )}
-              Reject
+              Confirm Reject
+            </Button>
+          </div>
+        )}
+        {isAccepted && (
+          <div className=" space-y-4 w-full">
+            <p className="text-base text-muted-foreground font-semibold">
+              Acceptance Notes (Optional):
+            </p>
+            <Textarea
+              value={acceptNotes}
+              onChange={(e) => setAcceptNotes(e.target.value)}
+              placeholder="Enter any notes for this approval"
+              className="min-h-[80px] focus-visible:ring-primary"
+            />
+            <Button
+              onClick={handleAccept}
+              disabled={acceptLoading}
+              className=" ms-auto  "
+            >
+              {acceptLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="size-5" />
+              )}
+              Confirm Accept
             </Button>
           </div>
         )}

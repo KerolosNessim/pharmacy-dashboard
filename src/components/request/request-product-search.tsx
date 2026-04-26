@@ -76,9 +76,9 @@ const RequestProductSearch = ({
                       name: product.name,
                       quantity: 1,
                       id: product.id,
-                      sku: product.sku,
-                      price: product.price,
-                      description: product.description,
+                      code: product?.code,
+                      price: product?.price,
+                      description: product?.description,
                     }]);
                   }}
                   className="p-3 border-b last:border-0 hover:bg-bg transition-colors flex items-center justify-between w-full text-left"
@@ -94,7 +94,7 @@ const RequestProductSearch = ({
                       </p>
                       <p>{product?.description}</p>
                       <p>
-                        SKU: {product?.sku || "-"} . Price: {product?.price}
+                        code: {product?.code || "-"} . Price: {product?.price}
                       </p>
                     </div>
                   </div>

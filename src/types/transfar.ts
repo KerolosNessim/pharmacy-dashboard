@@ -63,6 +63,7 @@ export type AddRequestResponse={
 
 export type AddRequestData= {
       from_pharmacy_id: number,
+      notes?: string,
       items: {
         product_id: number,
         quantity: number,
@@ -94,9 +95,12 @@ export type RequestItem=            {
                 medications: 
                     {
                         name: string,
-                        quantity: number
+                        quantity: number,
+                        product_code: string
                     }[],
-                status: string
+                status: string,
+                can_activate?: boolean,
+                can_complete?: boolean
 }
             
 

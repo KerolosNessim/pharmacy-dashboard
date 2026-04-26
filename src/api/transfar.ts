@@ -13,14 +13,19 @@ export const getRequestsApi = (params?: string) => {
 }
 
 
-export const acceptRequestApi = (id: number) =>
+export const acceptRequestApi = (id: number, notes?: string) =>
   apiRequest<AddRequestResponse>(`/transfers/${id}/approve`, {
     method: "POST",
+    body: notes ? JSON.stringify({ notes }) : undefined,
   });
-export const rejectRequestApi = (id: number,rejection_reason:string) =>
+export const rejectRequestApi = (id: number, notes: string) =>
   apiRequest<AddRequestResponse>(`/transfers/${id}/reject`, {
     method: "POST",
-    body: JSON.stringify({ rejection_reason }),
+    body: JSON.stringify({ notes }),
+  });
+export const activateRequestApi = (id: number) =>
+  apiRequest<AddRequestResponse>(`/transfers/${id}/activate`, {
+    method: "POST",
   });
 export const completeRequestApi = (id: number) =>
   apiRequest<AddRequestResponse>(`/transfers/${id}/complete`, {

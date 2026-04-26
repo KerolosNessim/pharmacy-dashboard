@@ -60,7 +60,12 @@ const handlePrint = useReactToPrint({
               key={index}
               className="flex items-center justify-between p-2 bg-background/50 rounded"
             >
-              <p>{medication.name}</p>
+              <div className="flex flex-col gap-2">
+                <p>{medication?.name}</p>
+                <p className="text-sm text-muted-foreground">
+                  {medication?.product_code}
+                </p>
+              </div>
               <Badge variant={"outline"} className="rounded border-2">
                 x{medication.quantity}
               </Badge>
@@ -68,7 +73,7 @@ const handlePrint = useReactToPrint({
           ))}
         </div>
         <div className="hidden">
-          <PrintCard ref={printRef}    transfar={transfar} />
+          <PrintCard ref={printRef} transfar={transfar} />
         </div>
       </CardContent>
       <CardFooter className="border-t">
@@ -76,15 +81,16 @@ const handlePrint = useReactToPrint({
           <p className="text-base text-muted-foreground">Status:</p>
           <Badge
             variant={
-              transfar?.status == "pending"
+              transfar?.status === "Pending"
                 ? "pending"
-                : transfar.status == "completed" ||
-                    transfar.status == "approved"
+                : transfar?.status === "Completed"
                   ? "success"
-                  : transfar.status == "Rejected" ||
-                      transfar.status == "cancelled"
-                    ? "destructive"
-                    : "default"
+                  : transfar?.status === "Approved" || transfar?.status === "Active"
+                    ? "approved"
+                    : transfar?.status === "Rejected" ||
+                      transfar?.status === "Cancelled"
+                      ? "destructive"
+                      : "default"
             }
           >
             {transfar?.status}
