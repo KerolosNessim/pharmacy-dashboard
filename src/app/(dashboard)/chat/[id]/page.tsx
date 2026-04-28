@@ -16,7 +16,6 @@ export default function ChatPage() {
     queryFn: () => getAdminSingleInboxApi(chatId),
   });
 
-console.log(data);
 
 
   const messages = (data?.data?.messages ?? []).sort(

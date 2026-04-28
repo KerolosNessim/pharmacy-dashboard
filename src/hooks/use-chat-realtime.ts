@@ -50,15 +50,23 @@ export const useChatRealtime = ({
     channel.error((err: any) => console.error("❌ Error:", err));
 
     channel.listenToAll((event: string, data: any) => {
-      console.log("📩 RAW EVENT:", event, data);
+      console.log("📡 RAW PUSHER EVENT:", event, data);
     });
 
     channel.listen(".message.sent", (data: any) => {
       const newMessage = data?.message || data;
-      console.log("🔥 NEW MESSAGE — adding to state:", newMessage);
+      console.log("🔥 REALTIME MESSAGE RECEIVED:", {
+        id: newMessage.id,
+        type: newMessage.file_type,
+        sender: newMessage.sender?.name,
+        pharmacyId: pharmacyId
+      });
 
       setRealtimeMessages((prev) => {
-        if (prev.some((m) => m.id === newMessage.id)) return prev;
+        if (prev.some((m) => m.id === newMessage.id)) {
+          console.log("⏭️ Skipping duplicate message:", newMessage.id);
+          return prev;
+        }
         return [...prev, newMessage];
       });
     });
