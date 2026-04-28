@@ -21,7 +21,10 @@ export interface Task {
                     role: "supervisor",
                     pharmacy_id: number,
                     status: "active"
-                },
+    },
+    assigned_to: {
+    name: string
+},
                 file_name: string | null,
                 file_url: string | null,
                 file_link: string,
