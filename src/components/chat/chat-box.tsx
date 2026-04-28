@@ -389,7 +389,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                onClick={stopRecording}
+                onClick={() => stopRecording()}
               >
                 <Square className="size-4 fill-current" />
               </Button>
