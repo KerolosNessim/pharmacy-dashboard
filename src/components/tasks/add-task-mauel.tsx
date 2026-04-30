@@ -31,8 +31,10 @@ const formSchema = z.object({
   file_link: z.string().optional(),
   description: z
     .string()
-    .nonempty("description is required")
-    .min(10, "description must be at least 10 characters"),
+    .optional(),
+  remark_1: z.string().optional(),
+  remark_2: z.string().optional(),
+  remark_3: z.string().optional(),
 });
 
 export type taskValues = z.infer<typeof formSchema>;
@@ -51,6 +53,9 @@ export const AddtaskForm = () => {
       assigned_to: "",
       file_link: "",
       description: "",
+      remark_1: "",
+      remark_2: "",
+      remark_3: "",
     },
   });
   async function onSubmit(values: taskValues) {
@@ -136,6 +141,50 @@ export const AddtaskForm = () => {
             </FormItem>
           )}
         />
+
+        {/* Remarks */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField
+            control={form.control}
+            name="remark_1"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Remark 1</FormLabel>
+                <FormControl>
+                  <Input placeholder="Remark 1" {...field} className="focus-visible:ring-primary" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="remark_2"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Remark 2</FormLabel>
+                <FormControl>
+                  <Input placeholder="Remark 2" {...field} className="focus-visible:ring-primary" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="remark_3"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Remark 3</FormLabel>
+                <FormControl>
+                  <Input placeholder="Remark 3" {...field} className="focus-visible:ring-primary" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
 
         <div className="flex justify-end gap-3 pt-4">
           <Button type="submit" disabled={isSubmitting}>

@@ -14,7 +14,7 @@ export const getRequestsApi = (params?: string) => {
 
 
 export const acceptRequestApi = (id: number, notes?: string) =>
-  apiRequest<AddRequestResponse>(`/transfers/${id}/approve`, {
+  apiRequest<AddRequestResponse>(`/transfers/${id}/accept`, {
     method: "POST",
     body: notes ? JSON.stringify({ notes }) : undefined,
   });
@@ -24,11 +24,15 @@ export const rejectRequestApi = (id: number, notes: string) =>
     body: JSON.stringify({ notes }),
   });
 export const activateRequestApi = (id: number) =>
-  apiRequest<AddRequestResponse>(`/transfers/${id}/activate`, {
+  apiRequest<AddRequestResponse>(`/transfers/${id}/mark-active`, {
     method: "POST",
   });
 export const completeRequestApi = (id: number) =>
-  apiRequest<AddRequestResponse>(`/transfers/${id}/complete`, {
+  apiRequest<AddRequestResponse>(`/transfers/${id}/mark-completed`, {
+    method: "POST",
+  });
+export const markTransferredApi = (id: number) =>
+  apiRequest<AddRequestResponse>(`/transfers/${id}/mark-transfer`, {
     method: "POST",
   });
 

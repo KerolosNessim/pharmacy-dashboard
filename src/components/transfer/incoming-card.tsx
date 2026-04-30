@@ -12,7 +12,7 @@ import { Check, Clock, Loader2, Printer, X } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useState } from "react";
-import { acceptRequestApi, activateRequestApi, completeRequestApi, rejectRequestApi } from "@/api/transfar";
+import { acceptRequestApi, activateRequestApi, completeRequestApi, rejectRequestApi, markTransferredApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "../ui/textarea";
@@ -28,6 +28,7 @@ const TransferIncomingCard = ({
   const [rejectLoading, setRejectLoading] = useState(false);
   const [activateLoading, setActivateLoading] = useState(false);
   const [completeLoading, setCompleteLoading] = useState(false);
+  const [markTransferLoading, setMarkTransferLoading] = useState(false);
   const [isRejected, setIsRejected] = useState(false);
   const [isAccepted, setIsAccepted] = useState(false);
   const [reason, setReason] = useState("");
@@ -95,6 +96,19 @@ const TransferIncomingCard = ({
       toast.error(res?.error);
     }
     setCompleteLoading(false);
+  };
+
+  const handleMarkTransfer = async () => {
+    setMarkTransferLoading(true);
+    const res = await markTransferredApi(transfar?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({ queryKey: ["transfers-incoming"] });
+      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+    } else {
+      toast.error(res?.error);
+    }
+    setMarkTransferLoading(false);
   };
   return (
     <Card>
@@ -181,9 +195,21 @@ const TransferIncomingCard = ({
                 )
               )}
 
+              {/* Mark as Transfer logic (Source Pharmacy) */}
+              {!transfar?.can_activate && !transfar?.can_complete && transfar?.status === "Approved" && (
+                <Button onClick={handleMarkTransfer} disabled={markTransferLoading} className="bg-yellow-600 hover:bg-yellow-700 text-white">
+                  {markTransferLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Check className="mr-2 size-5" />
+                  )}
+                  Mark as Transfer
+                </Button>
+              )}
+
               {/* Mark as Active logic */}
               {transfar?.can_activate && (
-                <Button onClick={handleActivate} disabled={activateLoading} className="bg-blue-600 hover:bg-blue-700">
+                <Button onClick={handleActivate} disabled={activateLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
                   {activateLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
@@ -195,7 +221,7 @@ const TransferIncomingCard = ({
 
               {/* Mark as Complete logic */}
               {transfar?.can_complete && (
-                <Button onClick={handleComplete} disabled={completeLoading} className="bg-green-600 hover:bg-green-700">
+                <Button onClick={handleComplete} disabled={completeLoading} className="bg-green-600 hover:bg-green-700 text-white">
                   {completeLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (

@@ -54,7 +54,7 @@ const TransferPage = () => {
             <h2 className="text-2xl font-bold">IN</h2>
             <p className="text-muted-foreground">Incoming</p>
             <Badge variant={"success"}>
-              {data?.data?.data?.totals?.total_in}
+              {data?.data?.data?.data?.length || 0}
             </Badge>
           </Button>
         </Link>
@@ -69,7 +69,7 @@ const TransferPage = () => {
             <h2 className="text-2xl font-bold">OUT</h2>
             <p className="text-muted-foreground">Requested Items</p>
             <Badge variant={"success"}>
-              {data?.data?.data?.totals?.total_out}
+              {data?.data?.data?.data?.length || 0}
             </Badge>
           </Button>
         </Link>

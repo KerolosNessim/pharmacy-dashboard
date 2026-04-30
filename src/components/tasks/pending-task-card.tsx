@@ -13,6 +13,7 @@ import { Calendar, Clock, Eye, UserRound } from "lucide-react";
 import Link from "next/link";
 
 export const PendingTaskCard = ({ task }: { task: Task }) => {
+  console.log(task);
 
 const {user} = useUserStore()
   return (
@@ -25,12 +26,11 @@ const {user} = useUserStore()
           <UserRound className="size-4" />
           <span>Sent By: {task?.uploaded_by?.name}</span>
         </div>
-        {(user?.role === "super_admin" || user?.role === "super_supervisor") && (
+
         <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
           <UserRound className="size-4" />
           <span>Sent To: {task?.assigned_to?.name}</span>
         </div>
-        )}
       </CardHeader>
       <CardContent className="flex-1">
         <div className="flex flex-col gap-2">

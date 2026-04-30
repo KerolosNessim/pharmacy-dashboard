@@ -11,7 +11,10 @@ export interface Task {
                     status: string,
                     created_at: string,
                     updated_at: string
-                },
+    },
+    remark_1: string | null,
+    remark_2: string | null,
+    remark_3: string | null,
                 uploaded_by: {
                     id: number,
                     name: string,

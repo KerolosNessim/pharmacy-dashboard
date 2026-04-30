@@ -12,12 +12,13 @@ import { CircleCheck, Clock, Loader2, Printer } from "lucide-react";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
 import { useState } from "react";
-import { completeRequestApi } from "@/api/transfar";
+import { completeRequestApi, activateRequestApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserStore } from "@/stores/user-store";
 const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
   const [loading, setLoading] = useState(false);
+  const [activateLoading, setActivateLoading] = useState(false);
   const queryClient = useQueryClient();
   const {user} = useUserStore();
   const handleComplete = async() => {
@@ -32,6 +33,20 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
       toast.error(res?.error);
     }
     setLoading(false);
+  };
+
+  const handleActivate = async () => {
+    setActivateLoading(true);
+    const res = await activateRequestApi(request?.id);
+    if (res?.ok) {
+      toast.success(res?.data?.message);
+      queryClient.invalidateQueries({
+        queryKey: ["transfer-out"],
+      });
+    } else {
+      toast.error(res?.error);
+    }
+    setActivateLoading(false);
   };
   
   return (
@@ -105,16 +120,29 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
             {request.status}
           </Badge>
         </div>
-        {request.can_complete && user?.role !== "super_admin" && (
-          <Button onClick={handleComplete} disabled={loading}>
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <CircleCheck className="size-5" />
-            )}
-            Mark as completed
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {request?.can_activate && user?.role !== "super_admin" && (
+            <Button onClick={handleActivate} disabled={activateLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
+              {activateLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Clock className="mr-2 size-5" />
+              )}
+              Mark as Active
+            </Button>
+          )}
+
+          {request?.can_complete && user?.role !== "super_admin" && (
+            <Button onClick={handleComplete} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white">
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <CircleCheck className="mr-2 size-5" />
+              )}
+              Mark as completed
+            </Button>
+          )}
+        </div>
       </CardFooter>
     </Card>
   );
