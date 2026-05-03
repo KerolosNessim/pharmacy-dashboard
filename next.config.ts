@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "pharmacy.subcodeco.com",
+      },
+      {
+        protocol: "http",
+        hostname: "mepharmacies.com",
       }
     ],
   },

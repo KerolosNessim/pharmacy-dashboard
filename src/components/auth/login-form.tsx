@@ -48,6 +48,7 @@ export default function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const fcm_token = await getFCMToken();
     const res = await loginApi({ ...values, fcm_token });
+    console.log(res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
