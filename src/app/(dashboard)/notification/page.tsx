@@ -86,7 +86,6 @@ const [deleteLoading, setDeleteLoading] = useState(false);
     activeTab === "unread" ? !n.read_at : !!n.read_at
   );
   
-  const totalCount = data?.pages[0]?.pagination.total ?? 0;
 
   return (
     <section className="p-4 max-w-3xl mx-auto">
@@ -121,7 +120,7 @@ const [deleteLoading, setDeleteLoading] = useState(false);
               Mark all read
             </Button>
           )}
-          {notifications.length > 0 && (
+          {notifications.length > 0 && activeTab === "read" && (
             <Button
               variant="outline"
               size="sm"

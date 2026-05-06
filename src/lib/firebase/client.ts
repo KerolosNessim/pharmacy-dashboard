@@ -15,7 +15,8 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
+console.log("VAPID:", process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY);
+console.log(Notification.permission);
 let app: FirebaseApp | null = null;
 let messaging: Messaging | null = null;
 
@@ -61,11 +62,37 @@ export const onForegroundMessage = (
 };
 
 // Request notification permission and get the FCM registration token
+// export const getFCMToken = async (): Promise<string | null> => {
+//   if (typeof window === "undefined") return null;
+
+//   try {
+//     const permission = await Notification.requestPermission();
+//     if (permission !== "granted") {
+//       console.warn("Notification permission not granted.");
+//       return null;
+//     }
+
+//     const messagingInstance = getFirebaseMessaging();
+//     if (!messagingInstance) return null;
+
+//     const token = await getToken(messagingInstance, {
+//       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+//     });
+
+//     return token ?? null;
+//   } catch (error) {
+//     console.error("Failed to get FCM token:", error);
+//     return null;
+//   }
+// };
+
+
 export const getFCMToken = async (): Promise<string | null> => {
   if (typeof window === "undefined") return null;
 
   try {
     const permission = await Notification.requestPermission();
+
     if (permission !== "granted") {
       console.warn("Notification permission not granted.");
       return null;
@@ -74,9 +101,23 @@ export const getFCMToken = async (): Promise<string | null> => {
     const messagingInstance = getFirebaseMessaging();
     if (!messagingInstance) return null;
 
+    let registration;
+
+try {
+  registration = await navigator.serviceWorker.register(
+    "/firebase-messaging-sw.js"
+  );
+} catch (e) {
+  console.error("SW registration failed", e);
+  return null;
+}
+
     const token = await getToken(messagingInstance, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
+      serviceWorkerRegistration: registration,
     });
+
+    console.log("FCM TOKEN:", token);
 
     return token ?? null;
   } catch (error) {
@@ -84,3 +125,4 @@ export const getFCMToken = async (): Promise<string | null> => {
     return null;
   }
 };
+

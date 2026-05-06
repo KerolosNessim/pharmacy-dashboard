@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   ChevronRight,
   CircleCheck,
+  CircleX,
   History,
   Inbox,
   User
@@ -27,9 +28,14 @@ const TransferPage = () => {
     queryKey: ["completed-transfers"],
     queryFn: () => getRequestsApi("?type=all&status=completed"),
   });
+  const { data: unCompletedData } = useQuery({
+    queryKey: ["uncompleted-transfers"],
+    queryFn: () => getRequestsApi("?type=all&status=uncomplete"),
+  });
 
   const transfers = data?.data?.data?.data ?? [];
   const completedTransfers = completedData?.data?.data?.data ?? [];
+  const unCompletedTransfers = unCompletedData?.data?.data?.data ?? [];
 
   return (
     <section className="flex flex-col gap-4 p-4">
@@ -83,7 +89,7 @@ const TransferPage = () => {
           </div>
           <DownloadReportDialog />
         </div>
-        <div className="border rounded-xl overflow-hidden flex items-center">
+        <div className="border rounded-xl overflow-hidden flex items-center max-lg:flex-wrap">
           <Link href={"/transfer/history"} className="w-full ">
             <Button
               variant={"secondary"}
@@ -98,7 +104,7 @@ const TransferPage = () => {
               <ChevronRight className="size-5 text-muted-foreground" />
             </Button>
           </Link>
-          <Link href={"/transfer/completed"} className="w-full ">
+          <Link href={"/transfer/completed"} className="w-full border-e">
             <Button
               variant={"secondary"}
               className="w-full h-fit flex-row justify-between  rounded-none"
@@ -107,10 +113,27 @@ const TransferPage = () => {
                 <div className="size-10 rounded-lg bg-primary/30 text-primary flex justify-center items-center">
                   <CircleCheck className="size-5 " />
                 </div>
-                <p className="font-bold">Completed </p>
+                <p className="font-bold ">Completed </p>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant={"success"}>{completedTransfers.length}</Badge>
+                <ChevronRight className="size-5 text-muted-foreground" />
+              </div>
+            </Button>
+          </Link>
+          <Link href={"/transfer/uncompleted"} className="w-full ">
+            <Button
+              variant={"secondary"}
+              className="w-full h-fit flex-row justify-between  rounded-none"
+            >
+              <div className="flex items-center gap-2">
+                <div className="size-10 rounded-lg bg-destructive/30 text-destructive flex justify-center items-center">
+                  <CircleX className="size-5 " />
+                </div>
+                <p className="font-bold">Un completed </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant={"pending"}>{unCompletedTransfers.length}</Badge>
                 <ChevronRight className="size-5 text-muted-foreground" />
               </div>
             </Button>
