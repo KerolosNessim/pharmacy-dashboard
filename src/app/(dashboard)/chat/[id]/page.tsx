@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminSingleInboxApi } from "@/api/chat";
+import { VoicePlayer } from "@/components/chat/voice-player";
 
 
 export default function ChatPage() {
@@ -80,6 +81,15 @@ const firstSenderId = messages[0]?.sender?.id;
                         unoptimized
                       />
                     )}
+
+                  {(msg?.file_type === "voice" ||
+                    msg?.file_url?.toLowerCase().includes(".webm") ||
+                    msg?.file_url?.toLowerCase().includes(".mp3") ||
+                    msg?.file_url?.toLowerCase().includes(".wav")) && (
+                    <div className="min-w-[220px] mt-2 mb-2">
+                      <VoicePlayer url={msg.file_url} isMe={isRight} />
+                    </div>
+                  )}
 
                   {/* نص */}
                   {msg.message && <p>{msg.message}</p>}

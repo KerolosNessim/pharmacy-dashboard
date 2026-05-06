@@ -15,8 +15,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-console.log("VAPID:", process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY);
-console.log(Notification.permission);
 let app: FirebaseApp | null = null;
 let messaging: Messaging | null = null;
 
