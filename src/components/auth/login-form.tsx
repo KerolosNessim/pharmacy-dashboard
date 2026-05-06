@@ -36,7 +36,7 @@ export type loginValues = z.infer<typeof formSchema> & {
 // ================= Component =================
 export default function LoginForm() {
   const router = useRouter();
-  const { setUser,setClientToken } = useUserStore();
+  const { setUser, setClientToken } = useUserStore();
   const form = useForm<loginValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,8 +47,9 @@ export default function LoginForm() {
   const { isSubmitting } = form.formState;
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const fcm_token = await getFCMToken();
+    console.log("fcm token", fcm_token);
     const res = await loginApi({ ...values, fcm_token });
-    console.log(res);
+    console.log("res", res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
@@ -103,14 +104,17 @@ export default function LoginForm() {
           )}
         />
 
-        <Link href="/forget-password"  className="block underline text-right text-sm text-primary">
-        forget password?
+        <Link
+          href="/forget-password"
+          className="block underline text-right text-sm text-primary"
+        >
+          forget password?
         </Link>
-          <Button
-            type="submit"
-            className="w-full h-12 shadow-sm bg-[#267e3a] text-white"
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" /> : "Sign in"}
+        <Button
+          type="submit"
+          className="w-full h-12 shadow-sm bg-[#267e3a] text-white"
+        >
+          {isSubmitting ? <Loader2 className="animate-spin" /> : "Sign in"}
         </Button>
       </form>
     </Form>
