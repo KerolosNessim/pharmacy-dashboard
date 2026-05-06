@@ -17,9 +17,12 @@ import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, MessageSquare, RefreshCcw, Users } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 const ChatPage = () => {
-  const [selectedPharmacy, setSelectedPharmacy] = useState<string>("");
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get("id");
+  const [selectedPharmacy, setSelectedPharmacy] = useState<string>(conversationId??"");
   const { user } = useUserStore();
   const { data } = useQuery({
     queryKey: ["pharmacies"],

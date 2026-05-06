@@ -105,6 +105,8 @@ try {
   registration = await navigator.serviceWorker.register(
     "/firebase-messaging-sw.js"
   );
+  // Ensure the service worker is ready and active
+  await navigator.serviceWorker.ready;
 } catch (e) {
   console.error("SW registration failed", e);
   return null;

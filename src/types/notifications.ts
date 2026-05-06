@@ -2,6 +2,8 @@ export interface NotificationData {
   title: string;
   body: string;
   additional_property?: string;
+  type: string;
+  conversation_id?: number;
 }
 
 export interface Notification {

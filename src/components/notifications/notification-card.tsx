@@ -1,10 +1,12 @@
 "use client";
 
 import { Notification } from "@/types/notifications";
-import { Bell, BellDot, Check } from "lucide-react";
+import { Bell, BellDot, Check, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
+import { useUserStore } from "@/stores/user-store";
 
 interface NotificationCardProps {
   notification: Notification;
@@ -19,6 +21,19 @@ export default function NotificationCard({
   const timeAgo = formatDistanceToNow(new Date(notification.created_at), {
     addSuffix: true,
   });
+  const router = useRouter();
+  const {user}=useUserStore()
+  console.log("notification", notification?.data);
+
+  const isChatNotification=notification?.data?.type==="chat";
+  const handleShowChat = () => {
+    if(user?.role==="super_admin"){
+      router.push(`/chat/${notification.data.conversation_id}`);
+    }else{
+      router.push(`/chat?id=${notification.data.conversation_id}`);
+    }
+
+  };
 
   return (
     <div
@@ -26,14 +41,20 @@ export default function NotificationCard({
         "flex items-start gap-4 p-4 rounded-xl border transition-colors duration-200",
         isRead
           ? "bg-background border-border"
-          : "bg-primary/5 border-primary/20"
+          : "bg-primary/5 border-primary/20",
+        isChatNotification && "cursor-pointer hover:bg-primary/10",
       )}
+      onClick={()=>{
+        if(isChatNotification){
+          handleShowChat();
+        }
+      }}
     >
       {/* Icon */}
       <div
         className={cn(
           "shrink-0 w-10 h-10 rounded-full flex items-center justify-center",
-          isRead ? "bg-muted" : "bg-primary/10"
+          isRead ? "bg-muted" : "bg-primary/10",
         )}
       >
         {isRead ? (
@@ -50,7 +71,9 @@ export default function NotificationCard({
             <p
               className={cn(
                 "text-sm leading-snug",
-                isRead ? "font-normal text-foreground" : "font-semibold text-foreground"
+                isRead
+                  ? "font-normal text-foreground"
+                  : "font-semibold text-foreground",
               )}
             >
               {notification.data.title}
@@ -81,6 +104,7 @@ export default function NotificationCard({
             </Button>
           )}
         </div>
+
       </div>
     </div>
   );
