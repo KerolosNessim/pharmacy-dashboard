@@ -16,10 +16,10 @@ import {
 import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, MessageSquare, RefreshCcw, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-const ChatPage = () => {
+const ChatContent = () => {
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("id");
   const [selectedPharmacy, setSelectedPharmacy] = useState<string>(conversationId??"");
@@ -137,6 +137,14 @@ const ChatPage = () => {
         )}
       </div>
     </section>
+  );
+};
+
+const ChatPage = () => {
+  return (
+    <Suspense fallback={<div>Loading chat...</div>}>
+      <ChatContent />
+    </Suspense>
   );
 };
 
