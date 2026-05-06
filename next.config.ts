@@ -14,10 +14,15 @@ const nextConfig: NextConfig = {
         hostname: "pharmacy.subcodeco.com",
       },
       {
-        protocol: "http",
+        protocol: "https",
         hostname: "mepharmacies.com",
       }
     ],
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "50mb",
+    },
   },
 };
 

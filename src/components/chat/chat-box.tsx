@@ -191,29 +191,36 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     formData.append("voice", audioFile);
 
     setLoading(true);
-    // Use apiRequest directly to pass Accept header without modifying global config
-    const res = await apiRequest("/chat/send", {
-      method: "POST",
-      body: formData,
-      headers: {
-        Accept: "application/json",
-      },
-    });
-    console.log("📩 Voice Send Response:", res);
+    try {
+      // Use apiRequest directly to pass Accept header without modifying global config
+      const res = await apiRequest("/chat/send", {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
+      });
+      console.log("📩 Voice Send Response:", res);
 
-    if (res?.ok && (res.data as any)?.message) {
-      setOptimisticMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? (res.data as any).message : m)),
-      );
-      resetRecording();
-    } else if (res?.ok) {
-      // If ok but no message object returned, keep optimistic but reset recorder
-      resetRecording();
-    } else {
-      toast.error("Failed to send voice note");
+      if (res?.ok && (res.data as any)?.message) {
+        setOptimisticMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? (res.data as any).message : m)),
+        );
+        resetRecording();
+      } else if (res?.ok) {
+        // If ok but no message object returned, keep optimistic but reset recorder
+        resetRecording();
+      } else {
+        toast.error("Failed to send voice note");
+        setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+      }
+    } catch (error) {
+      console.error("Voice send error:", error);
+      toast.error("Failed to send voice note. File might be too large.");
       setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   // 📤 Send message with optimistic update
@@ -225,6 +232,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
       id: tempId,
       message: input,
       file_url: img,
+      file_type: img ? "image" : "text",
       sender: user,
       created_at: new Date().toISOString(),
     };
@@ -244,18 +252,25 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     setSelectedFile(null);
     setLoading(true);
 
-    const res = await sendMessageApi(formData);
+    try {
+      const res = await sendMessageApi(formData);
 
-    if (res?.ok && (res.data as any)?.message) {
-      // Replace temp with confirmed message
-      setOptimisticMessages((prev) =>
-        prev.map((m) => (m.id === tempId ? (res.data as any).message : m)),
-      );
-    } else if (!res?.ok) {
-      toast.error("Failed to send message");
+      if (res?.ok && (res.data as any)?.message) {
+        // Replace temp with confirmed message
+        setOptimisticMessages((prev) =>
+          prev.map((m) => (m.id === tempId ? (res.data as any).message : m)),
+        );
+      } else if (!res?.ok) {
+        toast.error("Failed to send message");
+        setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+      }
+    } catch (error) {
+      console.error("Chat send error:", error);
+      toast.error("Failed to send message. File might be too large.");
       setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -281,9 +296,9 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
               </p>
               {msg?.file_url &&
                 msg?.file_type !== "voice" &&
-                !msg?.file_url?.includes(".webm") &&
-                !msg?.file_url?.includes(".mp3") &&
-                !msg?.file_url?.includes(".wav") && (
+                !msg?.file_url?.toLowerCase().includes(".webm") &&
+                !msg?.file_url?.toLowerCase().includes(".mp3") &&
+                !msg?.file_url?.toLowerCase().includes(".wav") && (
                   <Dialog>
                     <DialogTrigger asChild>
                       <Image
@@ -291,15 +306,18 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
                         alt=""
                         width={200}
                         height={200}
-                        className="rounded mb-1"
+                        className="rounded mb-1 cursor-pointer hover:opacity-90 transition-opacity"
+                        unoptimized
                       />
                     </DialogTrigger>
                     <DialogContent>
                       <Image
                         src={msg.file_url}
                         alt=""
-                        width={400}
-                        height={400}
+                        width={800}
+                        height={800}
+                        className="w-full h-auto rounded-lg"
+                        unoptimized
                       />
                     </DialogContent>
                   </Dialog>
@@ -331,7 +349,7 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
       {/* preview */}
       {img && (
         <div className="px-4 pb-2">
-          <Image src={img} alt="" width={100} height={100} />
+          <Image src={img} alt="" width={100} height={100} unoptimized />
         </div>
       )}
 

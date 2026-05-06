@@ -67,15 +67,19 @@ const firstSenderId = messages[0]?.sender?.id;
                   }`}
                 >
                   {/* صورة */}
-                  {msg.file_url && (
-                    <Image
-                      src={msg.file_url}
-                      alt="msg"
-                      width={200}
-                      height={200}
-                      className="rounded-lg mb-2 max-w-full"
-                    />
-                  )}
+                  {msg.file_url &&
+                    !msg.file_url.toLowerCase().includes(".webm") &&
+                    !msg.file_url.toLowerCase().includes(".mp3") &&
+                    !msg.file_url.toLowerCase().includes(".wav") && (
+                      <Image
+                        src={msg.file_url}
+                        alt="msg"
+                        width={200}
+                        height={200}
+                        className="rounded-lg mb-2 max-w-full"
+                        unoptimized
+                      />
+                    )}
 
                   {/* نص */}
                   {msg.message && <p>{msg.message}</p>}

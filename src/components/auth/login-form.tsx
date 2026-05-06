@@ -49,7 +49,6 @@ export default function LoginForm() {
     const fcm_token = await getFCMToken();
     console.log("fcm token", fcm_token);
     const res = await loginApi({ ...values, fcm_token });
-    console.log("res", res);
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
