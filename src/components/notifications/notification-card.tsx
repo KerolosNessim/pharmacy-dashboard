@@ -23,14 +23,14 @@ export default function NotificationCard({
   });
   const router = useRouter();
   const {user}=useUserStore()
-  console.log("notification", notification?.data);
+  console.log("notification", notification);
 
   const isChatNotification=notification?.data?.type==="chat";
   const handleShowChat = () => {
     if(user?.role==="super_admin"){
       router.push(`/chat/${notification.data.conversation_id}`);
     }else{
-      router.push(`/chat?id=${notification.data.conversation_id}`);
+      router.push(`/chat?id=${notification.data.pharmacy_id}`);
     }
 
   };
@@ -58,8 +58,14 @@ export default function NotificationCard({
         )}
       >
         {isRead ? (
+          isChatNotification?
+          <MessageCircle className="w-5 h-5 text-muted-foreground" />
+          :
           <Bell className="w-5 h-5 text-muted-foreground" />
         ) : (
+            isChatNotification?
+          <MessageCircle className="w-5 h-5 text-primary" />
+          :
           <BellDot className="w-5 h-5 text-primary" />
         )}
       </div>
@@ -96,8 +102,10 @@ export default function NotificationCard({
             <Button
               variant="ghost"
               size="sm"
-              className="h-6 px-2 text-xs text-primary hover:text-primary hover:bg-primary/10 gap-1"
-              onClick={() => onMarkRead(notification.id)}
+              className="cursor-pointer h-6 px-2 text-xs text-primary hover:text-primary hover:bg-primary/10 gap-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onMarkRead(notification.id)}}
             >
               <Check className="w-3 h-3" />
               Mark read

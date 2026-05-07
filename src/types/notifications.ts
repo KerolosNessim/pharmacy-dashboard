@@ -4,6 +4,7 @@ export interface NotificationData {
   additional_property?: string;
   type: string;
   conversation_id?: number;
+  pharmacy_id?: number;
 }
 
 export interface Notification {
