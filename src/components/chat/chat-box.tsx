@@ -1,7 +1,16 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMemo, useRef, useState, useEffect } from "react";
-import { Camera, Loader2, Mic, Send, Square, Trash2, Play, Pause } from "lucide-react";
+import {
+  Camera,
+  Loader2,
+  Mic,
+  Send,
+  Square,
+  Trash2,
+  Play,
+  Pause,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -15,7 +24,6 @@ import { useUserStore } from "@/stores/user-store";
 import { useChatRealtime } from "@/hooks/use-chat-realtime";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { VoicePlayer } from "./voice-player";
-
 
 export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const { clientToken, user } = useUserStore();
@@ -89,9 +97,17 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // منع الملفات الكبيرة جداً من البداية
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("The file is too large. The maximum size is 50 megabytes.");
+      return;
+    }
+
     setSelectedFile(file);
     setImg(URL.createObjectURL(file));
   };
+
 
   // 🎤 Send Voice Note
   useEffect(() => {
@@ -258,7 +274,10 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
                 msg?.file_url?.includes(".mp3") ||
                 msg?.file_url?.includes(".wav")) && (
                 <div className="min-w-[220px] mt-2">
-                   <VoicePlayer url={msg.file_url} isMe={msg?.sender?.id === user?.id} />
+                  <VoicePlayer
+                    url={msg.file_url}
+                    isMe={msg?.sender?.id === user?.id}
+                  />
                 </div>
               )}
 
