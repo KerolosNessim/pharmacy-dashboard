@@ -32,7 +32,7 @@ export async function apiRequest<T>(
         try {
           console.log(`[Compression] Starting for ${key}: ${value.name} (${(value.size / 1024 / 1024).toFixed(2)} MB)`);
           const { buffer, fileName, contentType } = await compressImage(value);
-          const compressedFile = new File([buffer], fileName, {
+          const compressedFile = new File([new Uint8Array(buffer)], fileName, {
             type: contentType,
           });
           formData.set(key, compressedFile);
@@ -105,7 +105,7 @@ export async function apiFormDataRequest<T>(
       try {
         console.log(`[Compression Form] Starting for ${key}: ${value.name} (${(value.size / 1024 / 1024).toFixed(2)} MB)`);
         const { buffer, fileName, contentType } = await compressImage(value);
-        const compressedFile = new File([buffer], fileName, {
+        const compressedFile = new File([new Uint8Array(buffer)], fileName, {
           type: contentType,
         });
         formData.set(key, compressedFile);
