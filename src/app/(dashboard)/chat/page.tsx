@@ -16,13 +16,21 @@ import {
 import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, MessageSquare, RefreshCcw, Users } from "lucide-react";
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const ChatContent = () => {
   const searchParams = useSearchParams();
   const conversationId = searchParams.get("id");
   const [selectedPharmacy, setSelectedPharmacy] = useState<string>(conversationId??"");
+
+  // Sync with URL search params (e.g. when clicking a notification)
+  useEffect(() => {
+    if (conversationId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedPharmacy(conversationId);
+    }
+  }, [conversationId]);
   const { user } = useUserStore();
   const { data } = useQuery({
     queryKey: ["pharmacies"],

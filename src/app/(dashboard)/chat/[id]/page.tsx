@@ -7,7 +7,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getAdminSingleInboxApi } from "@/api/chat";
 import { VoicePlayer } from "@/components/chat/voice-player";
 
-
 export default function ChatPage() {
   const params = useParams();
   const chatId = params.id as string;
@@ -17,18 +16,12 @@ export default function ChatPage() {
     queryFn: () => getAdminSingleInboxApi(chatId),
   });
 
-
-
   const messages = (data?.data?.messages ?? []).sort(
     (a, b) =>
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
   );
 
-const firstSenderId = messages[0]?.sender?.id;
-
-
-
-
+  const firstSenderId = messages[0]?.sender?.id;
 
   return (
     <div className=" flex flex-col">

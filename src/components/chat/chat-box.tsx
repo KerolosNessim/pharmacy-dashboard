@@ -50,8 +50,6 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const { data } = useQuery({
     queryKey: ["messages", pharmacyId],
     queryFn: () => getMessagesApi(pharmacyId),
-    staleTime: Infinity,
-    refetchOnWindowFocus: false,
   });
 
   const baseMessages: any[] = data?.data?.messages ?? [];
@@ -107,7 +105,6 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
     setSelectedFile(file);
     setImg(URL.createObjectURL(file));
   };
-
 
   // 🎤 Send Voice Note
   useEffect(() => {

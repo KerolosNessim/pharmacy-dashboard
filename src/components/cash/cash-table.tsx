@@ -17,7 +17,8 @@ const CashTable = ({
 }: {
   invoices: Cash[];
   }) => {
-  const {user}=useUserStore()
+  const { user } = useUserStore()
+  console.log("invoice", invoices)
   
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -26,6 +27,8 @@ const CashTable = ({
           <TableHeader>
             <TableRow>
               <TableHead>Invoice Number</TableHead>
+              <TableHead>Created By</TableHead>
+
               <TableHead>Customer Name</TableHead>
               <TableHead>Mobile No</TableHead>
               <TableHead>Date</TableHead>
@@ -44,6 +47,7 @@ const CashTable = ({
             {invoices.map((inv) => (
               <TableRow key={inv.id}>
                 <TableCell>{inv?.invoice_number}</TableCell>
+                <TableCell>{inv?.created_by?.name}</TableCell>
                 <TableCell>{inv?.customer_name || "-"}</TableCell>
                 <TableCell>{inv?.mobile_no || "-"}</TableCell>
                 <TableCell>{new Date(inv?.created_at).toLocaleDateString()}</TableCell>

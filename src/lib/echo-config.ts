@@ -10,17 +10,19 @@ declare global {
 
 let echo: Echo<"pusher"> | null = null;
 let currentToken: string | null = null;
+let currentRole: string | null = null;
 
-export const initEcho = (token: string) => {
+export const initEcho = (token: string, role?: string | null) => {
   if (typeof window === "undefined") return null;
 
-  if (echo && currentToken === token) return echo;
+  if (echo && currentToken === token && currentRole === role) return echo;
 
   window.Pusher = Pusher;
   // 👇 ده هيخلي كل الـ logs بتاعة Pusher تظهر في الكونسول (نجاح/فشل الاتصال)
   Pusher.logToConsole = true;
 
   currentToken = token;
+  currentRole = role || null;
   echo = new Echo<"pusher">({
     broadcaster: "pusher",
     key: "ea540644f44cd2d651cf",
@@ -31,6 +33,7 @@ export const initEcho = (token: string) => {
       headers: {
         Authorization: `Bearer ${token}`,
         Accept: "application/json",
+        "accept-role": role || "",
       },
     },
   });
