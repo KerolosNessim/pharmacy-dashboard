@@ -74,11 +74,11 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
       <CardContent className="flex flex-col gap-3">
         <p className="font-semibold text-lg">
           <span className="text-base text-muted-foreground">From:</span>{" "}
-          {request.to_pharmacy}
+          {request.from_pharmacy}
         </p>
         <p className="font-semibold text-lg">
           <span className="text-base text-muted-foreground">To:</span>
-          {request.from_pharmacy}
+          {request.to_pharmacy}
         </p>
         <div className="flex flex-col gap-2">
           <p className="text-base text-muted-foreground font-semibold">

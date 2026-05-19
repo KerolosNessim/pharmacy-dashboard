@@ -32,6 +32,15 @@ const TransferPage = () => {
     queryKey: ["uncompleted-transfers"],
     queryFn: () => getRequestsApi("?type=all&status=uncomplete"),
   });
+  const { data: incomingRequests } = useQuery({
+    queryKey: ["incoming-requests"],
+    queryFn: () => getRequestsApi("?type=in&status=all"),
+  });
+  const { data: outgoingRequests } = useQuery({
+    queryKey: ["outgoing-requests"],
+    queryFn: () => getRequestsApi("?type=out&status=all"),
+  });
+
 
   const transfers = data?.data?.data?.data ?? [];
   const completedTransfers = completedData?.data?.data?.data ?? [];
@@ -60,7 +69,7 @@ const TransferPage = () => {
             <h2 className="text-2xl font-bold">IN</h2>
             <p className="text-muted-foreground">Incoming</p>
             <Badge variant={"success"}>
-              {data?.data?.data?.data?.length || 0}
+              {incomingRequests?.data?.data?.data?.length || 0}
             </Badge>
           </Button>
         </Link>
@@ -75,7 +84,7 @@ const TransferPage = () => {
             <h2 className="text-2xl font-bold">OUT</h2>
             <p className="text-muted-foreground">Requested Items</p>
             <Badge variant={"success"}>
-              {data?.data?.data?.data?.length || 0}
+              {outgoingRequests?.data?.data?.data?.length || 0}
             </Badge>
           </Button>
         </Link>
