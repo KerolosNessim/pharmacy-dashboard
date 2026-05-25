@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { ListPagination } from "@/components/shared/list-pagination";
 import { parseNestedListResponse } from "@/lib/list-parse";
+import type { Cash } from "@/types/cash";
 import { Loader2 } from "lucide-react";
 
 const CashPage = () => {
@@ -42,12 +43,12 @@ const CashPage = () => {
     hasMore,
     loadMore,
     goToPage,
-  } = usePaginatedList({
+  } = usePaginatedList<Cash>({
     queryKey: ["cash", "list", listFilters],
     fetchPage: async (page) => {
       const res = await getCashApi({ ...listFilters, page });
       if (!res.ok) throw new Error(res.error ?? "Failed to load invoices");
-      return parseNestedListResponse(res.data);
+      return parseNestedListResponse<Cash>(res.data);
     },
   });
 

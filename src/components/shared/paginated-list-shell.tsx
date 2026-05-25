@@ -34,7 +34,7 @@ export function PaginatedListShell<T>({
     hasMore,
     loadMore,
     goToPage,
-  } = usePaginatedList({ queryKey, fetchPage, perPage, enabled });
+  } = usePaginatedList<T>({ queryKey, fetchPage, perPage, enabled });
 
   if (isLoading) {
     return (

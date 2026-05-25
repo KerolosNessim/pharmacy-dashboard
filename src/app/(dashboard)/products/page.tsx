@@ -64,7 +64,7 @@ const ProductsPage = () => {
     fetchPage: async (page) => {
       const res = await getProductsListApi(debouncedSearch, page);
       if (!res.ok) throw new Error(res.error ?? "Failed to load products");
-      return parseFlatListResponse(res.data, PRODUCTS_PER_PAGE);
+      return parseFlatListResponse<ProductItem>(res.data, PRODUCTS_PER_PAGE);
     },
   });
 

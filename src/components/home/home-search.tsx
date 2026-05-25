@@ -3,6 +3,7 @@
 import { getProductsListApi } from "@/api/products";
 import { parseFlatListResponse } from "@/lib/list-parse";
 import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import type { ProductItem } from "@/types/products";
 import {
   InputGroup,
   InputGroupAddon,
@@ -27,7 +28,7 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
   });
 
   const products = productsList?.ok
-    ? parseFlatListResponse(productsList.data, PRODUCTS_PER_PAGE).items
+    ? parseFlatListResponse<ProductItem>(productsList.data, PRODUCTS_PER_PAGE).items
     : [];
   const showDropdown = isFocused && search.length > 0;
 

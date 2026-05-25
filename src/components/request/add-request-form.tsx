@@ -11,6 +11,7 @@ import {
 } from "@/lib/pharmacy-options";
 import { parseFlatListResponse } from "@/lib/list-parse";
 import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import type { ProductItem } from "@/types/products";
 import {
   Form,
   FormControl,
@@ -80,7 +81,7 @@ export const AddRequestForm = ({
     queryFn: async () => {
       const res = await getProductsListApi("", 1);
       if (!res.ok) return [];
-      return parseFlatListResponse(res.data, PRODUCTS_PER_PAGE).items;
+      return parseFlatListResponse<ProductItem>(res.data, PRODUCTS_PER_PAGE).items;
     },
   });
 

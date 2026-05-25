@@ -32,6 +32,7 @@ import {
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { ListPagination } from "@/components/shared/list-pagination";
 import { parseFlatListResponse } from "@/lib/list-parse";
+import type { Pharmacy } from "@/types/pharmacies";
 import { Loader2 } from "lucide-react";
 
 const PharmaciesTable = () => {
@@ -57,12 +58,12 @@ const PharmaciesTable = () => {
     hasMore,
     loadMore,
     goToPage,
-  } = usePaginatedList({
+  } = usePaginatedList<Pharmacy>({
     queryKey: ["pharmacies", "list", listFilters],
     fetchPage: async (page) => {
       const res = await getPharmaciesApi({ ...listFilters, page });
       if (!res.ok) throw new Error(res.error ?? "Failed to load pharmacies");
-      return parseFlatListResponse(res.data);
+      return parseFlatListResponse<Pharmacy>(res.data);
     },
   });
 

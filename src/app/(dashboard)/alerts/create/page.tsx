@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { parseNestedListResponse } from "@/lib/list-parse";
+import type { Alert } from "@/types/alerts";
 import { ChevronLeft, Loader2 } from "lucide-react";
 
 const CreateAlertPage = () => {
@@ -22,12 +23,12 @@ const CreateAlertPage = () => {
     hasMore,
     loadMore,
     goToPage,
-  } = usePaginatedList({
+  } = usePaginatedList<Alert>({
     queryKey: ["alerts", "list"],
     fetchPage: async (page) => {
       const res = await getAlertsApi({ page });
       if (!res.ok) throw new Error(res.error ?? "Failed to load alerts");
-      return parseNestedListResponse(res.data);
+      return parseNestedListResponse<Alert>(res.data);
     },
   });
 

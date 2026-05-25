@@ -17,7 +17,7 @@ function toPageNumber(value: unknown, fallback: number): number {
 
 function resolvePagination(
   payload: ListPayload | undefined,
-  fallbackPerPage = LIST_PER_PAGE
+  fallbackPerPage: number = LIST_PER_PAGE
 ): LaravelPagination {
   const nested = payload?.pagination;
   const total = toPageNumber(nested?.total ?? payload?.total, 0);
@@ -45,7 +45,7 @@ function resolvePagination(
 /** `{ data: { data: T[], pagination? } }` or flat page fields on `data` — tasks, cash, … */
 export function parseNestedListResponse<T>(
   body: { data?: ListPayload } | undefined,
-  fallbackPerPage = LIST_PER_PAGE
+  fallbackPerPage: number = LIST_PER_PAGE
 ): ParsedListResult<T> {
   const payload = body?.data;
   return {
@@ -57,7 +57,7 @@ export function parseNestedListResponse<T>(
 /** `{ data: { data: T[], current_page, last_page, total, per_page? } }` — pharmacies, products, … */
 export function parseFlatListResponse<T>(
   body: { data?: ListPayload } | undefined,
-  fallbackPerPage = LIST_PER_PAGE
+  fallbackPerPage: number = LIST_PER_PAGE
 ): ParsedListResult<T> {
   return parseNestedListResponse<T>(body, fallbackPerPage);
 }

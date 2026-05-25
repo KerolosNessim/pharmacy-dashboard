@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGoBack } from "@/hooks/use-goback";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { parseNestedListResponse } from "@/lib/list-parse";
+import type { Task } from "@/types/tasks";
 import { format } from "date-fns";
 import { ArrowLeft, CalendarIcon, CheckCircle2, Search, Truck } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -49,21 +50,21 @@ const TasksPage = () => {
     [search, fromDateString, toDateString]
   );
 
-  const pending = usePaginatedList({
+  const pending = usePaginatedList<Task>({
     queryKey: ["refill-tasks", "pending", pendingFilters],
     fetchPage: async (page) => {
       const res = await getTasksApi({ ...pendingFilters, page });
       if (!res.ok) throw new Error(res.error ?? "Failed to load tasks");
-      return parseNestedListResponse(res.data);
+      return parseNestedListResponse<Task>(res.data);
     },
   });
 
-  const completed = usePaginatedList({
+  const completed = usePaginatedList<Task>({
     queryKey: ["refill-tasks", "completed", completedFilters],
     fetchPage: async (page) => {
       const res = await getTasksApi({ ...completedFilters, page });
       if (!res.ok) throw new Error(res.error ?? "Failed to load tasks");
-      return parseNestedListResponse(res.data);
+      return parseNestedListResponse<Task>(res.data);
     },
   });
 
