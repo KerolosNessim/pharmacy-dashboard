@@ -5,9 +5,21 @@ import AddCashDialog from "@/components/cash/add-cash-dialog";
 import CashTable from "@/components/cash/cash-table";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
-import { ArrowLeft, Download, X, Calendar as CalendarIcon } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  X,
+  Calendar as CalendarIcon,
+  Search,
+} from "lucide-react";
 import { getCashApi } from "@/api/cash";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useUserStore } from "@/stores/user-store";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { exportToExcel } from "@/lib/export-excel";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -25,14 +37,23 @@ const CashPage = () => {
 
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
 
   const from_date = startDate ? format(startDate, "yyyy-MM-dd") : "";
   const to_date = endDate ? format(endDate, "yyyy-MM-dd") : "";
 
   const listFilters = useMemo(
-    () => ({ from_date, to_date }),
-    [from_date, to_date]
+    () => ({
+      from_date,
+      to_date,
+      search: debouncedSearch.trim() || undefined,
+    }),
+    [from_date, to_date, debouncedSearch]
   );
+
+  const hasActiveFilters =
+    !!startDate || !!endDate || debouncedSearch.trim().length > 0;
 
   const {
     items: invoices,
@@ -55,6 +76,7 @@ const CashPage = () => {
   const handleExport = () => {
     const exportData = invoices.map((inv) => ({
       "Invoice Number": inv.invoice_number,
+      "Created By": inv.created_by?.name || "-",
       "Customer Name": inv.customer_name || "-",
       "Mobile No": inv.mobile_no || "-",
       Date: new Date(inv.created_at).toLocaleDateString(),
@@ -97,7 +119,23 @@ const CashPage = () => {
         </div>
       </div>
 
-      <div className="bg-bg p-4 rounded-xl border flex flex-wrap items-center gap-4">
+      <div className="bg-bg p-4 rounded-xl border flex flex-wrap items-end gap-4">
+        <div className="flex flex-col gap-1.5 min-w-[200px] flex-1 basis-full sm:basis-auto">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Search by created by
+          </label>
+          <InputGroup className="bg-background h-10!">
+            <InputGroupAddon>
+              <Search className="size-4" />
+            </InputGroupAddon>
+            <InputGroupInput
+              placeholder="Creator name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </InputGroup>
+        </div>
+
         <div className="flex flex-col gap-1.5 min-w-[200px] flex-1">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Start Date
@@ -144,14 +182,15 @@ const CashPage = () => {
           </Popover>
         </div>
 
-        {(startDate || endDate) && (
+        {hasActiveFilters && (
           <Button
             variant="ghost"
             onClick={() => {
               setStartDate(undefined);
               setEndDate(undefined);
+              setSearch("");
             }}
-            className="h-10 mt-5 self-end text-sm text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
+            className="h-10 self-end text-sm text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
           >
             <X className="h-4 w-4" />
             Clear Filters
