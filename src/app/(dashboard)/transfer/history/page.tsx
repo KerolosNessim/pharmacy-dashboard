@@ -1,42 +1,35 @@
 "use client";
 
-import { Suspense } from "react";
-import { getRequestsApi } from "@/api/transfar";
+import { Suspense, useMemo } from "react";
 import TransferSearch from "@/components/transfer/transfar-search";
 import TransferHistoryCard from "@/components/transfer/transfer-history-card";
+import { TransferPaginatedList } from "@/components/transfer/transfer-paginated-list";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
-import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, Inbox } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 const TransferHistoryContent = () => {
   const goBack = useGoBack();
   const searchParams = useSearchParams();
-  const search = searchParams.get("search") || "";
-  const status = searchParams.get("status") || "";
-  const from_date = searchParams.get("from_date") || "";
-  const to_date = searchParams.get("to_date") || "";
+  const search = searchParams.get("search") ?? "";
+  const status = searchParams.get("status") ?? "";
+  const from_date = searchParams.get("from_date") ?? "";
+  const to_date = searchParams.get("to_date") ?? "";
 
-  const params = new URLSearchParams();
-  if (search) params.set("search", search);
-  if (status) params.set("status", status);
-  if (from_date) params.set("from_date", from_date);
-  if (to_date) params.set("to_date", to_date);
-  params.set("type", "all");
-
-  const queryString = params.toString() ? `?${params.toString()}` : "";
-
-  const { data } = useQuery({
-    queryKey: ["transfers", search, status, from_date, to_date],
-    queryFn: () => getRequestsApi(queryString),
-  });
-
-  const transfers = data?.data?.data?.data ?? [];
+  const listParams = useMemo(
+    () => ({
+      type: "all" as const,
+      search,
+      status,
+      from_date,
+      to_date,
+    }),
+    [search, status, from_date, to_date]
+  );
 
   return (
     <section className="p-4 flex flex-col gap-4 mx-auto">
-      {/* header */}
       <div className="flex items-start gap-1">
         <Button
           variant={"ghost"}
@@ -50,29 +43,34 @@ const TransferHistoryContent = () => {
       </div>
 
       <div className="lg:w-2/3 mx-auto space-y-4">
-        {/* search */}
         <TransferSearch />
-        {transfers?.length > 0 ? (
-          <>
-            {/* list */}
-            {transfers.map((transfer, index) => (
-              <TransferHistoryCard
-                key={index}
-                order={index + 1}
-                transfar={transfer}
-              />
-            ))}
-          </>
-        ) : (
-          <div className="flex flex-col items-center gap-3 bg-bg rounded-lg border p-6 ">
-            <Inbox className="size-14 text-primary" />
-            <h3 className="text-lg font-medium">No Transfer Requests</h3>
-            <p className="text-muted-foreground">
-              When you request items from other branches, they&apos;ll appear
-              here.
-            </p>
-          </div>
-        )}
+
+        <TransferPaginatedList
+          listParams={listParams}
+          listClassName="space-y-4"
+          renderItem={(transfer, index) => (
+            <TransferHistoryCard
+              key={transfer.id}
+              order={index + 1}
+              transfar={transfer}
+            />
+          )}
+          emptyContent={
+            <div className="flex flex-col items-center gap-3 bg-bg rounded-lg border p-6">
+              <Inbox className="size-14 text-primary" />
+              <h3 className="text-lg font-medium">
+                {search.trim()
+                  ? "No transfers match your search"
+                  : "No Transfer Requests"}
+              </h3>
+              <p className="text-muted-foreground text-center">
+                {search.trim()
+                  ? `No results for "${search.trim()}". Try pharmacy name, product name, SKU, code, or transfer ID.`
+                  : "When you request items from other branches, they'll appear here."}
+              </p>
+            </div>
+          }
+        />
       </div>
     </section>
   );

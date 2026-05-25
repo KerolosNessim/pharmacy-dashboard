@@ -24,8 +24,13 @@ import {
 } from "@/components/ui/table";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useGoBack } from "@/hooks/use-goback";
+import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { useUserStore } from "@/stores/user-store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ListPagination } from "@/components/shared/list-pagination";
+import { parseFlatListResponse } from "@/lib/list-parse";
+import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import type { ProductItem } from "@/types/products";
 import { ArrowLeft, Database, Loader2, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -44,20 +49,31 @@ const ProductsPage = () => {
   });
   const productsStats = data?.data?.data;
 
-  const { data: productsList, isFetching: isProductsFetching } = useQuery({
-    queryKey: ["products", debouncedSearch],
-    queryFn: () => getProductsListApi(debouncedSearch),
+  const {
+    items: products,
+    pagination,
+    isLoading: isProductsLoading,
+    isFetching: isProductsFetching,
+    accumulated,
+    hasMore,
+    loadMore,
+    goToPage,
+  } = usePaginatedList<ProductItem>({
+    queryKey: ["products", "list", debouncedSearch],
+    perPage: PRODUCTS_PER_PAGE,
+    fetchPage: async (page) => {
+      const res = await getProductsListApi(debouncedSearch, page);
+      if (!res.ok) throw new Error(res.error ?? "Failed to load products");
+      return parseFlatListResponse(res.data, PRODUCTS_PER_PAGE);
+    },
   });
-  const products = productsList?.data?.data;
 
   async function handleCheckAvailability(id: string ) {
     setIsCheckAvailabilityPending(true);
     const response = await checkAvailabilityApi(id );
     if (response?.ok) {
       toast.success(response?.data?.message);
-      queryClient.invalidateQueries({
-        queryKey: ["products", debouncedSearch],
-      });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     } else {
       toast.error(response?.error || "Failed to change availability");
     }
@@ -68,9 +84,7 @@ const ProductsPage = () => {
     const response = await deleteProductApi(id);
     if (response?.ok) {
       toast.success("Product deleted successfully");
-      queryClient.invalidateQueries({
-        queryKey: ["products", debouncedSearch],
-      });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     } else {
       toast.error(response?.error || "Failed to delete product");
     }
@@ -105,7 +119,7 @@ const ProductsPage = () => {
           Download JSON
         </Button>
       </div> */}
-      {isLoading && !productsList ? (
+      {isLoading && !productsStats ? (
         <div className="flex items-center justify-center">
           <Loader2 className="animate-spin" />
         </div>
@@ -169,50 +183,46 @@ const ProductsPage = () => {
           </div>
         </>
       )}
-      {productsList && (
-        <>
-          {/* search */}
-          <div className="relative">
-            <InputGroup className="bg-bg border-primary/30 outline-0 h-12! rounded-lg">
-              <InputGroupAddon>
-                <Search className="text-primary" />
-              </InputGroupAddon>
-              <InputGroupInput
-                placeholder="Search products"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </InputGroup>
-            {isProductsFetching && (
-              <Loader2 className="animate-spin absolute right-3 top-3.5 w-5 h-5 text-muted-foreground" />
-            )}
+      <>
+        <div className="relative">
+          <InputGroup className="bg-bg border-primary/30 outline-0 h-12! rounded-lg">
+            <InputGroupAddon>
+              <Search className="text-primary" />
+            </InputGroupAddon>
+            <InputGroupInput
+              placeholder="Search products"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </InputGroup>
+          {(isProductsLoading || isProductsFetching) && (
+            <Loader2 className="animate-spin absolute right-3 top-3.5 w-5 h-5 text-muted-foreground" />
+          )}
+        </div>
+
+        {isProductsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="animate-spin" />
           </div>
-          {/* table */}
-          {isProductsFetching && !products ? (
-            <div className="flex items-center justify-center">
-              <Loader2 className="animate-spin" />
-            </div>
-          ) : (
-            <Table className="border rounded-lg! overflow-hidden">
-              <TableHeader className="bg-bg ">
+        ) : (
+          <>
+            <Table className="border rounded-lg overflow-hidden">
+              <TableHeader className="bg-bg">
                 <TableRow className="hover:bg-bg">
                   <TableHead>Name</TableHead>
                   <TableHead>Code</TableHead>
                   <TableHead>Category</TableHead>
-                  {/* <TableHead>Price</TableHead> */}
-                  {user?.role === "super_admin" && (
-                    <TableHead>Actions</TableHead>
-                  )}
+                  {user?.role === "super_admin" && <TableHead>Actions</TableHead>}
                   {user?.role === "supervisor" && (
                     <TableHead>Check Availability</TableHead>
                   )}
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-bg/50">
-                {products?.data?.map((product) => (
+                {products.map((product) => (
                   <TableRow
                     key={product.id}
-                    className="hover:bg-muted-foreground/5  h-14  px-4 "
+                    className="hover:bg-muted-foreground/5 h-14 px-4"
                   >
                     <TableCell>{product?.name}</TableCell>
                     <TableCell className="text-muted-foreground">
@@ -221,9 +231,6 @@ const ProductsPage = () => {
                     <TableCell className="text-muted-foreground">
                       {product?.category?.name}
                     </TableCell>
-                    {/* <TableCell className="text-muted-foreground">
-                      {product?.price || "-"}
-                    </TableCell> */}
                     {user?.role === "super_admin" && (
                       <TableCell className="flex items-center gap-2">
                         <Button
@@ -242,7 +249,9 @@ const ProductsPage = () => {
                             handleCheckAvailability(String(product?.id))
                           }
                           disabled={isCheckAvailabilityPending}
-                          checked={product?.inventory_availability == "available"}
+                          checked={
+                            product?.inventory_availability == "available"
+                          }
                         />
                       </TableCell>
                     )}
@@ -250,9 +259,20 @@ const ProductsPage = () => {
                 ))}
               </TableBody>
             </Table>
-          )}
-        </>
-      )}
+            {pagination && pagination.total > 0 && (
+              <ListPagination
+                pagination={pagination}
+                loadedCount={products.length}
+                accumulated={accumulated}
+                hasMore={hasMore}
+                onLoadMore={loadMore}
+                isLoadingMore={isProductsFetching}
+                onPageChange={goToPage}
+              />
+            )}
+          </>
+        )}
+      </>
     </section>
   );
 };

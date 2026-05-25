@@ -8,7 +8,8 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { RequestItem } from "@/types/transfar";
-import { Check, Clock, Loader2, Printer, X } from "lucide-react";
+import { Check, Clock, Loader2, X } from "lucide-react";
+import { TransferShareButton } from "./transfer-share-button";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { useState } from "react";
@@ -17,6 +18,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Textarea } from "../ui/textarea";
 import { useUserStore } from "@/stores/user-store";
+import { getTransferStatusBadgeVariant } from "@/lib/transfer-status";
+import { TransferNotes } from "./transfer-notes";
 const TransferIncomingCard = ({
   order,
   transfar,
@@ -40,12 +43,8 @@ const TransferIncomingCard = ({
     const res = await acceptRequestApi(transfar?.id, acceptNotes);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({
-        queryKey: ["transfers-incoming"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["transfer-out"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
       setIsAccepted(false);
       setAcceptNotes("");
     } else {
@@ -58,12 +57,8 @@ const TransferIncomingCard = ({
     const res = await rejectRequestApi(transfar?.id,reason);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({
-        queryKey: ["transfers-incoming"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["transfer-out"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }
@@ -77,8 +72,8 @@ const TransferIncomingCard = ({
     const res = await activateRequestApi(transfar?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({ queryKey: ["transfers-incoming"] });
-      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }
@@ -90,8 +85,8 @@ const TransferIncomingCard = ({
     const res = await completeRequestApi(transfar?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({ queryKey: ["transfers-incoming"] });
-      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }
@@ -103,8 +98,8 @@ const TransferIncomingCard = ({
     const res = await markTransferredApi(transfar?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({ queryKey: ["transfers-incoming"] });
-      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }
@@ -127,9 +122,7 @@ const TransferIncomingCard = ({
           <Badge variant={"outline"} className="rounded border-2">
             {transfar?.creator_name}
           </Badge>
-          {/* <Button variant={"ghost"}>
-            <Printer className="size-5" />
-          </Button> */}
+          <TransferShareButton transfar={transfar} order={order} />
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -161,6 +154,7 @@ const TransferIncomingCard = ({
               </Badge>
             </div>
           ))}
+          <TransferNotes notes={transfar?.notes} />
         </div>
       </CardContent>
       <CardFooter className="border-t  flex flex-col gap-2">
@@ -233,20 +227,7 @@ const TransferIncomingCard = ({
             </div>
           )}
 
-          <Badge
-            variant={
-              transfar?.status === "Pending"
-                ? "pending"
-                : transfar?.status === "Completed"
-                  ? "success"
-                  : transfar?.status === "Approved" || transfar?.status === "Active"
-                    ? "approved"
-                    : transfar?.status === "Rejected" ||
-                      transfar?.status === "Cancelled"
-                      ? "destructive"
-                      : "default"
-            }
-          >
+          <Badge variant={getTransferStatusBadgeVariant(transfar?.status)}>
             {transfar?.status}
           </Badge>
         </div>

@@ -4,8 +4,13 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { getPharmaciesApi } from "@/api/pharmacies";
 import { getProductsListApi } from "@/api/products";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
+import { parseFlatListResponse } from "@/lib/list-parse";
+import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
 import {
   Form,
   FormControl,
@@ -65,18 +70,21 @@ export const AddRequestForm = ({
   });
 
   const { isSubmitting } = form.formState;
-  const { data: pharmaciesData, isLoading: loadingPharmacies } = useQuery({
-    queryKey: ["pharmacies"],
-    queryFn: () => getPharmaciesApi(),
+  const { data: pharmacies = [], isLoading: loadingPharmacies } = useQuery({
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
   });
 
   const { data: productsData, isLoading: loadingProducts } = useQuery({
-    queryKey: ["products"],
-    queryFn: () => getProductsListApi(""),
+    queryKey: ["products", "options"],
+    queryFn: async () => {
+      const res = await getProductsListApi("", 1);
+      if (!res.ok) return [];
+      return parseFlatListResponse(res.data, PRODUCTS_PER_PAGE).items;
+    },
   });
 
-  const pharmacies = pharmaciesData?.data?.data?.data || [];
-  const products = productsData?.data?.data?.data || [];
+  const products = productsData ?? [];
 
   const onSubmit = async (values: RequestFormValues) => {
     const payload = {
@@ -92,7 +100,8 @@ export const AddRequestForm = ({
     if (res?.ok) {
       toast.success(res?.data?.message);
       setOpen(false);
-      queryClient.invalidateQueries({ queryKey: ["transfer-out"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }

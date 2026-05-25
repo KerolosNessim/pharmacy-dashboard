@@ -1,6 +1,9 @@
 "use client";
 
-import { getPharmaciesApi } from "@/api/pharmacies";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
 import { addRequestApi } from "@/api/transfar";
 import RequestProductSearch from "@/components/request/request-product-search";
 import { Button } from "@/components/ui/button";
@@ -30,9 +33,9 @@ export type SelectedProduct = {
 
 const RequestPage = () => {
   const goBack = useGoBack();
-  const { data: pharmaciesData, isLoading: loadingPharmacies } = useQuery({
-    queryKey: ["pharmacies"],
-    queryFn: () => getPharmaciesApi(),
+  const { data: pharmacies = [], isLoading: loadingPharmacies } = useQuery({
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
   });
 
   const [selectedProduct, setSelectedProduct] = useState<SelectedProduct[]>([]);
@@ -194,7 +197,7 @@ const RequestPage = () => {
             />
           </SelectTrigger>
           <SelectContent position="popper">
-            {pharmaciesData?.data?.data?.data.map((pharmacy) => (
+            {pharmacies.map((pharmacy) => (
               <SelectItem key={pharmacy.id} value={pharmacy.id.toString()}>
                 {pharmacy.name}
               </SelectItem>

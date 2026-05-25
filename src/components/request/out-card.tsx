@@ -8,7 +8,8 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Badge } from "../ui/badge";
-import { CircleCheck, Clock, Loader2, Printer } from "lucide-react";
+import { CircleCheck, Clock, Loader2 } from "lucide-react";
+import { TransferShareButton } from "@/components/transfer/transfer-share-button";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
 import { useState } from "react";
@@ -16,6 +17,8 @@ import { completeRequestApi, activateRequestApi } from "@/api/transfar";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserStore } from "@/stores/user-store";
+import { getTransferStatusBadgeVariant } from "@/lib/transfer-status";
+import { TransferNotes } from "@/components/transfer/transfer-notes";
 const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
   const [loading, setLoading] = useState(false);
   const [activateLoading, setActivateLoading] = useState(false);
@@ -26,9 +29,8 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
     const res = await completeRequestApi(request?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({
-        queryKey: ["transfer-out"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }
@@ -40,9 +42,8 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
     const res = await activateRequestApi(request?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({
-        queryKey: ["transfer-out"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
     } else {
       toast.error(res?.error);
     }
@@ -66,9 +67,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
           <Badge variant={"outline"} className="rounded border-2">
             {request.creator_name}
           </Badge>
-          {/* <Button variant={"ghost"}>
-            <Printer className="size-5" />
-          </Button> */}
+          <TransferShareButton transfar={request} order={order} />
         </CardAction>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
@@ -98,25 +97,13 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
               </Badge>
             </div>
           ))}
+          <TransferNotes notes={request?.notes} />
         </div>
       </CardContent>
       <CardFooter className="border-t flex items-center justify-between">
         <div className="flex items-center gap-2">
           <p className="text-base text-muted-foreground">Status:</p>
-          <Badge
-            variant={
-              request?.status === "Pending"
-                ? "pending"
-                : request?.status === "Completed"
-                  ? "success"
-                  : request?.status === "Approved" || request?.status === "Active"
-                    ? "approved"
-                    : request?.status === "Rejected" ||
-                      request?.status === "Cancelled"
-                      ? "destructive"
-                      : "default"
-            }
-          >
+          <Badge variant={getTransferStatusBadgeVariant(request?.status)}>
             {request.status}
           </Badge>
         </div>

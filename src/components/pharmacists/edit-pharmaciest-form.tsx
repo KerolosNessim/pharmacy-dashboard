@@ -1,5 +1,8 @@
 "use client";
-import { getPharmaciesApi } from "@/api/pharmacies";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
 import { updatePharmacistApi } from "@/api/pharmacists";
 import {
   Form,
@@ -45,10 +48,10 @@ export const EditPharmacistForm = ({
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["pharmacies"],
-    queryFn: () => getPharmaciesApi(),
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
   });
-  const pharmacies = data?.data?.data?.data ?? [];
+  const pharmacies = data ?? [];
   const form = useForm<editPharmacistValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {

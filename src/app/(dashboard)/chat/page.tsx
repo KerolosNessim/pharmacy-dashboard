@@ -1,6 +1,9 @@
 "use client";
 import { getAdminInboxApi, getInboxApi } from "@/api/chat";
-import { getPharmaciesApi } from "@/api/pharmacies";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
 import Chatbox from "@/components/chat/chat-box";
 import RecentAdminChatCard from "@/components/chat/recent-card-admin";
 import RecentChatCard from "@/components/chat/recent-chat-card";
@@ -32,9 +35,9 @@ const ChatContent = () => {
     }
   }, [conversationId]);
   const { user } = useUserStore();
-  const { data } = useQuery({
-    queryKey: ["pharmacies"],
-    queryFn: () => getPharmaciesApi(),
+  const { data: pharmacies = [] } = useQuery({
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
   });
   const { data: inboxData } = useQuery({
     queryKey: ["inbox"],
@@ -45,7 +48,6 @@ const ChatContent = () => {
     queryFn: getAdminInboxApi,
   });
 
-  const pharmacies = data?.data?.data?.data ?? [];
   const inbox = inboxData?.data?.inbox ?? [];
   const adminInbox = adminInboxData?.data?.data ?? [];
 

@@ -1,5 +1,8 @@
 "use client";
-import { getPharmacistsApi } from "@/api/pharmacists";
+import {
+  PHARMACIST_OPTIONS_QUERY_KEY,
+  fetchPharmacistOptions,
+} from "@/lib/pharmacist-options";
 import {
   Form,
   FormControl,
@@ -42,11 +45,10 @@ export type taskValues = z.infer<typeof formSchema>;
 export const AddtaskForm = () => {
   const queryClient = useQueryClient();
 
-  const { data } = useQuery({
-    queryKey: ["pharmacists"],
-    queryFn: () => getPharmacistsApi(),
+  const { data: pharmacists = [] } = useQuery({
+    queryKey: PHARMACIST_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacistOptions,
   });
-  const pharmacists = data?.data?.data?.data ?? [];
   const form = useForm<taskValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,7 +64,7 @@ export const AddtaskForm = () => {
     const res = await addTaskApi(values);
     console.log(res);
     if (res.ok) {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["refill-tasks"] });
       form.reset();
       toast.success(res?.data?.message);
     } else {

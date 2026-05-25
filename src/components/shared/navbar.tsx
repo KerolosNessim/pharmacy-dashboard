@@ -16,14 +16,19 @@ import NavbarSheet from "./navbar-sheet";
 import UserAvatar from "./user-avatar";
 import { useQuery } from "@tanstack/react-query";
 import { getAlertsApi } from "@/api/alerts";
+import { parseNestedListResponse } from "@/lib/list-parse";
+
 const Navbar = () => {
   const { unreadCount } = useFirebaseNotifications();
-// get alerts
-  const { data } = useQuery({
-    queryKey: ["alerts"],
-    queryFn: () => getAlertsApi(),
+
+  const { data: alertsTotal = 0 } = useQuery({
+    queryKey: ["alerts", "total"],
+    queryFn: async () => {
+      const res = await getAlertsApi({ page: 1, per_page: 1 });
+      if (!res.ok) return 0;
+      return parseNestedListResponse(res.data).pagination.total;
+    },
   });
-  const alerts = data?.data?.data ?? [];
 
   return (
     <div className="p-2 lg:pe-6 border-b  flex items-center justify-between sticky top-0 z-50 bg-bg">
@@ -53,9 +58,9 @@ const Navbar = () => {
                 <Megaphone className="h-4 w-4" />
                 <span className="sr-only"></span>
               </Link>
-              {alerts.length > 0 && (
+              {alertsTotal > 0 && (
                 <span className="absolute top-0 right-0 size-4 flex items-center justify-center bg-red-500 rounded-full text-white text-xs">
-                  {alerts.length > 99 ? "99+" : alerts.length}
+                  {alertsTotal > 99 ? "99+" : alertsTotal}
                 </span>
               )}
             </Button>

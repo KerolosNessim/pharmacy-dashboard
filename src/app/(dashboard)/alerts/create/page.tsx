@@ -3,23 +3,38 @@
 import { getAlertsApi } from "@/api/alerts";
 import AlertsCard from "@/components/alerts/alerts-card";
 import TextEditor from "@/components/alerts/tiptap";
+import { ListPagination } from "@/components/shared/list-pagination";
 import { Button } from "@/components/ui/button";
 import { useGoBack } from "@/hooks/use-goback";
-import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft } from "lucide-react";
+import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { parseNestedListResponse } from "@/lib/list-parse";
+import { ChevronLeft, Loader2 } from "lucide-react";
 
 const CreateAlertPage = () => {
   const goBack = useGoBack();
-  const { data } = useQuery({
-    queryKey: ["alerts"],
-    queryFn: getAlertsApi,
+
+  const {
+    items: alerts,
+    pagination,
+    isLoading,
+    isFetching,
+    accumulated,
+    hasMore,
+    loadMore,
+    goToPage,
+  } = usePaginatedList({
+    queryKey: ["alerts", "list"],
+    fetchPage: async (page) => {
+      const res = await getAlertsApi({ page });
+      if (!res.ok) throw new Error(res.error ?? "Failed to load alerts");
+      return parseNestedListResponse(res.data);
+    },
   });
 
-  const alerts = data?.data?.data ?? [];
   return (
-    <section className="p-4">
+    <section className="p-4 space-y-4">
       <div className="flex items-center gap-2">
-        <Button variant={"ghost"} onClick={goBack}>
+        <Button variant="ghost" onClick={goBack}>
           <ChevronLeft />
         </Button>
         <div>
@@ -28,16 +43,29 @@ const CreateAlertPage = () => {
         </div>
       </div>
       <TextEditor />
-      <div className="mt-4 flex flex-col gap-4">
-        {alerts.length > 0 && (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-2xl font-bold">Alerts</h2>
-            {alerts.map((alert) => (
-              <AlertsCard key={alert.id} alert={alert} />
-            ))}
-          </div>
-        )}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <Loader2 className="animate-spin" />
+        </div>
+      ) : alerts.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl font-bold">Alerts</h2>
+          {alerts.map((alert) => (
+            <AlertsCard key={alert.id} alert={alert} />
+          ))}
+          {pagination && (
+            <ListPagination
+              pagination={pagination}
+              loadedCount={alerts.length}
+              accumulated={accumulated}
+              hasMore={hasMore}
+              onLoadMore={loadMore}
+              isLoadingMore={isFetching}
+              onPageChange={goToPage}
+            />
+          )}
+        </div>
+      ) : null}
     </section>
   );
 };

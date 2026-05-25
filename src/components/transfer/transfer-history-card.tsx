@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardAction,
@@ -8,15 +10,20 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "../ui/badge";
 import { Clock, Printer } from "lucide-react";
+import { TransferShareButton } from "./transfer-share-button";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
 import { useRef } from "react";
-import { useReactToPrint } from "react-to-print";
 import PrintCard from "./print-card";
+import { useAppPrint } from "@/hooks/use-app-print";
+import { PrintHidden } from "@/components/shared/print-hidden";
+import { getTransferStatusBadgeVariant } from "@/lib/transfer-status";
+import { TransferNotes } from "./transfer-notes";
+
 const TransferHistoryCard = ({order,transfar}:{order:number,transfar:RequestItem}) => {
   const printRef = useRef<HTMLDivElement>(null);
 
-const handlePrint = useReactToPrint({
+const handlePrint = useAppPrint({
   contentRef: printRef,
   documentTitle: `Transfer-${order}`,
 });
@@ -37,7 +44,8 @@ const handlePrint = useReactToPrint({
           <Badge variant={"outline"} className="rounded border-2">
             {transfar?.creator_name}
           </Badge>
-          <Button variant="ghost" onClick={handlePrint}>
+          <TransferShareButton transfar={transfar} order={order} />
+          <Button variant="ghost" size="icon" onClick={handlePrint} title="Print">
             <Printer className="size-5" />
           </Button>
         </CardAction>
@@ -71,28 +79,16 @@ const handlePrint = useReactToPrint({
               </Badge>
             </div>
           ))}
+          <TransferNotes notes={transfar?.notes} />
         </div>
-        <div className="hidden">
+        <PrintHidden>
           <PrintCard ref={printRef} transfar={transfar} />
-        </div>
+        </PrintHidden>
       </CardContent>
       <CardFooter className="border-t">
         <div className="flex items-center gap-2">
           <p className="text-base text-muted-foreground">Status:</p>
-          <Badge
-            variant={
-              transfar?.status === "Pending"
-                ? "pending"
-                : transfar?.status === "Completed"
-                  ? "success"
-                  : transfar?.status === "Approved" || transfar?.status === "Active"
-                    ? "approved"
-                    : transfar?.status === "Rejected" ||
-                      transfar?.status === "Cancelled"
-                      ? "destructive"
-                      : "default"
-            }
-          >
+          <Badge variant={getTransferStatusBadgeVariant(transfar?.status)}>
             {transfar?.status}
           </Badge>
         </div>
