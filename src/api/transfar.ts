@@ -1,4 +1,8 @@
 import { apiRequest } from "@/lib/api-request";
+import {
+  buildTransferQueryString,
+  type TransferListParams,
+} from "@/lib/transfer-query";
 import { AddRequestData, AddRequestResponse, SendReportData, TransferResponse } from "@/types/transfar";
 
 export const addRequestApi = (data: AddRequestData) =>
@@ -7,10 +11,19 @@ export const addRequestApi = (data: AddRequestData) =>
     body: JSON.stringify(data),
   });
 
-export const getRequestsApi = (params?: string) => {  
-  const url = params ? `/transfers${params}` : "/transfers";
+export const getRequestsApi = (params?: string | TransferListParams) => {
+  const query =
+    typeof params === "string"
+      ? params.startsWith("?")
+        ? params
+        : params
+          ? `?${params}`
+          : ""
+      : buildTransferQueryString(params);
+
+  const url = query ? `/transfers${query}` : "/transfers";
   return apiRequest<TransferResponse>(url);
-}
+};
 
 
 export const acceptRequestApi = (id: number, notes?: string) =>

@@ -1,4 +1,7 @@
-import { getPharmaciesApi } from "@/api/pharmacies";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
 import { updateSupervisorApi } from "@/api/supervisor";
 import {
   Form,
@@ -42,10 +45,10 @@ export const UpdateSupervisorForm = ({
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["pharmacies"],
-    queryFn: () => getPharmaciesApi(),
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
   });
-  const pharmacies = data?.data?.data?.data ?? [];
+  const pharmacies = data ?? [];
   const form = useForm<updateSupervisorValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {

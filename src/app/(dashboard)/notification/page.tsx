@@ -11,6 +11,7 @@ import {
   markNotificationReadApi,
 } from "@/api/notifications";
 import NotificationCard from "@/components/notifications/notification-card";
+import { ListPagination } from "@/components/shared/list-pagination";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -181,19 +182,15 @@ const [deleteLoading, setDeleteLoading] = useState(false);
                 />
               ))}
 
-              {hasNextPage && (
-                <Button
-                  variant="outline"
-                  className="w-full mt-2"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    "Load more"
-                  )}
-                </Button>
+              {data?.pages[data.pages.length - 1]?.pagination && (
+                <ListPagination
+                  pagination={data.pages[data.pages.length - 1]!.pagination}
+                  loadedCount={notifications.length}
+                  accumulated={true}
+                  hasMore={!!hasNextPage}
+                  onLoadMore={() => fetchNextPage()}
+                  isLoadingMore={isFetchingNextPage}
+                />
               )}
             </div>
           )}

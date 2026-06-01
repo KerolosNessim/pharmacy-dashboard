@@ -1,4 +1,3 @@
-import { getPharmacistsApi } from "@/api/pharmacists";
 import AddPharmacistDialog from "@/components/pharmacists/add-pharmacist-dialog";
 import PharmacistStaffTable from "@/components/pharmacists/pharmacist-staff-table";
 import {
@@ -8,22 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  HydrationBoundary,
-  QueryClient,
-  dehydrate,
-} from "@tanstack/react-query";
 import { Users } from "lucide-react";
 
-const PharmacistsStaffPage = async () => {
-  const queryClient = new QueryClient();
-  await queryClient.prefetchQuery({
-    queryKey: ["pharmacists"],
-    queryFn: () => getPharmacistsApi(),
-  });
-
+const PharmacistsStaffPage = () => {
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
       <section className="p-4">
         <Card>
           <CardHeader>
@@ -40,7 +27,6 @@ const PharmacistsStaffPage = async () => {
           </CardContent>
         </Card>
       </section>
-    </HydrationBoundary>
   );
 };
 

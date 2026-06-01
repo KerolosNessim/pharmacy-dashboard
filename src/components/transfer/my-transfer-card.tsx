@@ -1,11 +1,14 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { RequestItem } from "@/types/transfar";
+import { TransferShareButton } from "./transfer-share-button";
+import { getTransferStatusBadgeVariant } from "@/lib/transfer-status";
 
 const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
   return (
-    <div className="w-full p-3 border-b last:border-b-0 bg-bg flex items-center justify-between">
-      {/* details */}
-      <div className="flex flex-col gap-1">
+    <div className="w-full p-3 border-b last:border-b-0 bg-bg flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-1 min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="text-sm text-muted-foreground">
             {transfar?.created_at}
@@ -18,29 +21,12 @@ const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
           items
         </p>
       </div>
-      {/* status */}
-      <Badge
-        variant={
-          transfar?.status === "Pending"
-            ? "pending"
-            : transfar?.status === "Completed"
-              ? "success"
-              : transfar?.status === "Approved" || transfar?.status === "Active"
-                ? "approved"
-                : transfar?.status === "Rejected" ||
-                  transfar?.status === "Cancelled"
-                  ? "destructive"
-                  : "default"
-        }
-      >
-        {transfar?.status}
-      </Badge>
-
-      {/* action */}
-
-      {/* <Button variant={"ghost"} size={"icon-xs"} className="hover:text-primary">
-        <Printer className="size-5" />
-      </Button> */}
+      <div className="flex items-center gap-1 shrink-0">
+        <Badge variant={getTransferStatusBadgeVariant(transfar?.status)}>
+          {transfar?.status}
+        </Badge>
+        <TransferShareButton transfar={transfar} />
+      </div>
     </div>
   );
 };

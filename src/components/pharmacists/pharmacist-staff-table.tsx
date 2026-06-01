@@ -1,9 +1,14 @@
 "use client";
+
 import {
   deletePharmacistApi,
   getPharmacistsApi,
   togglePharmacistStatusApi,
 } from "@/api/pharmacists";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
 import {
   Table,
   TableBody,
@@ -26,29 +31,54 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { getPharmaciesApi } from "@/api/pharmacies";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
+import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { ListPagination } from "@/components/shared/list-pagination";
+import { parseFlatListResponse } from "@/lib/list-parse";
+import type { Pharmacist } from "@/types/pharmacists";
 
 const PharmacistStaffTable = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
-  const [pharmacy_id, setPharmacy] = useState("");
+  const [pharmacy, setPharmacy] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-  const queryParams = {
-    search: debouncedSearch,
-    status: status === "all" ? "" : status,
-    pharmacy_id: pharmacy_id === "all" ? "" : pharmacy_id,
-  };
-  const { data, isLoading } = useQuery({
-    queryKey: ["pharmacists", queryParams],
-    queryFn: () => getPharmacistsApi(queryParams),
-  });
-  const pharmacists = data?.data?.data?.data ?? [];
   const queryClient = useQueryClient();
+
+  const listFilters = useMemo(
+    () => ({
+      search: debouncedSearch,
+      status: status === "all" ? "" : status,
+      pharmacy: pharmacy === "all" ? "" : pharmacy,
+    }),
+    [debouncedSearch, status, pharmacy]
+  );
+
+  const {
+    items: pharmacists,
+    pagination,
+    isLoading,
+    isFetching,
+    accumulated,
+    hasMore,
+    loadMore,
+    goToPage,
+  } = usePaginatedList<Pharmacist>({
+    queryKey: ["pharmacists", "list", listFilters],
+    fetchPage: async (page) => {
+      const res = await getPharmacistsApi({ ...listFilters, page });
+      if (!res.ok) throw new Error(res.error ?? "Failed to load pharmacists");
+      return parseFlatListResponse<Pharmacist>(res.data);
+    },
+  });
+
+  const { data: pharmacies = [] } = useQuery({
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
+  });
+
   async function toggleStatus(id: string) {
     const res = await togglePharmacistStatusApi(id);
-    console.log(res);
     if (res?.ok) {
       queryClient.invalidateQueries({ queryKey: ["pharmacists"] });
       toast.success(res?.data?.message || "Pharmacist status updated!");
@@ -56,9 +86,9 @@ const PharmacistStaffTable = () => {
       toast.error(res?.error || "Failed to update status");
     }
   }
+
   async function deletePharmacist(id: string) {
     const res = await deletePharmacistApi(id);
-    console.log(res);
     if (res?.ok) {
       queryClient.invalidateQueries({ queryKey: ["pharmacists"] });
       toast.success(res?.data?.message || "Pharmacist deleted successfully!");
@@ -66,13 +96,6 @@ const PharmacistStaffTable = () => {
       toast.error(res?.error || "Failed to delete pharmacist");
     }
   }
-
-  const { data: pharmaciesData } = useQuery({
-    queryKey: ["pharmacies"],
-    queryFn: () => getPharmaciesApi(),
-  });
-
-  const pharmacies = pharmaciesData?.data?.data?.data ?? [];
 
   return (
     <>
@@ -94,72 +117,86 @@ const PharmacistStaffTable = () => {
             <SelectItem value="pending">Pending</SelectItem>
           </SelectContent>
         </Select>
-        <Select value={pharmacy_id} onValueChange={setPharmacy}>
+        <Select value={pharmacy} onValueChange={setPharmacy}>
           <SelectTrigger>
             <SelectValue placeholder="Select Pharmacy" />
           </SelectTrigger>
           <SelectContent position="popper">
             <SelectItem value="all">All Pharmacies</SelectItem>
-            {pharmacies.map((pharmacy, index) => (
-              <SelectItem key={index} value={String(pharmacy.id)}>
-                {pharmacy?.name}
+            {pharmacies.map((p) => (
+              <SelectItem key={p.id} value={String(p.id)}>
+                {p.name}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
-      <div className="border rounded-lg! overflow-hidden ">
-        {isLoading && (
+
+      <div className="border rounded-lg overflow-hidden">
+        {isLoading ? (
           <div className="flex items-center justify-center h-24">
             <Loader2 className="animate-spin" />
           </div>
-        )}
-
-        {pharmacists.length > 0 ? (
-          <Table className="">
-            <TableHeader className="bg-bg ">
-              <TableRow className="hover:bg-bg ">
-                <TableHead>Name</TableHead>
-                <TableHead>Id</TableHead>
-                <TableHead>Pharmacy</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="bg-bg/50">
-              {pharmacists.map((pharmacist, index) => (
-                <TableRow
-                  key={index}
-                  className="hover:bg-muted-foreground/5  h-14  px-4 "
-                >
-                  <TableCell>{pharmacist?.name}</TableCell>
-                  <TableCell>{pharmacist?.id_number}</TableCell>
-                  <TableCell>{pharmacist?.pharmacy?.name}</TableCell>
-                  <TableCell>
-                    <Switch
-                      checked={pharmacist.status === "active"}
-                      onCheckedChange={() =>
-                        toggleStatus(String(pharmacist.id))
-                      }
-                    />
-                  </TableCell>
-                  <TableCell className="flex items-center gap-2">
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      onClick={() => deletePharmacist(String(pharmacist.id))}
-                    >
-                      <Trash2 />
-                    </Button>
-                    <EditPharmacistDialog pharmacist={pharmacist} />
-                  </TableCell>
+        ) : pharmacists.length > 0 ? (
+          <>
+            <Table>
+              <TableHeader className="bg-bg">
+                <TableRow className="hover:bg-bg">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Id</TableHead>
+                  <TableHead>Pharmacy</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody className="bg-bg/50">
+                {pharmacists.map((pharmacist) => (
+                  <TableRow
+                    key={pharmacist.id}
+                    className="hover:bg-muted-foreground/5 h-14 px-4"
+                  >
+                    <TableCell>{pharmacist?.name}</TableCell>
+                    <TableCell>{pharmacist?.id_number}</TableCell>
+                    <TableCell>{pharmacist?.pharmacy?.name}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={pharmacist.status === "active"}
+                        onCheckedChange={() =>
+                          toggleStatus(String(pharmacist.id))
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => deletePharmacist(String(pharmacist.id))}
+                      >
+                        <Trash2 />
+                      </Button>
+                      <EditPharmacistDialog pharmacist={pharmacist} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {pagination && (
+              <div className="p-4 border-t">
+                <ListPagination
+                  pagination={pagination}
+                  loadedCount={pharmacists.length}
+                  accumulated={accumulated}
+                  hasMore={hasMore}
+                  onLoadMore={loadMore}
+                  isLoadingMore={isFetching}
+                  onPageChange={goToPage}
+                />
+              </div>
+            )}
+          </>
         ) : (
-          <div className="flex flex-col items-center gap-2  p-6 text-muted-foreground">
-            <Users className="size-12 " />
+          <div className="flex flex-col items-center gap-2 p-6 text-muted-foreground">
+            <Users className="size-12" />
             <p>No Pharmacists found</p>
           </div>
         )}

@@ -1,5 +1,14 @@
 "use client";
-import { deleteSupervisorApi, getSupervisorApi, toggleSupervisorStatusApi } from "@/api/supervisor";
+
+import {
+  deleteSupervisorApi,
+  getSupervisorApi,
+  toggleSupervisorStatusApi,
+} from "@/api/supervisor";
+import {
+  PHARMACY_OPTIONS_QUERY_KEY,
+  fetchPharmacyOptions,
+} from "@/lib/pharmacy-options";
 import {
   Table,
   TableBody,
@@ -14,47 +23,72 @@ import { toast } from "sonner";
 import { Switch } from "../ui/switch";
 import UpdateSupervisorDialog from "./update-supervisor-dialog";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Input } from "../ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { getPharmaciesApi } from "@/api/pharmacies";
-import { Pharmacy } from "@/types/pharmacies";
-
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { ListPagination } from "@/components/shared/list-pagination";
+import { parseFlatListResponse } from "@/lib/list-parse";
+import type { Supervisor } from "@/types/supervisor";
 
 const SupervisorsTable = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [pharmacy_id, setPharmacy] = useState("");
   const debouncedSearch = useDebounce(search, 500);
-  const queryParams = {
-    search: debouncedSearch,
-    status: status === "all" ? "" : status,
-    pharmacy_id: pharmacy_id === "all" ? "" : pharmacy_id,
-  };
-  const { data, isLoading } = useQuery({
-    queryKey: ["supervisors", queryParams],
-    queryFn: () => getSupervisorApi(queryParams),
-  });
-  console.log(data);
-  const supervisors = data?.data?.data?.data ?? [];
-
   const queryClient = useQueryClient();
-async function toggleStatus(id: string) {
+
+  const listFilters = useMemo(
+    () => ({
+      search: debouncedSearch,
+      status: status === "all" ? "" : status,
+      pharmacy_id: pharmacy_id === "all" ? "" : pharmacy_id,
+    }),
+    [debouncedSearch, status, pharmacy_id]
+  );
+
+  const {
+    items: supervisors,
+    pagination,
+    isLoading,
+    isFetching,
+    accumulated,
+    hasMore,
+    loadMore,
+    goToPage,
+  } = usePaginatedList<Supervisor>({
+    queryKey: ["supervisors", "list", listFilters],
+    fetchPage: async (page) => {
+      const res = await getSupervisorApi({ ...listFilters, page });
+      if (!res.ok) throw new Error(res.error ?? "Failed to load supervisors");
+      return parseFlatListResponse<Supervisor>(res.data);
+    },
+  });
+
+  const { data: pharmacies = [] } = useQuery({
+    queryKey: PHARMACY_OPTIONS_QUERY_KEY,
+    queryFn: fetchPharmacyOptions,
+  });
+
+  async function toggleStatus(id: string) {
     const res = await toggleSupervisorStatusApi(id);
-  console.log(res);
-  if (res?.ok) {
-    queryClient.invalidateQueries({ queryKey: ["supervisors"] });
-    toast.success(res?.data?.message||"Supervisor status updated!");
+    if (res?.ok) {
+      queryClient.invalidateQueries({ queryKey: ["supervisors"] });
+      toast.success(res?.data?.message || "Supervisor status updated!");
+    } else {
+      toast.error(res?.error || "Failed to update status");
+    }
   }
-  else {
-    toast.error(res?.error|| "Failed to update status");
-  }
-  }
-  
+
   async function deleteSupervisor(id: string) {
     const res = await deleteSupervisorApi(id);
-    console.log(res);
     if (res?.ok) {
       queryClient.invalidateQueries({ queryKey: ["supervisors"] });
       toast.success(res?.data?.message || "Supervisor deleted successfully!");
@@ -63,100 +97,111 @@ async function toggleStatus(id: string) {
     }
   }
 
-  
-    const { data: pharmaciesData } = useQuery({
-      queryKey: ["pharmacies"],
-      queryFn: () => getPharmaciesApi(),
-    });
-
-    const pharmacies = pharmaciesData?.data?.data?.data ?? [];
-
   return (
     <>
-    <div className="flex items-center gap-2 mb-4">
-      <Input
-        placeholder="Search by Supervisor name"
-        value={search}
+      <div className="flex items-center gap-2 mb-4">
+        <Input
+          placeholder="Search by Supervisor name"
+          value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className=" focus-visible:ring-primary"
-      />
-      <Select value={status} onValueChange={setStatus}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Status" />
-        </SelectTrigger>
-        <SelectContent position="popper">
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="active">Active</SelectItem>
-          <SelectItem value="inactive">Inactive</SelectItem>
-          <SelectItem value="pending">Pending</SelectItem>
-        </SelectContent>
-      </Select>
-      <Select value={pharmacy_id} onValueChange={setPharmacy}>
-        <SelectTrigger>
-          <SelectValue placeholder="Select Pharmacy" />
-        </SelectTrigger>
-        <SelectContent position="popper">
-          <SelectItem value="all">All Pharmacies</SelectItem>
-          {pharmacies.map((pharmacy:Pharmacy) => (
-            <SelectItem key={pharmacy.id} value={String(pharmacy.id)}>
-              {pharmacy.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-    
-    <div className="border rounded-lg! overflow-hidden ">
-      {isLoading && (
-        <div className="flex items-center justify-center h-24">
-          <Loader2 className="animate-spin" />
-        </div>
-      )}
-      {supervisors.length > 0 ? (
-        <Table className="">
-          <TableHeader className="bg-bg ">
-            <TableRow className="hover:bg-bg ">
-              <TableHead>Name</TableHead>
-              <TableHead>Id</TableHead>
-              <TableHead>Pharmacy</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Edit</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="bg-bg/50">
-            {supervisors.map((supervisor, index) => (
-              <TableRow
-                key={index}
-                className="hover:bg-muted-foreground/5  h-14  px-4 "
-              >
-                <TableCell>{supervisor?.name}</TableCell>
-                <TableCell>{supervisor?.id_number}</TableCell>
-                <TableCell>{supervisor?.pharmacy?.name}</TableCell>
-                <TableCell>
-                  <Switch
-                    checked={supervisor.status === "active"}
-                    onCheckedChange={() => toggleStatus(String(supervisor.id))}
-                  />
-                </TableCell>
-                <TableCell className="flex items-center gap-2">
-                  <Button onClick={() => deleteSupervisor(String(supervisor.id))} variant={"destructive"} >
-                    <Trash2 />
-                  </Button>
-                  <UpdateSupervisorDialog supervisor={supervisor} />
-                </TableCell>
-              </TableRow>
+          className="focus-visible:ring-primary"
+        />
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Status" />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={pharmacy_id} onValueChange={setPharmacy}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Pharmacy" />
+          </SelectTrigger>
+          <SelectContent position="popper">
+            <SelectItem value="all">All Pharmacies</SelectItem>
+            {pharmacies.map((pharmacy) => (
+              <SelectItem key={pharmacy.id} value={String(pharmacy.id)}>
+                {pharmacy.name}
+              </SelectItem>
             ))}
-          </TableBody>
-        </Table>
-      ) : (
-        <div className="flex flex-col items-center gap-2  p-6 text-muted-foreground">
-          <UserStar className="size-12 " />
-          <p>No Supervisors found</p>
-        </div>
-      )}
-    </div>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="border rounded-lg overflow-hidden">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-24">
+            <Loader2 className="animate-spin" />
+          </div>
+        ) : supervisors.length > 0 ? (
+          <>
+            <Table>
+              <TableHeader className="bg-bg">
+                <TableRow className="hover:bg-bg">
+                  <TableHead>Name</TableHead>
+                  <TableHead>Id</TableHead>
+                  <TableHead>Pharmacy</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Edit</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="bg-bg/50">
+                {supervisors.map((supervisor) => (
+                  <TableRow
+                    key={supervisor.id}
+                    className="hover:bg-muted-foreground/5 h-14 px-4"
+                  >
+                    <TableCell>{supervisor?.name}</TableCell>
+                    <TableCell>{supervisor?.id_number}</TableCell>
+                    <TableCell>{supervisor?.pharmacy?.name}</TableCell>
+                    <TableCell>
+                      <Switch
+                        checked={supervisor.status === "active"}
+                        onCheckedChange={() =>
+                          toggleStatus(String(supervisor.id))
+                        }
+                      />
+                    </TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      <Button
+                        variant="destructive"
+                        onClick={() => deleteSupervisor(String(supervisor.id))}
+                      >
+                        <Trash2 />
+                      </Button>
+                      <UpdateSupervisorDialog supervisor={supervisor} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+            {pagination && (
+              <div className="p-4 border-t">
+                <ListPagination
+                  pagination={pagination}
+                  loadedCount={supervisors.length}
+                  accumulated={accumulated}
+                  hasMore={hasMore}
+                  onLoadMore={loadMore}
+                  isLoadingMore={isFetching}
+                  onPageChange={goToPage}
+                />
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center gap-2 p-6 text-muted-foreground">
+            <UserStar className="size-12" />
+            <p>No Supervisors found</p>
+          </div>
+        )}
+      </div>
     </>
   );
-};;
+};
 
 export default SupervisorsTable;

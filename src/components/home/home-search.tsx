@@ -1,6 +1,9 @@
 "use client";
 
 import { getProductsListApi } from "@/api/products";
+import { parseFlatListResponse } from "@/lib/list-parse";
+import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import type { ProductItem } from "@/types/products";
 import {
   InputGroup,
   InputGroupAddon,
@@ -24,7 +27,9 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
     enabled: debouncedSearch.length > 0,
   });
 
-  const products = productsList?.data?.data?.data || [];
+  const products = productsList?.ok
+    ? parseFlatListResponse<ProductItem>(productsList.data, PRODUCTS_PER_PAGE).items
+    : [];
   const showDropdown = isFocused && search.length > 0;
 
   return (

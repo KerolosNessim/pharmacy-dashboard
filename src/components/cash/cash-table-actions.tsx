@@ -8,15 +8,16 @@ import { useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { deleteCashApi } from "@/api/cash";
 import { toast } from "sonner";
-import { useReactToPrint } from "react-to-print";
 import CashPrintCard from "./cash-print-card";
+import { useAppPrint } from "@/hooks/use-app-print";
+import { PrintHidden } from "@/components/shared/print-hidden";
 
 const CashTableActions = ({ invoice }: { invoice: Cash }) => {
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const printRef = useRef<HTMLDivElement>(null);
 
-  const handlePrint = useReactToPrint({
+  const handlePrint = useAppPrint({
     contentRef: printRef,
     documentTitle: `Invoice-${invoice.invoice_number}`,
   });
@@ -56,10 +57,9 @@ const CashTableActions = ({ invoice }: { invoice: Cash }) => {
         <Trash className="size-4" />
       </Button>
 
-      {/* Hidden Print Card */}
-      <div className="hidden">
+      <PrintHidden>
         <CashPrintCard ref={printRef} invoice={invoice} />
-      </div>
+      </PrintHidden>
     </div>
   );
 };

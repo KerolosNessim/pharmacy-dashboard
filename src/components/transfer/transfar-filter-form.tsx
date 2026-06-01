@@ -32,6 +32,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { TRANSFER_STATUS_FILTER_OPTIONS } from "@/lib/transfer-status";
 
 const formSchema = z.object({
   status: z.string().optional(),
@@ -99,11 +100,11 @@ const TransferFilterForm = () => {
                 </SelectTrigger>
                 <SelectContent position="popper">
                   <SelectGroup>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="Approved">Approved</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="Rejected">Rejected</SelectItem>
+                    {TRANSFER_STATUS_FILTER_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>

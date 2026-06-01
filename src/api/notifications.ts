@@ -1,8 +1,14 @@
+import { buildListQueryString } from "@/lib/list-query";
 import { apiRequest } from "@/lib/api-request";
 import { GetNotificationsResponse, UnreadCountResponse } from "@/types/notifications";
 
-export const getNotificationsApi = (page: number = 1, status: string = "unread") =>
-  apiRequest<GetNotificationsResponse>(`/notifications?page=${page}&status=${status}`);
+export const getNotificationsApi = (
+  page: number = 1,
+  status: string = "unread"
+) => {
+  const query = buildListQueryString({ page, status });
+  return apiRequest<GetNotificationsResponse>(`/notifications${query}`);
+};
 
 export const getUnreadCountApi = () =>
   apiRequest<UnreadCountResponse>(`/notifications/unread_count`);

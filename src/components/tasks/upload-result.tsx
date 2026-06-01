@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { useGoBack } from "@/hooks/use-goback";
 import { toast } from "sonner";
 import { uploadTaskResultApi } from "@/api/tasks";
+import { useQueryClient } from "@tanstack/react-query";
 
 const formSchema = z.object({
   result_text: z.string().min(5, "Result must be at least 5 characters"),
@@ -26,8 +27,9 @@ const formSchema = z.object({
 
 type ResultValues = z.infer<typeof formSchema>;
 
-const UploadResult = ({id}: {id: string}) => {
+const UploadResult = ({ id }: { id: string }) => {
   const goBack = useGoBack();
+  const queryClient = useQueryClient();
 
   const form = useForm<ResultValues>({
     resolver: zodResolver(formSchema),
@@ -39,16 +41,24 @@ const UploadResult = ({id}: {id: string}) => {
   const onSubmit = async (values: ResultValues) => {
     const formData = new FormData();
     formData.append("result_text", values.result_text);
-    formData.append("result_file", values.file);
+    if (values.file instanceof File) {
+      formData.append("result_file", values.file);
+    }
+
     const res = await uploadTaskResultApi(id, formData);
-    console.log(res);
+
     if (res?.ok) {
-      toast.success(res?.data?.message);
+      await queryClient.invalidateQueries({ queryKey: ["refill-tasks"] });
+      await queryClient.invalidateQueries({ queryKey: ["tasks", id] });
+
+      toast.success(
+        res?.data?.message ?? "Task result submitted successfully"
+      );
       goBack();
+      return;
     }
-    else {
-      toast.error(res?.error);
-    }
+
+    toast.error(res?.error ?? "Failed to submit task result");
   };
 
   const { isSubmitting } = form.formState;

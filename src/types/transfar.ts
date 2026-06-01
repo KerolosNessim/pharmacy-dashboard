@@ -71,37 +71,48 @@ export type AddRequestData= {
     };
 
 
-    export type TransferResponse={
-    status: string,
-    message: string,
-    data: {
-        data: RequestItem[],
-        current_page: number,
-        totals: {
-            total_in: number,
-            total_out: number,
-        },
-        last_page: number,
-        total: number
-    }
-}
+export type TransferPagination = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+};
 
-export type RequestItem=            {
-                id: number,
-                created_at: string,
-                creator_name: string,
-                from_pharmacy: string,
-                to_pharmacy: string,
-                medications: 
-                    {
-                        name: string,
-                        quantity: number,
-                        product_code: string
-                    }[],
-                status: string,
-                can_activate?: boolean,
-                can_complete?: boolean
-}
+export type TransferTotals = {
+  total_in: number;
+  total_out: number;
+};
+
+export type TransferListPayload = {
+  data: RequestItem[];
+  pagination: TransferPagination;
+  totals: TransferTotals;
+};
+
+export type TransferResponse = {
+  status: string;
+  message: string;
+  data: TransferListPayload;
+};
+
+export type RequestItem = {
+  id: number;
+  created_at: string;
+  creator_name: string;
+  from_pharmacy: string;
+  to_pharmacy: string;
+  medications: {
+    name: string;
+    quantity: number;
+    product_code: string;
+  }[];
+  status: string;
+  notes?: string | null;
+  rejection_reason?: string | null;
+  total_price?: string | null;
+  can_activate?: boolean;
+  can_complete?: boolean;
+};
             
 
 export type SendReportData= {

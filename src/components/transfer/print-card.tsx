@@ -48,6 +48,15 @@ const PrintCard = forwardRef<
         </tbody>
       </table>
 
+      {transfar.notes?.trim() ? (
+        <div className="mb-6">
+          <p className="font-semibold text-sm mb-1">Notes:</p>
+          <p className="text-sm p-3 border border-gray-300 rounded whitespace-pre-wrap">
+            {transfar.notes.trim()}
+          </p>
+        </div>
+      ) : null}
+
       {/* Footer */}
       <div className="flex justify-between items-center border-t pt-4">
         <p>
