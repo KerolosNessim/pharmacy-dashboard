@@ -14,7 +14,6 @@ export default function DashboardLayout({
       <SidebarInset className="flex min-h-svh flex-col">
         <Navbar />
         <main className="flex-1">{children}</main>
-        <AppFooter />
       </SidebarInset>
     </SidebarProvider>
   );

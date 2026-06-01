@@ -8,7 +8,7 @@ import { SelectedProduct } from "@/app/(dashboard)/request/create/page";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupInput
+  InputGroupInput,
 } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useQuery } from "@tanstack/react-query";
@@ -34,7 +34,8 @@ const RequestProductSearch = ({
   });
 
   const products = productsList?.ok
-    ? parseFlatListResponse<ProductItem>(productsList.data, PRODUCTS_PER_PAGE).items
+    ? parseFlatListResponse<ProductItem>(productsList.data, PRODUCTS_PER_PAGE)
+        .items
     : [];
   const showDropdown = isFocused && search.length > 0;
 
@@ -72,19 +73,22 @@ const RequestProductSearch = ({
             </div>
           ) : products.length > 0 ? (
             <div className="flex flex-col">
-              {products.slice(0, 5).map((product) => (
+              {products?.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => {
                     setSearch("");
-                    setSelectedProduct([...selectedProduct, {
-                      name: product.name,
-                      quantity: 1,
-                      id: product.id,
-                      code: product?.code,
-                      price: product?.price,
-                      description: product?.description,
-                    }]);
+                    setSelectedProduct([
+                      ...selectedProduct,
+                      {
+                        name: product.name,
+                        quantity: 1,
+                        id: product.id,
+                        code: product?.code,
+                        price: product?.price,
+                        description: product?.description,
+                      },
+                    ]);
                   }}
                   className="p-3 border-b last:border-0 hover:bg-bg transition-colors flex items-center justify-between w-full text-left"
                 >

@@ -65,7 +65,7 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
             </div>
           ) : products.length > 0 ? (
             <div className="flex flex-col">
-              {products.slice(0, 5).map((product) => (
+              {products?.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => {
