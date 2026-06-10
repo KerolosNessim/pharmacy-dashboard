@@ -17,15 +17,29 @@ import { useGoBack } from "@/hooks/use-goback";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
 import { parseNestedListResponse } from "@/lib/list-parse";
 import type { Task } from "@/types/tasks";
+import { useUserStore } from "@/stores/user-store";
 import { format } from "date-fns";
-import { ArrowLeft, CalendarIcon, CheckCircle2, Search, Truck } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarIcon,
+  CheckCircle2,
+  Download,
+  Search,
+  Truck,
+} from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const TasksPage = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
   const [search, setSearch] = useState("");
+  const [isExporting, setIsExporting] = useState(false);
   const goBack = useGoBack();
+  const { user } = useUserStore();
+
+  const canExportTasks =
+    user?.role === "super_admin" || user?.role === "supervisor";
 
   const fromDateString = fromDate ? format(fromDate, "yyyy-MM-dd") : "";
   const toDateString = toDate ? format(toDate, "yyyy-MM-dd") : "";
@@ -68,18 +82,67 @@ const TasksPage = () => {
     },
   });
 
+  const completedTotal = completed.pagination?.total ?? 0;
+
+  const handleExportCompleted = async () => {
+    const params = new URLSearchParams();
+    if (search.trim()) params.set("search", search.trim());
+    if (fromDateString) params.set("from_date", fromDateString);
+    if (toDateString) params.set("to_date", toDateString);
+
+    const query = params.toString() ? `?${params.toString()}` : "";
+    setIsExporting(true);
+
+    try {
+      const res = await fetch(`/api/tasks/export${query}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? "Failed to export tasks");
+        return;
+      }
+
+      const blob = await res.blob();
+      const disposition = res.headers.get("Content-Disposition");
+      const filenameMatch = disposition?.match(/filename="?([^";\n]+)"?/);
+      const filename = filenameMatch?.[1] ?? "completed-tasks.xlsx";
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("Export downloaded");
+    } catch {
+      toast.error("Failed to export tasks");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <section className="flex flex-col gap-6 p-4">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" className="hover:bg-bg" onClick={goBack}>
-          <ArrowLeft />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">Tasks Management</h2>
-          <p className="text-muted-foreground text-sm">
-            Manage tasks sent by Pharmacy Supervisor
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" className="hover:bg-bg" onClick={goBack}>
+            <ArrowLeft />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">Tasks Management</h2>
+            <p className="text-muted-foreground text-sm">
+              Manage tasks sent by Pharmacy Supervisor
+            </p>
+          </div>
         </div>
+        {canExportTasks && (
+          <Button
+            className="h-12 shrink-0"
+            disabled={isExporting || completedTotal === 0}
+            onClick={handleExportCompleted}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export Completed"}
+          </Button>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4">

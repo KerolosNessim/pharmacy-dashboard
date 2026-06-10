@@ -7,11 +7,16 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 
-const LogoutBtn = () => {
+interface LogoutBtnProps {
+  onClose?: () => void;
+}
+
+const LogoutBtn = ({ onClose }: LogoutBtnProps) => {
   const [loading, setLoading] = useState(false);
   const { removeUser } = useUserStore();
   const router = useRouter();
   const handleLogout = async () => {
+    onClose?.();
     setLoading(true);
     const res = await logoutApi();
     console.log(res);

@@ -115,8 +115,13 @@ export type RequestItem = {
 };
             
 
-export type SendReportData= {
-    email: string,
-    from_date: string,
-    to_date: string,
-}
+export type SendReportData = {
+  email: string;
+  from_date: string;
+  to_date: string;
+  type?: string;
+  pharmacist_name?: string;
+  creator_name?: string;
+  status?: string;
+  pharmacy_id?: number | string;
+};

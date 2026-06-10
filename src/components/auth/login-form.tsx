@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { loginApi } from "@/api/auth";
 import { Loader2 } from "lucide-react";
-import { setRole, setToken } from "@/actions/auth";
+import { setPharmacyId, setRole, setToken } from "@/actions/auth";
 import { useUserStore } from "@/stores/user-store";
 import { getFCMToken } from "@/lib/firebase/client";
 import Link from "next/link";
@@ -46,20 +46,21 @@ export default function LoginForm() {
   });
   const { isSubmitting } = form.formState;
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const fcm_token = await getFCMToken();
-    console.log("fcm token", fcm_token);
+    const fcm_token = await getFCMToken().catch(() => null);
     const res = await loginApi({ ...values, fcm_token });
     if (res?.ok) {
       toast.success(res?.data?.message);
       await setToken(res?.data?.data?.token);
       setClientToken(res?.data?.data?.token);
-      await setRole(
-        res?.data?.data?.admin?.role || res?.data?.data?.pharmacist?.role,
-      );
-      if (res?.data?.data?.admin || res?.data?.data?.pharmacist) {
-        setUser(res?.data?.data?.admin || res?.data?.data?.pharmacist);
+      const loggedInUser =
+        res?.data?.data?.admin || res?.data?.data?.pharmacist;
+      await setRole(loggedInUser?.role);
+      await setPharmacyId(loggedInUser?.pharmacy_id);
+      if (loggedInUser) {
+        setUser(loggedInUser);
       }
-      router.push("/");
+      router.refresh();
+      router.replace("/");
     } else {
       toast.error(res?.error);
     }

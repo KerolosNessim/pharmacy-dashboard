@@ -58,8 +58,7 @@ const TransferPage = () => {
             <div className="size-12 rounded-full bg-primary/30 text-primary flex justify-center items-center">
               <GoArrowDownLeft className="size-8" />
             </div>
-            <h2 className="text-2xl font-bold">IN</h2>
-            <p className="text-muted-foreground">Incoming</p>
+            <h2 className="text-xl font-bold">Request Items</h2>
             <Badge variant={"success"}>{incomingTotal}</Badge>
           </Button>
         </Link>
@@ -71,8 +70,7 @@ const TransferPage = () => {
             <div className="size-12 rounded-full bg-primary/30 text-primary flex justify-center items-center">
               <GoArrowUpRight className="size-8" />
             </div>
-            <h2 className="text-2xl font-bold">OUT</h2>
-            <p className="text-muted-foreground">Requested Items</p>
+            <h2 className="text-xl font-bold">Issue To</h2>
             <Badge variant={"success"}>{outgoingTotal}</Badge>
           </Button>
         </Link>

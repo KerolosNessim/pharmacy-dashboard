@@ -24,6 +24,16 @@ import {
 import { Input } from "../ui/input";
 import { sendReportApi } from "@/api/transfar";
 import { toast } from "sonner";
+import type { TransferReportParams } from "@/lib/transfer-query";
+import {
+  buildResolvedReportFilters,
+  isSuperAdmin,
+  REPORT_ALL_PHARMACIES,
+} from "@/lib/transfer-report-params";
+import { useUserStore } from "@/stores/user-store";
+import { FormProvider } from "react-hook-form";
+import { ReportPharmacyField } from "./report-pharmacy-field";
+
 const formSchema = z.object({
   email: z
     .string()
@@ -31,28 +41,46 @@ const formSchema = z.object({
     .nonempty({ message: "Email is required" }),
   from_date: z.date({ message: "Date is required" }),
   to_date: z.date({ message: "Date is required" }),
+  pharmacy_id: z.string().optional(),
 });
 
 export type SendReportValues = z.infer<typeof formSchema>;
-const SendReportForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+type SendReportFormProps = {
+  setOpen: (open: boolean) => void;
+  reportFilters?: Omit<TransferReportParams, "from_date" | "to_date">;
+};
+
+const SendReportForm = ({ setOpen, reportFilters }: SendReportFormProps) => {
+  const { user } = useUserStore();
   const form = useForm<SendReportValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       from_date: new Date(),
       to_date: new Date(),
+      pharmacy_id: isSuperAdmin(user)
+        ? REPORT_ALL_PHARMACIES
+        : "",
     },
   });
-  const {isSubmitting}=form.formState;
+  const { isSubmitting } = form.formState;
+
   async function onSubmit(data: SendReportValues) {
-    const { email, from_date, to_date } = data;
+    const { email, from_date, to_date, pharmacy_id } = data;
     const fromDate = format(from_date, "yyyy-MM-dd");
     const toDate = format(to_date, "yyyy-MM-dd");
+
+    const resolvedFilters = buildResolvedReportFilters(
+      reportFilters,
+      user,
+      pharmacy_id,
+    );
 
     const payload = {
       email,
       from_date: fromDate,
       to_date: toDate,
+      ...resolvedFilters,
     };
     const res = await sendReportApi(payload);
     if (res?.ok) {
@@ -64,10 +92,13 @@ const SendReportForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
     }
   }
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup className="flex gap-4">
-        <Controller
-          name="email"
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FieldGroup className="flex gap-4">
+          <ReportPharmacyField />
+
+          <Controller
+            name="email"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="gap-2">
@@ -195,8 +226,9 @@ const SendReportForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
             Cancel
           </Button>
         </div>
-      </FieldGroup>
-    </form>
+        </FieldGroup>
+      </form>
+    </FormProvider>
   );
 };
 

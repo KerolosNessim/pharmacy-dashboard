@@ -12,8 +12,15 @@ import { Download, FileText } from "lucide-react";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import DownloadReportForm from "./download-report-form";
+import type { TransferReportParams } from "@/lib/transfer-query";
 
-const DownloadReportDialog = () => {
+type DownloadReportDialogProps = {
+  reportFilters?: Omit<TransferReportParams, "from_date" | "to_date">;
+};
+
+const DownloadReportDialog = ({
+  reportFilters,
+}: DownloadReportDialogProps = {}) => {
   const [open, setOpen] = useState(false);
   
   return (
@@ -37,7 +44,7 @@ const DownloadReportDialog = () => {
             </div>
           </DialogTitle>
           <DialogDescription asChild>
-            <DownloadReportForm setOpen={setOpen} />
+            <DownloadReportForm setOpen={setOpen} reportFilters={reportFilters} />
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

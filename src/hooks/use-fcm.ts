@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { getToken } from "firebase/messaging";
-import { getFirebaseMessaging } from "@/lib/firebase/client";
+import { getFirebaseMessaging, isPushSupported } from "@/lib/firebase/client";
 
 export const useFcm = (vapidKey: string) => {
   const [token, setToken] = useState<string | null>(null);
@@ -19,8 +19,8 @@ export const useFcm = (vapidKey: string) => {
   }, []);
 
   const requestPermission = useCallback(async () => {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      console.warn("Notifications are not supported in this browser.");
+    if (!isPushSupported()) {
+      setNotificationPermission("unsupported");
       return;
     }
 
@@ -46,23 +46,30 @@ export const useFcm = (vapidKey: string) => {
 
       if (permission === "granted") {
         const messagingInstance = getFirebaseMessaging();
-        console.log("Firebase messaging instance:", messagingInstance);
         if (messagingInstance) {
           try {
-            const deviceToken = await getToken(messagingInstance, { vapidKey });
-            console.log("FCM Token generated:", deviceToken);
+            let registration: ServiceWorkerRegistration | undefined;
+            try {
+              registration = await navigator.serviceWorker.register(
+                "/firebase-messaging-sw.js",
+              );
+              await navigator.serviceWorker.ready;
+            } catch {
+              return;
+            }
+
+            const deviceToken = await getToken(messagingInstance, {
+              vapidKey,
+              serviceWorkerRegistration: registration,
+            });
             setToken(deviceToken);
-          } catch (tokenError) {
-            console.error("Failed to get FCM token:", tokenError);
+          } catch {
+            // Push service not available in this environment.
           }
-        } else {
-          console.error("Firebase messaging instance is null");
         }
-      } else {
-        console.log("Notification permission not granted:", permission);
       }
-    } catch (error) {
-      console.error("Failed to request notification permission:", error);
+    } catch {
+      // Permission request failed or was dismissed.
     } finally {
       setIsLoading(false);
     }

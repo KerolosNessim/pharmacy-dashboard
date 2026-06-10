@@ -27,14 +27,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import SendReportDialog from "./send-report-dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import LogoutBtn from "./logout-btn";
 import UserInfo from "./user-info";
 import { useUserStore } from "@/stores/user-store";
 
 const NavbarSheet = () => {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
   const { user } = useUserStore();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   const Sheet_Links: ILink[] = [
     {
@@ -116,7 +122,7 @@ const NavbarSheet = () => {
           </SheetDescription>
         </SheetHeader>
       <SheetFooter>
-        <LogoutBtn />
+        <LogoutBtn onClose={() => setOpen(false)} />
       </SheetFooter>
       </SheetContent>
     </Sheet>

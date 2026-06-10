@@ -5,6 +5,7 @@ export async function POST() {
 
   res.cookies.set("token", "", { maxAge: 0, path: "/" });
   res.cookies.set("role", "", { maxAge: 0, path: "/" });
+  res.cookies.set("pharmacy_id", "", { maxAge: 0, path: "/" });
 
   return res;
 }

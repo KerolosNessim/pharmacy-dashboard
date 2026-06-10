@@ -22,44 +22,82 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { toast } from "sonner";
+import { FormProvider } from "react-hook-form";
+import {
+  buildTransferReportQueryString,
+  type TransferReportParams,
+} from "@/lib/transfer-query";
+import {
+  buildResolvedReportFilters,
+  isSuperAdmin,
+  REPORT_ALL_PHARMACIES,
+} from "@/lib/transfer-report-params";
+import { useUserStore } from "@/stores/user-store";
+import { ReportPharmacyField } from "./report-pharmacy-field";
 
 const formSchema = z.object({
   from_date: z.date({ message: "Start date is required" }),
   to_date: z.date({ message: "End date is required" }),
+  pharmacy_id: z.string().optional(),
 });
 
 export type DownloadReportValues = z.infer<typeof formSchema>;
 
-const DownloadReportForm = ({ setOpen }: { setOpen: (open: boolean) => void }) => {
+type DownloadReportFormProps = {
+  setOpen: (open: boolean) => void;
+  reportFilters?: Omit<TransferReportParams, "from_date" | "to_date">;
+};
+
+const DownloadReportForm = ({
+  setOpen,
+  reportFilters,
+}: DownloadReportFormProps) => {
+  const { user } = useUserStore();
+
   const form = useForm<DownloadReportValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       from_date: new Date(),
       to_date: new Date(),
+      pharmacy_id: isSuperAdmin(user)
+        ? REPORT_ALL_PHARMACIES
+        : "",
     },
   });
 
   const { isSubmitting } = form.formState;
 
   async function onSubmit(data: DownloadReportValues) {
-    const { from_date, to_date } = data;
+    const { from_date, to_date, pharmacy_id } = data;
     const fromDate = format(from_date, "yyyy-MM-dd");
     const toDate = format(to_date, "yyyy-MM-dd");
 
-    // Construct the download URL
-    const downloadUrl = `/api/reports/transfer?from_date=${fromDate}&to_date=${toDate}`;
-    
-    // Trigger download
+    const resolvedFilters = buildResolvedReportFilters(
+      reportFilters,
+      user,
+      pharmacy_id,
+    );
+
+    const query = buildTransferReportQueryString({
+      from_date: fromDate,
+      to_date: toDate,
+      ...resolvedFilters,
+    });
+    const downloadUrl = `/api/reports/transfer${query}`;
+
     window.location.assign(downloadUrl);
-    
+
     toast.success("Download started...");
     setOpen(false);
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)}>
-      <FieldGroup className="flex flex-col gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <FormProvider {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <FieldGroup className="flex flex-col gap-6">
+          <ReportPharmacyField />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Controller
             name="from_date"
             control={form.control}
@@ -168,8 +206,9 @@ const DownloadReportForm = ({ setOpen }: { setOpen: (open: boolean) => void }) =
             )}
           </Button>
         </div>
-      </FieldGroup>
-    </form>
+        </FieldGroup>
+      </form>
+    </FormProvider>
   );
 };
 

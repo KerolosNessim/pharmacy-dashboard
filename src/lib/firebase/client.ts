@@ -18,6 +18,15 @@ const firebaseConfig = {
 let app: FirebaseApp | null = null;
 let messaging: Messaging | null = null;
 
+export function isPushSupported(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    "Notification" in window &&
+    "serviceWorker" in navigator &&
+    "PushManager" in window
+  );
+}
+
 // Lazy initialize Firebase App only in the browser
 export const getFirebaseApp = (): FirebaseApp | null => {
   if (typeof window === "undefined") return null;
@@ -88,11 +97,14 @@ export const onForegroundMessage = (
 export const getFCMToken = async (): Promise<string | null> => {
   if (typeof window === "undefined") return null;
 
+  if (!isPushSupported()) {
+    return null;
+  }
+
   try {
     const permission = await Notification.requestPermission();
 
     if (permission !== "granted") {
-      console.warn("Notification permission not granted.");
       return null;
     }
 
@@ -100,28 +112,23 @@ export const getFCMToken = async (): Promise<string | null> => {
     if (!messagingInstance) return null;
 
     let registration;
-
-try {
-  registration = await navigator.serviceWorker.register(
-    "/firebase-messaging-sw.js"
-  );
-  // Ensure the service worker is ready and active
-  await navigator.serviceWorker.ready;
-} catch (e) {
-  console.error("SW registration failed", e);
-  return null;
-}
+    try {
+      registration = await navigator.serviceWorker.register(
+        "/firebase-messaging-sw.js",
+      );
+      await navigator.serviceWorker.ready;
+    } catch {
+      return null;
+    }
 
     const token = await getToken(messagingInstance, {
       vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
       serviceWorkerRegistration: registration,
     });
 
-    console.log("FCM TOKEN:", token);
-
     return token ?? null;
-  } catch (error) {
-    console.error("Failed to get FCM token:", error);
+  } catch {
+    // Push unavailable in this browser (common on localhost / embedded browsers).
     return null;
   }
 };

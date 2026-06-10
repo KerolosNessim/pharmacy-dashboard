@@ -11,8 +11,13 @@ import { File } from "lucide-react";
 import SendReportForm from "./send-report-form";
 import { Button } from "../ui/button";
 import { useState } from "react";
+import type { TransferReportParams } from "@/lib/transfer-query";
 
-const SendReportDialog = () => {
+type SendReportDialogProps = {
+  reportFilters?: Omit<TransferReportParams, "from_date" | "to_date">;
+};
+
+const SendReportDialog = ({ reportFilters }: SendReportDialogProps = {}) => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -36,7 +41,7 @@ const SendReportDialog = () => {
             </div>
           </DialogTitle>
           <DialogDescription asChild>
-            <SendReportForm setOpen={setOpen} />
+            <SendReportForm setOpen={setOpen} reportFilters={reportFilters} />
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
