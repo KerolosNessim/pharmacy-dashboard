@@ -12,13 +12,15 @@ import {
 } from "@/components/ui/input-group";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useQuery } from "@tanstack/react-query";
-import { Box, Camera, Loader2, Search } from "lucide-react";
+import { BarcodeScannerDialog } from "@/components/shared/barcode-scanner-dialog";
+import { Box, Loader2, ScanBarcode, Search } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
 
 const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
   const [search, setSearch] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const debouncedSearch = useDebounce(search, 500);
 
   const { data: productsList, isFetching } = useQuery({
@@ -50,11 +52,28 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
         />
         <InputGroupAddon align="inline-end">
           {isFetching && (
-            <div className="flex items-center justify-center px-4">
-              <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-            </div>)}
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          )}
+          <InputGroupButton
+            type="button"
+            size="icon-sm"
+            onClick={() => setScannerOpen(true)}
+            aria-label="Scan barcode"
+            className="bg-primary text-white hover:bg-primary/90!"
+          >
+            <ScanBarcode className="size-5" />
+          </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
+
+      <BarcodeScannerDialog
+        open={scannerOpen}
+        onOpenChange={setScannerOpen}
+        onScan={(value) => {
+          setSearch(value);
+          setIsFocused(true);
+        }}
+      />
 
       {showDropdown && (
         <div className="bg-background absolute top-full left-0 right-0 mt-2  border rounded-lg shadow-lg overflow-hidden max-h-96 overflow-y-auto w-full">

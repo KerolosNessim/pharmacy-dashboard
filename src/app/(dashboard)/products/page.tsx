@@ -8,9 +8,11 @@ import {
 import EditProductDialog from "@/components/import-product/edit-product-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BarcodeScannerDialog } from "@/components/shared/barcode-scanner-dialog";
 import {
   InputGroup,
   InputGroupAddon,
+  InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Switch } from "@/components/ui/switch";
@@ -31,7 +33,7 @@ import { ListPagination } from "@/components/shared/list-pagination";
 import { parseFlatListResponse } from "@/lib/list-parse";
 import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
 import type { ProductItem } from "@/types/products";
-import { ArrowLeft, Database, Loader2, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, Database, Loader2, ScanBarcode, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 const ProductsPage = () => {
@@ -39,6 +41,7 @@ const ProductsPage = () => {
   const { user } = useUserStore();
 
   const [search, setSearch] = useState("");
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [isCheckAvailabilityPending, setIsCheckAvailabilityPending] =
     useState(false);
   const debouncedSearch = useDebounce(search, 500);
@@ -190,14 +193,29 @@ const ProductsPage = () => {
               <Search className="text-primary" />
             </InputGroupAddon>
             <InputGroupInput
-              placeholder="Search products"
+              placeholder="Search products, SKU, or barcode..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+            <InputGroupAddon align="inline-end">
+              {(isProductsLoading || isProductsFetching) && (
+                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+              )}
+              <InputGroupButton
+                type="button"
+                size="icon-sm"
+                onClick={() => setScannerOpen(true)}
+                aria-label="Scan barcode"
+              >
+                <ScanBarcode className="size-5 text-primary" />
+              </InputGroupButton>
+            </InputGroupAddon>
           </InputGroup>
-          {(isProductsLoading || isProductsFetching) && (
-            <Loader2 className="animate-spin absolute right-3 top-3.5 w-5 h-5 text-muted-foreground" />
-          )}
+          <BarcodeScannerDialog
+            open={scannerOpen}
+            onOpenChange={setScannerOpen}
+            onScan={setSearch}
+          />
         </div>
 
         {isProductsLoading ? (
