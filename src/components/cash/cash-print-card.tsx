@@ -16,6 +16,11 @@ const CashPrintCard = forwardRef<HTMLDivElement, { invoice: Cash }>(
           <div className="text-right">
             <h2 className="text-xl font-bold uppercase tracking-wider">Invoice</h2>
             <p className="text-sm font-semibold">#{invoice.invoice_number}</p>
+            {invoice.pharmacy_internal_invoice_number && (
+              <p className="text-xs text-gray-500">
+                Pharmacy #: {invoice.pharmacy_internal_invoice_number}
+              </p>
+            )}
             <p className="text-xs text-gray-500">{new Date(invoice.created_at).toLocaleDateString()}</p>
           </div>
         </div>

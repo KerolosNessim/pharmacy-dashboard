@@ -28,8 +28,8 @@ import { updateCashApi } from "@/api/cash";
 import { toast } from "sonner";
 
 const formSchema = z.object({
-  invoice_number: z.string().min(1, "Invoice number is required"),
   amount: z.string().min(1, "Amount is required"),
+  pharmacy_internal_invoice_number: z.string().optional(),
   status: z.enum(["delivery", "received_from_driver", "delivered_to_finance"]),
   delivery_representative_id: z.string().optional(),
   products_information: z.string().min(1, "Products information is required"),
@@ -53,8 +53,9 @@ export const EditCashForm = ({
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      invoice_number: invoice?.invoice_number || "",
       amount: String(invoice?.amount) || "",
+      pharmacy_internal_invoice_number:
+        invoice?.pharmacy_internal_invoice_number || "",
       status: invoice?.status as
         | "delivery"
         | "received_from_driver"
@@ -62,6 +63,7 @@ export const EditCashForm = ({
       delivery_representative_id:
         String(invoice?.delivery_representative?.id) || "",
       products_information: invoice?.products_information || "",
+      pharmacy_id: String(invoice?.pharmacy_id ?? ""),
       neighborhood: invoice?.neighborhood || "",
       customer_name: invoice?.customer_name || "",
       mobile_no: invoice?.mobile_no || "",
@@ -78,6 +80,10 @@ export const EditCashForm = ({
   const deliveries = data?.data?.data ?? [];
   const queryClient = useQueryClient();
   const onSubmit = async (values: cashValues) => {
+    if (!values.pharmacy_internal_invoice_number?.trim()) {
+      delete values.pharmacy_internal_invoice_number;
+    }
+
     const res = await updateCashApi(invoice.id, values);
     if (res?.ok) {
       toast.success(res?.data?.message);
@@ -94,17 +100,28 @@ export const EditCashForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          {/* Invoice Number */}
+          {/* System Invoice Number (read-only) */}
+          <FormItem>
+            <FormLabel>System Invoice Number</FormLabel>
+            <FormControl>
+              <Input
+                disabled
+                value={invoice.invoice_number ?? "-"}
+                className="focus-visible:ring-primary"
+              />
+            </FormControl>
+          </FormItem>
+
+          {/* Pharmacy Internal Invoice Number */}
           <FormField
             control={form.control}
-            name="invoice_number"
+            name="pharmacy_internal_invoice_number"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Invoice Number</FormLabel>
+                <FormLabel>Pharmacy Invoice Number</FormLabel>
                 <FormControl>
                   <Input
-                    disabled
-                    placeholder="Enter invoice number"
+                    placeholder="e.g. PH-2026-001"
                     {...field}
                     className="focus-visible:ring-primary"
                   />
@@ -113,6 +130,7 @@ export const EditCashForm = ({
               </FormItem>
             )}
           />
+
           {/* Amount */}
           <FormField
             control={form.control}

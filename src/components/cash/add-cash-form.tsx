@@ -32,6 +32,7 @@ import { Label } from "../ui/label";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
+  pharmacy_internal_invoice_number: z.string().optional(),
   status: z
     .enum(["delivery", "received_from_driver", "delivered_to_finance"])
     .optional(),
@@ -59,6 +60,7 @@ export const AddCashForm = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",
+      pharmacy_internal_invoice_number: "",
       status: "delivery",
       delivery_representative_id: "",
       products_information: "",
@@ -86,6 +88,10 @@ export const AddCashForm = ({
 
     if (!values.pharmacy_id && user?.pharmacy_id) {
       values.pharmacy_id = user.pharmacy_id.toString();
+    }
+
+    if (!values.pharmacy_internal_invoice_number?.trim()) {
+      delete values.pharmacy_internal_invoice_number;
     }
 
     const res = await addCashApi(values);
@@ -120,6 +126,25 @@ export const AddCashForm = ({
                   <Input
                     type="number"
                     placeholder="Enter amount"
+                    {...field}
+                    className="focus-visible:ring-primary"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Pharmacy Internal Invoice Number */}
+          <FormField
+            control={form.control}
+            name="pharmacy_internal_invoice_number"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Pharmacy Invoice Number</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="e.g. PH-2026-001"
                     {...field}
                     className="focus-visible:ring-primary"
                   />
@@ -172,7 +197,7 @@ export const AddCashForm = ({
             control={form.control}
             name="neighborhood"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="col-span-2">
                 <FormLabel>Neighborhood</FormLabel>
                 <FormControl>
                   <Input

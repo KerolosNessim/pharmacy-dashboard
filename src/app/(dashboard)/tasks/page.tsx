@@ -15,6 +15,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGoBack } from "@/hooks/use-goback";
 import { usePaginatedList } from "@/hooks/use-paginated-list";
+import { LIST_PER_PAGE } from "@/lib/api-pagination";
 import { parseNestedListResponse } from "@/lib/list-parse";
 import type { Task } from "@/types/tasks";
 import { useUserStore } from "@/stores/user-store";
@@ -23,18 +24,16 @@ import {
   ArrowLeft,
   CalendarIcon,
   CheckCircle2,
-  Download,
   Search,
   Truck,
 } from "lucide-react";
-import { useMemo, useState } from "react";
-import { toast } from "sonner";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const TasksPage = () => {
   const [fromDate, setFromDate] = useState<Date | undefined>();
   const [toDate, setToDate] = useState<Date | undefined>();
   const [search, setSearch] = useState("");
-  const [isExporting, setIsExporting] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
   const goBack = useGoBack();
   const { user } = useUserStore();
 
@@ -64,6 +63,15 @@ const TasksPage = () => {
     [search, fromDateString, toDateString]
   );
 
+  const exportFilters = useMemo(
+    () => ({
+      search: search.trim() || undefined,
+      date_from: fromDateString || undefined,
+      date_to: toDateString || undefined,
+    }),
+    [search, fromDateString, toDateString]
+  );
+
   const pending = usePaginatedList<Task>({
     queryKey: ["refill-tasks", "pending", pendingFilters],
     fetchPage: async (page) => {
@@ -84,40 +92,23 @@ const TasksPage = () => {
 
   const completedTotal = completed.pagination?.total ?? 0;
 
-  const handleExportCompleted = async () => {
-    const params = new URLSearchParams();
-    if (search.trim()) params.set("search", search.trim());
-    if (fromDateString) params.set("from_date", fromDateString);
-    if (toDateString) params.set("to_date", toDateString);
+  useEffect(() => {
+    setSelectedTaskIds([]);
+  }, [search, fromDateString, toDateString, completed.page]);
 
-    const query = params.toString() ? `?${params.toString()}` : "";
-    setIsExporting(true);
+  const toggleTaskSelect = useCallback((id: number) => {
+    setSelectedTaskIds((prev) =>
+      prev.includes(id) ? prev.filter((taskId) => taskId !== id) : [...prev, id]
+    );
+  }, []);
 
-    try {
-      const res = await fetch(`/api/tasks/export${query}`);
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error ?? "Failed to export tasks");
-        return;
-      }
+  const selectAllOnPage = useCallback(() => {
+    setSelectedTaskIds(completed.items.map((task) => task.id));
+  }, [completed.items]);
 
-      const blob = await res.blob();
-      const disposition = res.headers.get("Content-Disposition");
-      const filenameMatch = disposition?.match(/filename="?([^";\n]+)"?/);
-      const filename = filenameMatch?.[1] ?? "completed-tasks.xlsx";
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success("Export downloaded");
-    } catch {
-      toast.error("Failed to export tasks");
-    } finally {
-      setIsExporting(false);
-    }
-  };
+  const clearSelection = useCallback(() => {
+    setSelectedTaskIds([]);
+  }, []);
 
   return (
     <section className="flex flex-col gap-6 p-4">
@@ -133,16 +124,6 @@ const TasksPage = () => {
             </p>
           </div>
         </div>
-        {canExportTasks && (
-          <Button
-            className="h-12 shrink-0"
-            disabled={isExporting || completedTotal === 0}
-            onClick={handleExportCompleted}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            {isExporting ? "Exporting..." : "Export Completed"}
-          </Button>
-        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4">
@@ -228,7 +209,18 @@ const TasksPage = () => {
         </TabsContent>
 
         <TabsContent value="completed" className="mt-0 space-y-4">
-          <CompletedTasksList tasks={completed.items} />
+          <CompletedTasksList
+            tasks={completed.items}
+            canExport={canExportTasks}
+            selectedIds={selectedTaskIds}
+            onToggleSelect={toggleTaskSelect}
+            onSelectAllOnPage={selectAllOnPage}
+            onClearSelection={clearSelection}
+            exportFilters={exportFilters}
+            currentPage={completed.page}
+            perPage={LIST_PER_PAGE}
+            totalCount={completedTotal}
+          />
           {completed.pagination && completed.pagination.total > 0 && (
             <ListPagination
               pagination={completed.pagination}

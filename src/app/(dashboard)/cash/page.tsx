@@ -75,7 +75,8 @@ const CashPage = () => {
 
   const handleExport = () => {
     const exportData = invoices.map((inv) => ({
-      "Invoice Number": inv.invoice_number,
+      "System Invoice Number": inv.invoice_number,
+      "Pharmacy Invoice Number": inv.pharmacy_internal_invoice_number || "-",
       "Created By": inv.created_by?.name || "-",
       "Customer Name": inv.customer_name || "-",
       "Mobile No": inv.mobile_no || "-",
@@ -122,14 +123,14 @@ const CashPage = () => {
       <div className="bg-bg p-4 rounded-xl border flex flex-wrap items-end gap-4">
         <div className="flex flex-col gap-1.5 min-w-[200px] flex-1 basis-full sm:basis-auto">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Search by created by
+            Search
           </label>
           <InputGroup className="bg-background h-10!">
             <InputGroupAddon>
               <Search className="size-4" />
             </InputGroupAddon>
             <InputGroupInput
-              placeholder="Creator name..."
+              placeholder="Creator, pharmacy invoice number..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />

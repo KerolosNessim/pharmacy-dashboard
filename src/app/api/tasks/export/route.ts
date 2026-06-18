@@ -16,10 +16,27 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
+  const taskIds = searchParams.getAll("task_ids[]");
+
   const query = buildTasksExportQueryString({
+    status: searchParams.get("status") ?? "completed",
     search: searchParams.get("search") ?? undefined,
-    from_date: searchParams.get("from_date") ?? undefined,
-    to_date: searchParams.get("to_date") ?? undefined,
+    date_from: searchParams.get("date_from") ?? undefined,
+    date_to: searchParams.get("date_to") ?? undefined,
+    pharmacy_id: searchParams.get("pharmacy_id") ?? undefined,
+    task_id: searchParams.get("task_id")
+      ? Number(searchParams.get("task_id"))
+      : undefined,
+    task_ids: taskIds.length
+      ? taskIds.map((id) => Number(id)).filter((id) => !Number.isNaN(id))
+      : undefined,
+    scope: searchParams.get("scope") === "page" ? "page" : undefined,
+    page: searchParams.get("page")
+      ? Number(searchParams.get("page"))
+      : undefined,
+    per_page: searchParams.get("per_page")
+      ? Number(searchParams.get("per_page"))
+      : undefined,
   });
 
   const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
@@ -38,7 +55,10 @@ export async function GET(request: Request) {
         .json()
         .catch(() => ({ message: "Failed to export tasks" }));
       return NextResponse.json(
-        { error: errorData.message ?? errorData.error ?? "Failed to export tasks" },
+        {
+          error:
+            errorData.message ?? errorData.error ?? "Failed to export tasks",
+        },
         { status: response.status },
       );
     }

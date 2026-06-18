@@ -11,24 +11,45 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useGoBack } from "@/hooks/use-goback";
+import { downloadCompletedTasksExport } from "@/lib/export-completed-tasks";
+import { useUserStore } from "@/stores/user-store";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
   Calendar,
   CheckCircle2,
+  Download,
   FileText,
+  Loader2,
   UserRound,
 } from "lucide-react";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 
 const CompletedTaskPage = () => {
   const goBack = useGoBack();
   const { id } = useParams();
+  const { user } = useUserStore();
+  const [isExporting, setIsExporting] = useState(false);
+
+  const canExportTasks =
+    user?.role === "super_admin" || user?.role === "supervisor";
+
   const { data: taskResponse } = useQuery({
     queryKey: ["tasks", id],
     queryFn: () => getSingleTaskApi(`/${id}`),
   });
   const task = taskResponse?.data?.data;
+
+  const handleExport = async () => {
+    if (!task?.id) return;
+    setIsExporting(true);
+    try {
+      await downloadCompletedTasksExport({ task_id: task.id });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const formatDateTime = (date: string | null | undefined) => {
     if (!date) return "N/A";
@@ -41,16 +62,28 @@ const CompletedTaskPage = () => {
 
   return (
     <section className="flex flex-col gap-6 p-4 max-w-4xl mx-auto w-full">
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" className="hover:bg-bg" onClick={goBack}>
-          <ArrowLeft />
-        </Button>
-        <div>
-          <h2 className="text-2xl font-bold">Completed Task</h2>
-          <p className="text-muted-foreground text-sm">
-            View the details and result of this completed task.
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" className="hover:bg-bg" onClick={goBack}>
+            <ArrowLeft />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">Completed Task</h2>
+            <p className="text-muted-foreground text-sm">
+              View the details and result of this completed task.
+            </p>
+          </div>
         </div>
+        {canExportTasks && (
+          <Button disabled={isExporting || !task?.id} onClick={handleExport}>
+            {isExporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
+            {isExporting ? "Exporting..." : "Export"}
+          </Button>
+        )}
       </div>
 
       <Card className="border-emerald-500/20 bg-emerald-500/5">

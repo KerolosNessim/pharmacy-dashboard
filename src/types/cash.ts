@@ -1,8 +1,23 @@
 import type { LaravelPagination } from "./pagination";
 
+export interface CashFormPayload {
+  amount: string;
+  status?: "delivery" | "received_from_driver" | "delivered_to_finance";
+  delivery_representative_id?: string;
+  products_information: string;
+  pharmacy_id: string;
+  pharmacy_internal_invoice_number?: string;
+  neighborhood: string;
+  customer_name: string;
+  mobile_no: string;
+  location: string;
+  notes?: string;
+}
+
 export interface Cash {
   id: number;
   invoice_number: string | null;
+  pharmacy_internal_invoice_number: string | null;
   amount: number;
   status: string;
   pharmacy_id: number | null;

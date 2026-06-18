@@ -26,7 +26,8 @@ const CashTable = ({
         <Table className="bg-bg">
           <TableHeader>
             <TableRow>
-              <TableHead>Invoice Number</TableHead>
+              <TableHead>System Invoice</TableHead>
+              <TableHead>Pharmacy Invoice</TableHead>
               <TableHead>Created By</TableHead>
 
               <TableHead>Customer Name</TableHead>
@@ -46,7 +47,8 @@ const CashTable = ({
           <TableBody>
             {invoices.map((inv) => (
               <TableRow key={inv.id}>
-                <TableCell>{inv?.invoice_number}</TableCell>
+                <TableCell>{inv?.invoice_number ?? "-"}</TableCell>
+                <TableCell>{inv?.pharmacy_internal_invoice_number ?? "-"}</TableCell>
                 <TableCell>{inv?.created_by?.name}</TableCell>
                 <TableCell>{inv?.customer_name || "-"}</TableCell>
                 <TableCell>{inv?.mobile_no || "-"}</TableCell>

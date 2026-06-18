@@ -1,7 +1,6 @@
-import { cashValues } from "@/components/cash/add-cash-form";
 import { buildListQueryString } from "@/lib/list-query";
 import { apiRequest } from "@/lib/api-request";
-import { AddCashResponse, GetCashResponse } from "@/types/cash";
+import { AddCashResponse, CashFormPayload, GetCashResponse } from "@/types/cash";
 
 export type CashListParams = {
   page?: number;
@@ -12,13 +11,13 @@ export type CashListParams = {
   to_date?: string;
 };
 
-export const addCashApi = (data: cashValues) =>
+export const addCashApi = (data: CashFormPayload) =>
   apiRequest<AddCashResponse>("/cash-reimbursements", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
-export const updateCashApi = (id: number, data: cashValues) =>
+export const updateCashApi = (id: number, data: CashFormPayload) =>
   apiRequest<AddCashResponse>(`/cash-reimbursements/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
