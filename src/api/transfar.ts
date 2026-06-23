@@ -3,7 +3,13 @@ import {
   buildTransferQueryString,
   type TransferListParams,
 } from "@/lib/transfer-query";
-import { AddRequestData, AddRequestResponse, SendReportData, TransferResponse } from "@/types/transfar";
+import {
+  AddRequestData,
+  AddRequestResponse,
+  SendReportData,
+  TransferDetailsResponse,
+  TransferResponse,
+} from "@/types/transfar";
 
 export const addRequestApi = (data: AddRequestData) =>
   apiRequest<AddRequestResponse>("/transfers", {
@@ -25,6 +31,8 @@ export const getRequestsApi = (params?: string | TransferListParams) => {
   return apiRequest<TransferResponse>(url);
 };
 
+export const getTransferByIdApi = (id: number) =>
+  apiRequest<TransferDetailsResponse>(`/transfers/${id}`);
 
 export const acceptRequestApi = (id: number, notes?: string) =>
   apiRequest<AddRequestResponse>(`/transfers/${id}/accept`, {

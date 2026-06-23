@@ -95,6 +95,48 @@ export type TransferResponse = {
   data: TransferListPayload;
 };
 
+export type TransferAction =
+  | "created"
+  | "approved"
+  | "rejected"
+  | "transferred"
+  | "active"
+  | "completed";
+
+export interface TransferActivityMetadata {
+  rejection_reason?: string;
+  [key: string]: unknown;
+}
+
+export interface TransferActivityPerformer {
+  name?: string | null;
+  pharmacy_name?: string | null;
+  pharmacy?: string | { name?: string | null } | null;
+}
+
+export interface TransferActivityLogItem {
+  id: number;
+  action: TransferAction | string;
+  from_status: string | null;
+  to_status: string;
+  performer_name: string | null;
+  performer_pharmacy?: string | null;
+  performer_pharmacy_name?: string | null;
+  pharmacy_name?: string | null;
+  pharmacy?: string | { name?: string | null } | null;
+  performer?: TransferActivityPerformer | null;
+  user?: TransferActivityPerformer | null;
+  performed_by?: TransferActivityPerformer | null;
+  notes: string | null;
+  metadata: TransferActivityMetadata | null;
+  created_at: string;
+}
+
+export type TransferPharmacyContext = {
+  from_pharmacy?: string;
+  to_pharmacy?: string;
+};
+
 export type RequestItem = {
   id: number;
   created_at: string;
@@ -112,6 +154,16 @@ export type RequestItem = {
   total_price?: string | null;
   can_activate?: boolean;
   can_complete?: boolean;
+};
+
+export interface TransferDetails extends RequestItem {
+  activity_log: TransferActivityLogItem[];
+}
+
+export type TransferDetailsResponse = {
+  status: string;
+  message: string;
+  data: TransferDetails;
 };
             
 

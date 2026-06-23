@@ -29,7 +29,7 @@ const TransferHistoryContent = () => {
   );
 
   return (
-    <section className="p-4 flex flex-col gap-4 mx-auto">
+    <section className="p-4 flex flex-col gap-4 lg:w-2/3 mx-auto">
       <div className="flex items-start gap-1">
         <Button
           variant={"ghost"}
@@ -39,10 +39,10 @@ const TransferHistoryContent = () => {
           <ChevronLeft className="size-4" />
           Back
         </Button>
-        <h2 className="text-2xl text-primary font-bold">Transfers History</h2>
+        <h2 className="text-2xl  font-bold">Transfers History</h2>
       </div>
 
-      <div className="lg:w-2/3 mx-auto space-y-4">
+      <div className=" space-y-4">
         <TransferSearch />
 
         <TransferPaginatedList

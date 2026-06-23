@@ -43,7 +43,7 @@ const RequestPageContent = () => {
     pharmacist_name.trim().length > 0 || (status && status !== "all");
 
   return (
-    <section className="flex flex-col gap-6 p-4">
+    <section className="flex flex-col gap-6 p-4 lg:w-2/3 mx-auto">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Button variant={"ghost"} className="hover:bg-bg" onClick={goBack}>
@@ -56,10 +56,10 @@ const RequestPageContent = () => {
             </p>
           </div>
         </div>
-        {/* <div className="flex items-center gap-2">
-          {user?.role !== "super_admin" && (
+        <div className="flex items-center gap-2">
+          {/* {user?.role !== "super_admin" && (
             <SendReportDialog reportFilters={reportFilters} />
-          )}
+          )} */}
           <DownloadReportDialog reportFilters={reportFilters} />
           {user?.role != "super_admin" && (
             <Link href={"request/create"}>
@@ -69,10 +69,10 @@ const RequestPageContent = () => {
               </Button>
             </Link>
           )}
-        </div> */}
+        </div>
       </div>
 
-      <div className="lg:w-2/3 mx-auto w-full space-y-4">
+      <div className=" w-full space-y-4">
         <RequestOutFilters />
 
         <TransferPaginatedList

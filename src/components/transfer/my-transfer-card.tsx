@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { RequestItem } from "@/types/transfar";
+import { TransferDetailsLink } from "./transfer-details-link";
 import { TransferShareButton } from "./transfer-share-button";
 import { getTransferStatusBadgeVariant } from "@/lib/transfer-status";
 
@@ -25,6 +26,7 @@ const MyTransferCard = ({ transfar }: { transfar: RequestItem }) => {
         <Badge variant={getTransferStatusBadgeVariant(transfar?.status)}>
           {transfar?.status}
         </Badge>
+        <TransferDetailsLink transferId={transfar.id} />
         <TransferShareButton transfar={transfar} />
       </div>
     </div>

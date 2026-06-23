@@ -9,11 +9,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "../ui/badge";
 import { CircleCheck, Clock, Loader2 } from "lucide-react";
+import { TransferDetailsLink } from "@/components/transfer/transfer-details-link";
 import { TransferShareButton } from "@/components/transfer/transfer-share-button";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
 import { useState } from "react";
 import { completeRequestApi, activateRequestApi } from "@/api/transfar";
+import { invalidateTransferQueries } from "@/lib/invalidate-transfer-queries";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserStore } from "@/stores/user-store";
@@ -29,8 +31,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
     const res = await completeRequestApi(request?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
-      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
+      invalidateTransferQueries(queryClient, request?.id);
     } else {
       toast.error(res?.error);
     }
@@ -42,8 +43,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
     const res = await activateRequestApi(request?.id);
     if (res?.ok) {
       toast.success(res?.data?.message);
-      queryClient.invalidateQueries({ queryKey: ["transfers", "list"] });
-      queryClient.invalidateQueries({ queryKey: ["transfers", "total"] });
+      invalidateTransferQueries(queryClient, request?.id);
     } else {
       toast.error(res?.error);
     }
@@ -67,6 +67,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
           <Badge variant={"outline"} className="rounded border-2">
             {request.creator_name}
           </Badge>
+          <TransferDetailsLink transferId={request.id} />
           <TransferShareButton transfar={request} order={order} />
         </CardAction>
       </CardHeader>

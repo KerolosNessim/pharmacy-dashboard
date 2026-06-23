@@ -56,7 +56,7 @@ const TransferPage = () => {
             className="w-full h-fit flex-col py-6 border rounded-xl"
           >
             <div className="size-12 rounded-full bg-primary/30 text-primary flex justify-center items-center">
-              <GoArrowDownLeft className="size-8" />
+              <GoArrowUpRight className="size-8" />
             </div>
             <h2 className="text-xl font-bold">Issue To</h2>
             <Badge variant={"success"}>{incomingTotal}</Badge>
@@ -67,8 +67,9 @@ const TransferPage = () => {
             variant={"secondary"}
             className="w-full h-fit flex-col py-6 border rounded-xl"
           >
-            <div className="size-12 rounded-full bg-primary/30 text-primary flex justify-center items-center">
-              <GoArrowUpRight className="size-8" />
+
+                        <div className="size-12 rounded-full bg-primary/30 text-primary flex justify-center items-center">
+              <GoArrowDownLeft className="size-8" />
             </div>
             <h2 className="text-xl font-bold">Request Items</h2>
             <Badge variant={"success"}>{outgoingTotal}</Badge>

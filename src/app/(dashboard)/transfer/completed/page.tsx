@@ -10,7 +10,7 @@ const TransferCompletedPage = () => {
   const goBack = useGoBack();
 
   return (
-    <section className="flex flex-col gap-4 p-4">
+    <section className="flex flex-col gap-4 p-4 lg:w-2/3 mx-auto">
       <div className="flex items-center gap-2">
         <Button variant={"ghost"} className="hover:bg-bg" onClick={goBack}>
           <ArrowLeft />

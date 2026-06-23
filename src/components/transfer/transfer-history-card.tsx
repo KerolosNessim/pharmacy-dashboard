@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "../ui/badge";
 import { Clock, Printer } from "lucide-react";
+import { TransferDetailsLink } from "./transfer-details-link";
 import { TransferShareButton } from "./transfer-share-button";
 import { Button } from "../ui/button";
 import { RequestItem } from "@/types/transfar";
@@ -44,6 +45,7 @@ const handlePrint = useAppPrint({
           <Badge variant={"outline"} className="rounded border-2">
             {transfar?.creator_name}
           </Badge>
+          <TransferDetailsLink transferId={transfar.id} />
           <TransferShareButton transfar={transfar} order={order} />
           <Button variant="ghost" size="icon" onClick={handlePrint} title="Print">
             <Printer className="size-5" />
