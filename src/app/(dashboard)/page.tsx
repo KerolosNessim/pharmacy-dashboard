@@ -115,7 +115,7 @@ const cards = [
               </p>
               <div className="flex justify-center gap-2">
                 {badges.map((badge, index) => (
-                  <Badge key={index} variant={"success"} className="text-xs">
+                  <Badge key={index} variant={"approved"} className="text-xs">
                     {badge}
                   </Badge>
                 ))}

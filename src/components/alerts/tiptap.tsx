@@ -155,7 +155,7 @@ export default function TextEditor() {
         <Button
           onClick={AddAlert}
           disabled={isPending}
-          className="h-12 px-8 font-semibold shadow-md active:scale-95 transition-all text-white bg-[#267e3a] hover:bg-[#1e612c]"
+          className="h-12 px-8 font-semibold shadow-md active:scale-95 transition-all text-white bg-blue-500 hover:bg-blue-500/90"
         >
           {isPending ? (
             <Loader2 className="animate-spin mr-2" size={18} />

@@ -81,7 +81,7 @@ export default function ResetPasswordForm({
                   placeholder="Employee ID"
                   {...field}
                   readOnly={!!id_number}
-                  className="focus-visible:ring-[#267e3a] h-12 bg-muted/50"
+                  className="focus-visible:ring-blue-500 h-12 bg-muted/50"
                 />
               </FormControl>
               <FormMessage />
@@ -99,7 +99,7 @@ export default function ResetPasswordForm({
                   placeholder="New Password"
                   type="password"
                   {...field}
-                  className="focus-visible:ring-[#267e3a] h-12"
+                  className="focus-visible:ring-blue-500 h-12"
                 />
               </FormControl>
               <FormMessage />
@@ -117,7 +117,7 @@ export default function ResetPasswordForm({
                   placeholder="Confirm New Password"
                   type="password"
                   {...field}
-                  className="focus-visible:ring-[#267e3a] h-12"
+                  className="focus-visible:ring-blue-500 h-12"
                 />
               </FormControl>
               <FormMessage />
@@ -128,7 +128,7 @@ export default function ResetPasswordForm({
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-12 shadow-sm bg-[#267e3a] text-white hover:bg-[#1e662f]"
+          className="w-full h-12 shadow-sm bg-blue-500 text-white hover:bg-blue-500/90"
         >
           {isSubmitting ? (
             <Loader2 className="animate-spin" />

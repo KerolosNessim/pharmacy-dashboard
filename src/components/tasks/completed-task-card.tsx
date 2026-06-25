@@ -48,7 +48,7 @@ export const CompletedTaskCard = ({
   return (
     <Card
       className={cn(
-        "flex flex-col border-emerald-500/20 bg-emerald-500/5",
+        "flex flex-col border-blue-500 bg-blue-500/5",
         selectable && selected && "ring-2 ring-primary border-primary/40",
       )}
     >
@@ -70,7 +70,7 @@ export const CompletedTaskCard = ({
           </div>
           <Badge
             variant="outline"
-            className="text-emerald-500 border-emerald-500 bg-emerald-500/10 flex gap-1 items-center shrink-0"
+            className="text-blue-500 border-blue-500 bg-blue-500/10 flex gap-1 items-center shrink-0"
           >
             <CheckCircle2 className="size-3" />
             Completed
@@ -99,7 +99,7 @@ export const CompletedTaskCard = ({
                 : "N/A"}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-sm text-emerald-600/80 dark:text-emerald-400">
+          <div className="flex items-center gap-2 text-sm text-blue-600/80 dark:text-blue-400">
             <Calendar className="size-4" />
             <span>
               Uploaded:{" "}

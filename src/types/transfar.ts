@@ -141,6 +141,8 @@ export type RequestItem = {
   id: number;
   created_at: string;
   creator_name: string;
+  from_pharmacy_id?: number;
+  to_pharmacy_id?: number;
   from_pharmacy: string;
   to_pharmacy: string;
   medications: {

@@ -60,7 +60,6 @@ const RequestPageContent = () => {
           {/* {user?.role !== "super_admin" && (
             <SendReportDialog reportFilters={reportFilters} />
           )} */}
-          <DownloadReportDialog reportFilters={reportFilters} />
           {user?.role != "super_admin" && (
             <Link href={"request/create"}>
               <Button>
@@ -69,6 +68,7 @@ const RequestPageContent = () => {
               </Button>
             </Link>
           )}
+          <DownloadReportDialog reportFilters={reportFilters} />
         </div>
       </div>
 

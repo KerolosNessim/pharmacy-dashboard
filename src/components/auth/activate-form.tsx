@@ -86,7 +86,7 @@ export default function ActivateForm({ id_number }: Props) {
                 <Input
                   placeholder="Employee ID"
                   {...field}
-                  className="focus-visible:ring-[#267e3a] h-12"
+                  className="focus-visible:ring-blue-500 h-12"
                 />
               </FormControl>
               <FormMessage />
@@ -105,7 +105,7 @@ export default function ActivateForm({ id_number }: Props) {
                   type="password"
                   placeholder="Password"
                   {...field}
-                  className="focus-visible:ring-[#267e3a] h-12"
+                  className="focus-visible:ring-blue-500 h-12"
                 />
               </FormControl>
               <FormMessage />
@@ -124,7 +124,7 @@ export default function ActivateForm({ id_number }: Props) {
                   type="password"
                   placeholder="Confirm Password"
                   {...field}
-                  className="focus-visible:ring-[#267e3a] h-12"
+                  className="focus-visible:ring-blue-500 h-12"
                 />
               </FormControl>
               <FormMessage />
@@ -134,7 +134,7 @@ export default function ActivateForm({ id_number }: Props) {
 
         <Button
           type="submit"
-          className="w-full h-12 shadow-sm bg-[#267e3a] text-white"
+          className="w-full h-12 shadow-sm bg-blue-500 text-white"
         >
           {isSubmitting ? (
             <Loader2 className="animate-spin" />

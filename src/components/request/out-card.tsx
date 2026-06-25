@@ -16,6 +16,7 @@ import { RequestItem } from "@/types/transfar";
 import { useState } from "react";
 import { completeRequestApi, activateRequestApi } from "@/api/transfar";
 import { invalidateTransferQueries } from "@/lib/invalidate-transfer-queries";
+import { useTransferPharmacyRole } from "@/hooks/use-transfer-pharmacy-role";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserStore } from "@/stores/user-store";
@@ -26,6 +27,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
   const [activateLoading, setActivateLoading] = useState(false);
   const queryClient = useQueryClient();
   const {user} = useUserStore();
+  const { isDestinationPharmacy } = useTransferPharmacyRole(request);
   const handleComplete = async() => {
     setLoading(true);
     const res = await completeRequestApi(request?.id);
@@ -109,7 +111,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
           </Badge>
         </div>
         <div className="flex gap-2">
-          {request?.can_activate && user?.role !== "super_admin" && (
+          {isDestinationPharmacy && request?.can_activate && user?.role !== "super_admin" && (
             <Button onClick={handleActivate} disabled={activateLoading} className="bg-blue-600 hover:bg-blue-700 text-white">
               {activateLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -120,7 +122,7 @@ const OutCard = ({ order,request }: { order: number,request:RequestItem }) => {
             </Button>
           )}
 
-          {request?.can_complete && user?.role !== "super_admin" && (
+          {isDestinationPharmacy && request?.can_complete && user?.role !== "super_admin" && (
             <Button onClick={handleComplete} disabled={loading} className="bg-green-600 hover:bg-green-700 text-white">
               {loading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

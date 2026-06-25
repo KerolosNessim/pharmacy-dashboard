@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { invalidateTransferQueries } from "@/lib/invalidate-transfer-queries";
-import { getTransferStatusBadgeVariant } from "@/lib/transfer-status";
+import { getTransferStatusBadgeVariant, normalizeTransferStatus } from "@/lib/transfer-status";
+import { useTransferPharmacyRole } from "@/hooks/use-transfer-pharmacy-role";
 import { cn } from "@/lib/utils";
 import { useUserStore } from "@/stores/user-store";
 import type { RequestItem } from "@/types/transfar";
@@ -37,6 +38,9 @@ export function TransferActions({ transfar, className }: TransferActionsProps) {
   const [acceptNotes, setAcceptNotes] = useState("");
   const queryClient = useQueryClient();
   const { user } = useUserStore();
+  const { isSourcePharmacy, isDestinationPharmacy } =
+    useTransferPharmacyRole(transfar);
+  const status = normalizeTransferStatus(transfar.status);
 
   const onSuccess = (message?: string) => {
     if (message) toast.success(message);
@@ -107,9 +111,10 @@ export function TransferActions({ transfar, className }: TransferActionsProps) {
       <div className="flex w-full flex-wrap items-center justify-between gap-2">
         {user?.role !== "super_admin" && (
           <div className="flex flex-wrap items-center gap-2">
-            {!transfar.can_activate &&
+            {isSourcePharmacy &&
+              !transfar.can_activate &&
               !transfar.can_complete &&
-              transfar.status === "Pending" && (
+              status === "pending" && (
                 <>
                   <Button
                     onClick={() => {
@@ -133,9 +138,10 @@ export function TransferActions({ transfar, className }: TransferActionsProps) {
                 </>
               )}
 
-            {!transfar.can_activate &&
+            {isSourcePharmacy &&
+              !transfar.can_activate &&
               !transfar.can_complete &&
-              transfar.status === "Approved" && (
+              status === "approved" && (
                 <Button
                   onClick={handleMarkTransfer}
                   disabled={markTransferLoading}
@@ -150,7 +156,7 @@ export function TransferActions({ transfar, className }: TransferActionsProps) {
                 </Button>
               )}
 
-            {transfar.can_activate && (
+            {isDestinationPharmacy && transfar.can_activate && (
               <Button
                 onClick={handleActivate}
                 disabled={activateLoading}
@@ -165,7 +171,7 @@ export function TransferActions({ transfar, className }: TransferActionsProps) {
               </Button>
             )}
 
-            {transfar.can_complete && (
+            {isDestinationPharmacy && transfar.can_complete && (
               <Button
                 onClick={handleComplete}
                 disabled={completeLoading}

@@ -59,7 +59,7 @@ const TransferPage = () => {
               <GoArrowUpRight className="size-8" />
             </div>
             <h2 className="text-xl font-bold">Issue To</h2>
-            <Badge variant={"success"}>{incomingTotal}</Badge>
+            <Badge variant={"approved"}>{incomingTotal}</Badge>
           </Button>
         </Link>
         <Link href={"/request"} className="w-full ">
@@ -72,7 +72,7 @@ const TransferPage = () => {
               <GoArrowDownLeft className="size-8" />
             </div>
             <h2 className="text-xl font-bold">Request Items</h2>
-            <Badge variant={"success"}>{outgoingTotal}</Badge>
+            <Badge variant={"approved"}>{outgoingTotal}</Badge>
           </Button>
         </Link>
       </div>
@@ -112,7 +112,7 @@ const TransferPage = () => {
                 <p className="font-bold ">Completed </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant={"success"}>{completedTotal}</Badge>
+                <Badge variant={"approved"}>{completedTotal}</Badge>
                 <ChevronRight className="size-5 text-muted-foreground" />
               </div>
             </Button>
