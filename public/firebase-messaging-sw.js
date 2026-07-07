@@ -22,6 +22,20 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log("[Service Worker] Received background message:", payload);
 
+  const clients = self.clients;
+  if (clients) {
+    clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        windowClients.forEach((client) => {
+          client.postMessage({
+            type: "FCM_BACKGROUND_MESSAGE",
+            payload,
+          });
+        });
+      });
+  }
+
   const notificationTitle =
     payload.data?.title || payload.notification?.title || "New Message";
   const notificationOptions = {

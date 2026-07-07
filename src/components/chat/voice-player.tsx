@@ -1,4 +1,6 @@
 "use client";
+
+import { resolveMediaUrl } from "@/lib/media-url";
 import { useRef, useState } from "react";
 import { Play, Pause } from "lucide-react";
 import { Button } from "../ui/button";
@@ -15,6 +17,9 @@ export function VoicePlayer({ url, isMe }: VoicePlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  const audioSrc =
+    typeof url === "string" ? resolveMediaUrl(url) ?? undefined : url ?? undefined;
+
   const togglePlay = () => {
     if (audioRef.current?.paused) {
       audioRef.current.play();
@@ -28,7 +33,9 @@ export function VoicePlayer({ url, isMe }: VoicePlayerProps) {
   const onTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
-      setProgress((audioRef.current.currentTime / audioRef.current.duration) * 100);
+      setProgress(
+        (audioRef.current.currentTime / audioRef.current.duration) * 100,
+      );
     }
   };
 
@@ -46,14 +53,20 @@ export function VoicePlayer({ url, isMe }: VoicePlayerProps) {
   };
 
   return (
-    <div className={`flex items-center gap-2 p-2 rounded-2xl w-full ${isMe ? "bg-white/10" : "bg-primary/10"} backdrop-blur-sm border border-white/5`}>
+    <div
+      className={`flex items-center gap-2 p-2 rounded-2xl w-full ${isMe ? "bg-white/10" : "bg-primary/10"} backdrop-blur-sm border border-white/5`}
+    >
       <Button
         size="icon"
         variant="ghost"
         className="size-10 rounded-full hover:bg-white/20 shrink-0"
         onClick={togglePlay}
       >
-        {isPlaying ? <Pause className="size-5 fill-current" /> : <Play className="size-5 fill-current ml-1" />}
+        {isPlaying ? (
+          <Pause className="size-5 fill-current" />
+        ) : (
+          <Play className="size-5 fill-current ml-1" />
+        )}
       </Button>
 
       <div className="flex-1 flex flex-col gap-1 pr-2">
@@ -71,7 +84,7 @@ export function VoicePlayer({ url, isMe }: VoicePlayerProps) {
 
       <audio
         ref={audioRef}
-        src={url!}
+        src={audioSrc}
         onTimeUpdate={onTimeUpdate}
         onLoadedMetadata={onLoadedMetadata}
         onEnded={() => setIsPlaying(false)}

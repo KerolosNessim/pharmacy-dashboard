@@ -33,9 +33,6 @@ import { Label } from "../ui/label";
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   pharmacy_internal_invoice_number: z.string().optional(),
-  status: z
-    .enum(["delivery", "received_from_driver", "delivered_to_finance"])
-    .optional(),
   delivery_representative_id: z.string().optional(),
   products_information: z.string().min(1, "Products information is required"),
   pharmacy_id: z.string().min(1, "Pharmacy is required"),
@@ -61,7 +58,6 @@ export const AddCashForm = ({
     defaultValues: {
       amount: "",
       pharmacy_internal_invoice_number: "",
-      status: "delivery",
       delivery_representative_id: "",
       products_information: "",
       pharmacy_id: user?.pharmacy_id?.toString() || "",
@@ -83,7 +79,6 @@ export const AddCashForm = ({
   async function onSubmit(values: cashValues) {
     if (!withdelivery) {
       delete values.delivery_representative_id;
-      delete values.status;
     }
 
     if (!values.pharmacy_id && user?.pharmacy_id) {
@@ -259,69 +254,33 @@ export const AddCashForm = ({
         </RadioGroup>
 
         {withdelivery && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Delivery Rep */}
-            <FormField
-              control={form.control}
-              name="delivery_representative_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delivery Representative</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Delivery Rep" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {deliveryReps.map((rep) => (
-                        <SelectItem key={rep?.id} value={rep?.id.toString()}>
-                          {rep?.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Status */}
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Status 
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="delivery">Delivery</SelectItem>
-                      <SelectItem value="received_from_driver">
-                        Received from Driver
+          <FormField
+            control={form.control}
+            name="delivery_representative_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Delivery Representative</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Delivery Rep" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent position="popper">
+                    {deliveryReps.map((rep) => (
+                      <SelectItem key={rep?.id} value={rep?.id.toString()}>
+                        {rep?.name}
                       </SelectItem>
-                      <SelectItem value="delivered_to_finance">
-                        Delivered to Finance
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         )}
 
         {/* Products Information */}

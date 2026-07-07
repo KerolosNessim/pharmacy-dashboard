@@ -30,6 +30,14 @@ import { ListPagination } from "@/components/shared/list-pagination";
 import { parseNestedListResponse } from "@/lib/list-parse";
 import type { Cash } from "@/types/cash";
 import { Loader2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { CASH_STATUS_FILTER_OPTIONS, getCashStatusLabel } from "@/lib/cash-status";
 
 const CashPage = () => {
   const goBack = useGoBack();
@@ -38,6 +46,7 @@ const CashPage = () => {
   const [startDate, setStartDate] = useState<Date | undefined>();
   const [endDate, setEndDate] = useState<Date | undefined>();
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const debouncedSearch = useDebounce(search, 500);
 
   const from_date = startDate ? format(startDate, "yyyy-MM-dd") : "";
@@ -48,12 +57,16 @@ const CashPage = () => {
       from_date,
       to_date,
       search: debouncedSearch.trim() || undefined,
+      status: statusFilter !== "all" ? statusFilter : undefined,
     }),
-    [from_date, to_date, debouncedSearch]
+    [from_date, to_date, debouncedSearch, statusFilter]
   );
 
   const hasActiveFilters =
-    !!startDate || !!endDate || debouncedSearch.trim().length > 0;
+    !!startDate ||
+    !!endDate ||
+    debouncedSearch.trim().length > 0 ||
+    statusFilter !== "all";
 
   const {
     items: invoices,
@@ -82,7 +95,8 @@ const CashPage = () => {
       "Mobile No": inv.mobile_no || "-",
       Date: new Date(inv.created_at).toLocaleDateString(),
       Amount: inv.amount,
-      Status: inv.status.replaceAll("_", " "),
+      Status: getCashStatusLabel(inv.status, inv.status_label),
+      "Payment Method": inv.payment_method_label || "-",
       "Delivery Rep": inv.delivery_representative?.name || "-",
       "Rep Phone": inv.delivery_representative?.phone || "-",
       Pharmacy: inv.pharmacy_name,
@@ -139,6 +153,24 @@ const CashPage = () => {
 
         <div className="flex flex-col gap-1.5 min-w-[200px] flex-1">
           <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Status
+          </label>
+          <Select value={statusFilter} onValueChange={setStatusFilter} >
+            <SelectTrigger className="w-full h-10 bg-background">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              {CASH_STATUS_FILTER_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="flex flex-col gap-1.5 min-w-[200px] flex-1">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Start Date
           </label>
           <Popover>
@@ -190,6 +222,7 @@ const CashPage = () => {
               setStartDate(undefined);
               setEndDate(undefined);
               setSearch("");
+              setStatusFilter("all");
             }}
             className="h-10 self-end text-sm text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
           >

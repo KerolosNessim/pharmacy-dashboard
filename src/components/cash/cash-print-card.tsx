@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import { Cash } from "@/types/cash";
+import { getCashStatusLabel } from "@/lib/cash-status";
 
 const CashPrintCard = forwardRef<HTMLDivElement, { invoice: Cash }>(
   ({ invoice }, ref) => {
@@ -78,7 +79,10 @@ const CashPrintCard = forwardRef<HTMLDivElement, { invoice: Cash }>(
 
         {/* Footer */}
         <div className="border-t pt-6 text-center text-xs text-gray-400 space-y-1">
-          <p>Status: <span className="font-bold text-black uppercase">{invoice.status.replaceAll("_", " ")}</span></p>
+          <p>Status: <span className="font-bold text-black uppercase">{getCashStatusLabel(invoice.status, invoice.status_label)}</span></p>
+          {invoice.payment_method_label && (
+            <p>Payment: <span className="font-bold text-black">{invoice.payment_method_label}</span></p>
+          )}
           <p>This is a computer-generated invoice and does not require a physical signature.</p>
           <p>© {new Date().getFullYear()} ME Pharmacy. All rights reserved.</p>
         </div>

@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import CashPrintCard from "./cash-print-card";
 import { useAppPrint } from "@/hooks/use-app-print";
 import { PrintHidden } from "@/components/shared/print-hidden";
+import CashDetailsDialog from "./cash-details-dialog";
 
 const CashTableActions = ({ invoice }: { invoice: Cash }) => {
   const [loading, setLoading] = useState(false);
@@ -36,6 +37,8 @@ const CashTableActions = ({ invoice }: { invoice: Cash }) => {
 
   return (
     <div className="flex gap-2">
+      <CashDetailsDialog invoice={invoice} />
+
       <Button
         variant="outline"
         size="icon"

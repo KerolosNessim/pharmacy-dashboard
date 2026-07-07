@@ -2,13 +2,16 @@
 "use client";
 
 import { initEcho } from "@/lib/echo-config";
-import { useEffect, useRef, useState } from "react";
+import { getOwnChatChannelName } from "@/lib/chat-channels";
+import type Echo from "laravel-echo";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-/**
- * Maintains a list of realtime messages received via Pusher.
- * Completely independent from React Query — no race conditions.
- * The caller merges realtimeMessages with the React Query data.
- */
+type PrivateChannelLike = {
+  subscribed: (callback: () => void) => PrivateChannelLike;
+  error: (callback: (error: unknown) => void) => PrivateChannelLike;
+  listen: (event: string, callback: (data: any) => void) => PrivateChannelLike;
+};
+
 export const useChatRealtime = ({
   pharmacyId,
   user,
@@ -19,16 +22,57 @@ export const useChatRealtime = ({
   token: string | null;
 }) => {
   const [realtimeMessages, setRealtimeMessages] = useState<any[]>([]);
-  const channelRef = useRef<string | null>(null);
+  const echoRef = useRef<Echo<"pusher"> | null>(null);
 
-  // Keep refs of active conversation pharmacyId and user to avoid stale closures in Echo event handlers
   const pharmacyIdRef = useRef(pharmacyId);
   const userRef = useRef(user);
-
   pharmacyIdRef.current = pharmacyId;
   userRef.current = user;
 
-  // Reset realtime messages when switching between conversations
+  const addMessage = useCallback((newMessage: any) => {
+    if (!newMessage?.id) return;
+    setRealtimeMessages((prev) => {
+      if (prev.some((m) => m.id === newMessage.id)) return prev;
+      return [...prev, newMessage];
+    });
+  }, []);
+
+  const shouldAcceptMessage = useCallback((newMessage: any) => {
+    const currentPharmacyId = pharmacyIdRef.current;
+    const currentUser = userRef.current;
+    if (!newMessage) return false;
+
+    const senderPharmacyId =
+      newMessage.sender?.pharmacy_id ||
+      newMessage.from_pharmacy_id ||
+      newMessage.sender_pharmacy_id ||
+      newMessage.pharmacy_id;
+
+    const recipientPharmacyId =
+      newMessage.to_pharmacy_id ||
+      newMessage.recipient_pharmacy_id ||
+      newMessage.receiver_pharmacy_id;
+
+    return (
+      senderPharmacyId?.toString() === currentPharmacyId?.toString() ||
+      senderPharmacyId?.toString() === currentUser?.pharmacy_id?.toString() ||
+      recipientPharmacyId?.toString() === currentPharmacyId?.toString() ||
+      recipientPharmacyId?.toString() ===
+        currentUser?.pharmacy_id?.toString() ||
+      newMessage.sender?.id?.toString() === currentUser?.id?.toString() ||
+      newMessage.sender?.id?.toString() === currentPharmacyId?.toString()
+    );
+  }, []);
+
+  const handleServerMessage = useCallback(
+    (data: any) => {
+      const newMessage = data?.message || data;
+      if (!shouldAcceptMessage(newMessage)) return;
+      addMessage(newMessage);
+    },
+    [addMessage, shouldAcceptMessage],
+  );
+
   useEffect(() => {
     setRealtimeMessages([]);
   }, [pharmacyId]);
@@ -38,96 +82,35 @@ export const useChatRealtime = ({
 
     const echo = initEcho(token, user.role);
     if (!echo) return;
+    echoRef.current = echo;
 
-    const isSuperAdmin = user.role === "super_admin";
+    const ownChannel = getOwnChatChannelName(user);
+    if (!ownChannel) return;
 
-    // Subscribe to the user's OWN channel — always authorized
-    const channelName = isSuperAdmin
-      ? "chat.management"
-      : `chat.${user.pharmacy_id}`;
+    const channel = echo.private(ownChannel) as unknown as PrivateChannelLike;
 
-    if (channelRef.current === channelName) return; // already subscribed
-    channelRef.current = channelName;
-
-    console.log("📡 Subscribing to:", channelName);
-
-    const channel = echo.private(channelName);
-
-    channel.subscribed(() => console.log("✅ Subscribed:", channelName));
-    channel.error((err: any) => console.error("❌ Error:", err));
-
-    channel.listenToAll((event: string, data: any) => {
-      console.log("📡 RAW PUSHER EVENT:", event, data);
+    channel.subscribed(() => {
+      console.log("✅ Subscribed:", ownChannel);
+    });
+    channel.error((err) => {
+      console.error("❌ Pusher subscription error:", ownChannel, err);
     });
 
-    const handleMessage = (data: any) => {
-      const newMessage = data?.message || data;
-      const currentPharmacyId = pharmacyIdRef.current;
-      const currentUser = userRef.current;
-
-      console.log("🔥 REALTIME MESSAGE RECEIVED:", {
-        id: newMessage?.id,
-        type: newMessage?.file_type,
-        sender: newMessage?.sender?.name,
-        senderPharmacyId: newMessage?.sender?.pharmacy_id,
-        fromPharmacyId: newMessage?.from_pharmacy_id,
-        senderId: newMessage?.sender?.id,
-        currentPharmacyId
-      });
-
-      if (!newMessage) return;
-
-      // Extract sender's pharmacy ID from any possible attribute
-      const senderPharmacyId =
-        newMessage.sender?.pharmacy_id ||
-        newMessage.from_pharmacy_id ||
-        newMessage.sender_pharmacy_id ||
-        newMessage.pharmacy_id;
-
-      // Extract recipient's pharmacy ID from any possible attribute
-      const recipientPharmacyId =
-        newMessage.to_pharmacy_id ||
-        newMessage.recipient_pharmacy_id ||
-        newMessage.receiver_pharmacy_id;
-
-      // Filter: only keep messages belonging to the current conversation
-      const isFromCurrentConversation =
-        // 1. Match by sender's pharmacy ID (either belongs to the active chat party or the logged-in user)
-        (senderPharmacyId?.toString() === currentPharmacyId?.toString() ||
-         senderPharmacyId?.toString() === currentUser?.pharmacy_id?.toString()) ||
-        // 2. Match by recipient's pharmacy ID (either belongs to the active chat party or the logged-in user)
-        (recipientPharmacyId?.toString() === currentPharmacyId?.toString() ||
-         recipientPharmacyId?.toString() === currentUser?.pharmacy_id?.toString()) ||
-        // 3. Fallback match by pharmacist user ID (either sender is us or sender is the other party)
-        (newMessage.sender?.id?.toString() === currentUser?.id?.toString() ||
-         newMessage.sender?.id?.toString() === currentPharmacyId?.toString());
-
-      if (!isFromCurrentConversation) {
-        console.log("⏭️ Skipping message from other conversation");
-        return;
-      }
-
-      setRealtimeMessages((prev) => {
-        if (prev.some((m) => m.id === newMessage.id)) {
-          console.log("⏭️ Skipping duplicate message:", newMessage.id);
-          return prev;
-        }
-        return [...prev, newMessage];
-      });
-    };
-
-    // Listen to multiple possible event naming formats for maximum reliability
-    channel.listen(".message.sent", handleMessage);
-    channel.listen("message.sent", handleMessage);
-    channel.listen("MessageSent", handleMessage);
-    channel.listen(".MessageSent", handleMessage);
+    channel.listen(".message.sent", handleServerMessage);
+    channel.listen("message.sent", handleServerMessage);
+    channel.listen("MessageSent", handleServerMessage);
+    channel.listen(".MessageSent", handleServerMessage);
 
     return () => {
-      console.log("🔌 Leaving:", channelName);
-      echo.leave(channelName);
-      channelRef.current = null;
+      echo.leave(ownChannel);
     };
-  }, [token, user?.id, user?.pharmacy_id]);
+  }, [
+    token,
+    user?.id,
+    user?.pharmacy_id,
+    user?.role,
+    handleServerMessage,
+  ]);
 
   return { realtimeMessages };
 };

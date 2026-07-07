@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import { useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getAdminSingleInboxApi } from "@/api/chat";
+import { ChatMediaImage } from "@/components/chat/chat-media-image";
 import { VoicePlayer } from "@/components/chat/voice-player";
+import { isImageMedia, isVoiceMediaUrl } from "@/lib/media-url";
 
 export default function ChatPage() {
   const params = useParams();
@@ -61,24 +61,12 @@ export default function ChatPage() {
                   }`}
                 >
                   {/* صورة */}
-                  {msg.file_url &&
-                    !msg.file_url.toLowerCase().includes(".webm") &&
-                    !msg.file_url.toLowerCase().includes(".mp3") &&
-                    !msg.file_url.toLowerCase().includes(".wav") && (
-                      <Image
-                        src={msg.file_url}
-                        alt="msg"
-                        width={200}
-                        height={200}
-                        className="rounded-lg mb-2 max-w-full"
-                        unoptimized
-                      />
-                    )}
+                  {isImageMedia(msg.file_type, msg.file_url) && msg.file_url && (
+                    <ChatMediaImage url={msg.file_url} />
+                  )}
 
-                  {(msg?.file_type === "voice" ||
-                    msg?.file_url?.toLowerCase().includes(".webm") ||
-                    msg?.file_url?.toLowerCase().includes(".mp3") ||
-                    msg?.file_url?.toLowerCase().includes(".wav")) && (
+                  {(msg.file_type === "voice" || isVoiceMediaUrl(msg.file_url)) &&
+                    msg.file_url && (
                     <div className="min-w-[220px] mt-2 mb-2">
                       <VoicePlayer url={msg.file_url} isMe={isRight} />
                     </div>

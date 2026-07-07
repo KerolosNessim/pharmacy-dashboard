@@ -16,7 +16,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "mepharmacies.com",
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "api.mepharmacies.cloud",
+      },
     ],
   },
   experimental: {

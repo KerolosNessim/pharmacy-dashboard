@@ -20,10 +20,11 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={` antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light">
-          <Toaster richColors position="bottom-right" />
-
           <QueryProvider>
-            <FirebaseNotificationProvider>{children}</FirebaseNotificationProvider>
+            <FirebaseNotificationProvider>
+              {children}
+              <Toaster richColors position="top-right" closeButton />
+            </FirebaseNotificationProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

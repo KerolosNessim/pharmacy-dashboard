@@ -11,15 +11,14 @@ import { Cash } from "@/types/cash";
 import CashTableActions from "./cash-table-actions";
 import { Badge } from "../ui/badge";
 import { useUserStore } from "@/stores/user-store";
+import { getCashStatusBadgeVariant, getCashStatusLabel } from "@/lib/cash-status";
 
 const CashTable = ({
   invoices,
 }: {
   invoices: Cash[];
-  }) => {
-  const { user } = useUserStore()
-  console.log("invoice", invoices)
-  
+}) => {
+  const { user } = useUserStore();
   return (
     <div className="border rounded-lg overflow-hidden">
       {invoices.length > 0 ? (
@@ -56,8 +55,8 @@ const CashTable = ({
                 <TableCell>{inv?.delivery_representative?.name || "-"}</TableCell>
                 <TableCell>{inv?.amount}</TableCell>
                 <TableCell>
-                  <Badge className="capitalize">
-                    {inv.status.replaceAll("_", " ")}
+                  <Badge variant={getCashStatusBadgeVariant(inv.status)}>
+                    {getCashStatusLabel(inv.status, inv.status_label)}
                   </Badge>
                 </TableCell>
                 {

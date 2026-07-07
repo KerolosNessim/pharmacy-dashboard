@@ -1,11 +1,8 @@
-import { apiRequest } from "@/lib/api-request";
+import { apiFormDataRequest, apiRequest } from "@/lib/api-request";
 import { AdminSingleInboxResponse, InboxAdminResponse, InboxResponse, getMessagesResponse } from "@/types/chat";
 
 export const sendMessageApi = (data: FormData) =>
-  apiRequest("/chat/send", {
-    method: "POST",
-    body: data,
-  });
+  apiFormDataRequest("/chat/send", data, "POST");
 
   export const getMessagesApi = (pharmacyId: string) =>
     apiRequest<getMessagesResponse>(`/chat/messages/${pharmacyId}`);

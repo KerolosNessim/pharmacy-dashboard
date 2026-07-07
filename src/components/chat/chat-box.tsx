@@ -5,38 +5,43 @@ import {
   Camera,
   Loader2,
   Mic,
+  Paperclip,
   Send,
   Square,
   Trash2,
-  Play,
-  Pause,
+  X,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import Image from "next/image";
-import { Dialog, DialogContent, DialogTrigger } from "../ui/dialog";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getMessagesApi, sendMessageApi } from "@/api/chat";
-import { apiRequest } from "@/lib/api-request";
+import { parseChatSendResponse } from "@/lib/chat-message";
 import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
 import { useChatRealtime } from "@/hooks/use-chat-realtime";
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { VoicePlayer } from "./voice-player";
+import { ChatMediaImage } from "./chat-media-image";
+import { isImageMedia, isVoiceMediaUrl } from "@/lib/media-url";
 
 export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
   const { clientToken, user } = useUserStore();
+  const queryClient = useQueryClient();
 
   const [input, setInput] = useState("");
   const [img, setImg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  // Optimistic messages (temp + confirmed from server)
   const [optimisticMessages, setOptimisticMessages] = useState<any[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const voiceInputRef = useRef<HTMLInputElement>(null);
+
   const {
     isRecording,
+    isRequestingMic,
     audioBlob,
     recordingTime,
     startRecording,
@@ -46,7 +51,12 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // 📥 React Query — fetches existing messages once
+  const { realtimeMessages } = useChatRealtime({
+    pharmacyId,
+    user,
+    token: clientToken,
+  });
+
   const { data } = useQuery({
     queryKey: ["messages", pharmacyId],
     queryFn: () => getMessagesApi(pharmacyId),
@@ -54,14 +64,6 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
 
   const baseMessages: any[] = data?.data?.messages ?? [];
 
-  // 🔥 Realtime — local state updated by Pusher
-  const { realtimeMessages } = useChatRealtime({
-    pharmacyId,
-    user,
-    token: clientToken,
-  });
-
-  // Merge: base + realtime + optimistic (deduplicated)
   const messages = useMemo(() => {
     const seen = new Set<any>();
     const merged = [
@@ -81,44 +83,90 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
       );
   }, [baseMessages, realtimeMessages, optimisticMessages]);
 
-  // Reset optimistic when conversation changes
   useEffect(() => {
     setOptimisticMessages([]);
   }, [pharmacyId]);
 
-  // 🧠 Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 📸 Image
+  const clearImagePreview = () => {
+    if (img) URL.revokeObjectURL(img);
+    setImg(null);
+    setSelectedFile(null);
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  };
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // منع الملفات الكبيرة جداً من البداية
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file.");
+      return;
+    }
+
     if (file.size > 50 * 1024 * 1024) {
       toast.error("The file is too large. The maximum size is 50 megabytes.");
       return;
     }
 
+    if (img) URL.revokeObjectURL(img);
     setSelectedFile(file);
     setImg(URL.createObjectURL(file));
   };
 
-  // 🎤 Send Voice Note
-  useEffect(() => {
-    if (audioBlob) {
-      sendVoiceMessage(audioBlob);
+  const openVoiceFilePicker = () => {
+    voiceInputRef.current?.click();
+  };
+
+  const handleVoiceFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("audio/") && !/\.(webm|mp3|m4a|wav|ogg)$/i.test(file.name)) {
+      toast.error("Please choose an audio file.");
+      return;
     }
+
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("Audio file is too large. Maximum size is 50 MB.");
+      return;
+    }
+
+    void sendVoiceMessage(file);
+    if (voiceInputRef.current) voiceInputRef.current.value = "";
+  };
+
+  const handleSendSuccess = (tempId: string, serverMessage?: any) => {
+    if (serverMessage) {
+      setOptimisticMessages((prev) =>
+        prev.map((m) => (m.id === tempId ? serverMessage : m)),
+      );
+    }
+    queryClient.invalidateQueries({ queryKey: ["messages", pharmacyId] });
+    queryClient.invalidateQueries({ queryKey: ["inbox"] });
+  };
+
+  const handleSendFailure = (tempId: string, error?: string) => {
+    toast.error(error || "Failed to send message");
+    setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+  };
+
+  useEffect(() => {
+    if (!audioBlob || audioBlob.size === 0) return;
+    void sendVoiceMessage(audioBlob);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioBlob]);
 
-  const sendVoiceMessage = async (blob: Blob) => {
+  const sendVoiceMessage = async (source: Blob | File) => {
     const tempId = `temp-${Date.now()}`;
+    const previewUrl = URL.createObjectURL(source);
     const tempMessage = {
       id: tempId,
       message: null,
-      file_url: URL.createObjectURL(blob),
+      file_url: previewUrl,
       file_type: "voice",
       sender: user,
       created_at: new Date().toISOString(),
@@ -126,99 +174,125 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
 
     setOptimisticMessages((prev) => [...prev, tempMessage]);
 
+    const voiceType = source.type || "audio/webm";
+    const voiceExt = voiceType.includes("webm")
+      ? "webm"
+      : voiceType.includes("mp4") || voiceType.includes("m4a")
+        ? "m4a"
+        : voiceType.includes("mpeg") || voiceType.includes("mp3")
+          ? "mp3"
+          : "webm";
+
     const formData = new FormData();
     formData.append("pharmacy_id", pharmacyId);
-    formData.append("message", "voice-note"); // Non-empty to help trigger broadcast
+    formData.append("message", "voice-note");
     formData.append("file_type", "voice");
-    const audioFile = new File([blob], "voice-note.wav", { type: "audio/wav" });
-    formData.append("voice", audioFile);
+    formData.append(
+      "voice",
+      source instanceof File
+        ? source
+        : new File([source], `voice-note.${voiceExt}`, { type: voiceType }),
+    );
 
     setLoading(true);
     try {
-      // Use apiRequest directly to pass Accept header without modifying global config
-      const res = await apiRequest("/chat/send", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Accept: "application/json",
-        },
-      });
-      console.log("📩 Voice Send Response:", res);
+      const res = await sendMessageApi(formData);
+      const serverMessage = res?.ok
+        ? parseChatSendResponse(res.data)
+        : null;
 
-      if (res?.ok && (res.data as any)?.message) {
-        setOptimisticMessages((prev) =>
-          prev.map((m) => (m.id === tempId ? (res.data as any).message : m)),
-        );
+      if (res?.ok && serverMessage) {
+        handleSendSuccess(tempId, serverMessage);
         resetRecording();
       } else if (res?.ok) {
-        // If ok but no message object returned, keep optimistic but reset recorder
+        handleSendSuccess(tempId);
         resetRecording();
       } else {
-        toast.error("Failed to send voice note");
-        setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+        handleSendFailure(
+          tempId,
+          res?.error || "Failed to send voice note",
+        );
       }
     } catch (error) {
       console.error("Voice send error:", error);
-      toast.error("Failed to send voice note. File might be too large.");
-      setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+      handleSendFailure(tempId, "Failed to send voice note");
     } finally {
       setLoading(false);
+      URL.revokeObjectURL(previewUrl);
     }
   };
 
-  // 📤 Send message with optimistic update
   const sendMessage = async () => {
-    if (!input.trim() && !img) return;
+    if (!input.trim() && !selectedFile) return;
 
     const tempId = `temp-${Date.now()}`;
+    const caption = input.trim();
+    const previewUrl = selectedFile ? img : null;
+
     const tempMessage = {
       id: tempId,
-      message: input,
-      file_url: img,
-      file_type: img ? "image" : "text",
+      message: caption || null,
+      file_url: previewUrl,
+      file_type: selectedFile ? "image" : "text",
       sender: user,
       created_at: new Date().toISOString(),
     };
 
-    // Show immediately
     setOptimisticMessages((prev) => [...prev, tempMessage]);
 
     const formData = new FormData();
-    formData.append("message", input);
     formData.append("pharmacy_id", pharmacyId);
+    formData.append("message", caption);
+
     if (selectedFile) {
       formData.append("image", selectedFile);
     }
 
     setInput("");
-    setImg(null);
-    setSelectedFile(null);
+    clearImagePreview();
     setLoading(true);
 
     try {
       const res = await sendMessageApi(formData);
+      const serverMessage = res?.ok
+        ? parseChatSendResponse(res.data)
+        : null;
 
-      if (res?.ok && (res.data as any)?.message) {
-        // Replace temp with confirmed message
-        setOptimisticMessages((prev) =>
-          prev.map((m) => (m.id === tempId ? (res.data as any).message : m)),
-        );
-      } else if (!res?.ok) {
-        toast.error("Failed to send message");
-        setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+      if (res?.ok && serverMessage) {
+        handleSendSuccess(tempId, serverMessage);
+      } else if (res?.ok) {
+        handleSendSuccess(tempId);
+      } else {
+        handleSendFailure(tempId, res?.error || "Failed to send message");
       }
     } catch (error) {
       console.error("Chat send error:", error);
-      toast.error("Failed to send message. File might be too large.");
-      setOptimisticMessages((prev) => prev.filter((m) => m.id !== tempId));
+      handleSendFailure(tempId, "Failed to send message");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleMicClick = async () => {
+    const error = await startRecording();
+    if (error) {
+      toast.error(`${error} Use upload voice instead.`, { duration: 4000 });
+      openVoiceFilePicker();
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (recordingTime < 1) {
+      toast.error("Record at least 1 second.");
+      stopRecording(false);
+      resetRecording();
+      return;
+    }
+    stopRecording(true);
+  };
+
   return (
     <div className="flex flex-col h-full text-white">
-      {/* messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg: any) => (
           <div
@@ -237,50 +311,27 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
               <p className="text-[10px] font-bold opacity-80 mb-1">
                 {msg?.sender?.name}
               </p>
-              {msg?.file_url &&
-                msg?.file_type !== "voice" &&
-                !msg?.file_url?.toLowerCase().includes(".webm") &&
-                !msg?.file_url?.toLowerCase().includes(".mp3") &&
-                !msg?.file_url?.toLowerCase().includes(".wav") && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Image
-                        src={msg.file_url}
-                        alt=""
-                        width={200}
-                        height={200}
-                        className="rounded mb-1 cursor-pointer hover:opacity-90 transition-opacity"
-                        unoptimized
-                      />
-                    </DialogTrigger>
-                    <DialogContent>
-                      <Image
-                        src={msg.file_url}
-                        alt=""
-                        width={800}
-                        height={800}
-                        className="w-full h-auto rounded-lg"
-                        unoptimized
-                      />
-                    </DialogContent>
-                  </Dialog>
+
+              {isImageMedia(msg?.file_type, msg?.file_url) && msg?.file_url && (
+                <ChatMediaImage url={msg.file_url} />
+              )}
+
+              {(msg?.file_type === "voice" || isVoiceMediaUrl(msg?.file_url)) &&
+                msg?.file_url && (
+                  <div className="min-w-[220px] mt-2">
+                    <VoicePlayer
+                      url={msg.file_url}
+                      isMe={msg?.sender?.id === user?.id}
+                    />
+                  </div>
                 )}
 
-              {(msg?.file_type === "voice" ||
-                msg?.file_url?.includes(".webm") ||
-                msg?.file_url?.includes(".mp3") ||
-                msg?.file_url?.includes(".wav")) && (
-                <div className="min-w-[220px] mt-2">
-                  <VoicePlayer
-                    url={msg.file_url}
-                    isMe={msg?.sender?.id === user?.id}
-                  />
-                </div>
-              )}
-
-              {msg?.message && msg?.file_type !== "voice" && (
-                <p className="text-sm">{msg.message}</p>
-              )}
+              {msg?.message &&
+                msg?.file_type !== "voice" &&
+                msg?.message !== "voice-note" &&
+                msg?.message.trim() !== "" && (
+                  <p className="text-sm">{msg.message}</p>
+                )}
 
               <span className="text-[10px] opacity-70">
                 {new Date(msg.created_at).toLocaleTimeString()}
@@ -292,30 +343,48 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
         <div ref={bottomRef} />
       </div>
 
-      {/* preview */}
       {img && (
-        <div className="px-4 pb-2">
+        <div className="relative px-4 pb-2">
           <Image src={img} alt="" width={100} height={100} unoptimized />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute left-4 top-0 size-7 rounded-full bg-black/60 text-white hover:bg-black/80"
+            onClick={clearImagePreview}
+          >
+            <X className="size-4" />
+          </Button>
         </div>
       )}
 
-      {/* input */}
       <div className="p-3 border-t flex gap-2">
-        <Label htmlFor="file">
+        <Label htmlFor="chat-image-input" className="cursor-pointer">
           <Camera className="size-8 text-primary" />
         </Label>
 
         <Input
-          id="file"
+          ref={imageInputRef}
+          id="chat-image-input"
           type="file"
+          accept="image/*"
           className="hidden"
           onChange={handleImageChange}
         />
 
         <Input
+          ref={voiceInputRef}
+          type="file"
+          accept="audio/*,.webm,.mp3,.m4a,.wav,.ogg"
+          capture
+          className="hidden"
+          onChange={handleVoiceFileChange}
+        />
+
+        <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && !loading && sendMessage()}
           placeholder="Type..."
           className="flex-1 bg-background rounded-full px-4 py-2 text-sm
               text-black dark:text-white
@@ -326,9 +395,9 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
         <Button
           className="rounded-full size-12"
           onClick={sendMessage}
-          disabled={loading || isRecording}
+          disabled={loading || isRecording || (!input.trim() && !selectedFile)}
         >
-          <Send />
+          {loading ? <Loader2 className="animate-spin" /> : <Send />}
         </Button>
 
         <div className="flex items-center gap-2">
@@ -353,21 +422,38 @@ export default function Chatbox({ pharmacyId }: { pharmacyId: string }) {
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-500/10"
-                onClick={() => stopRecording()}
+                onClick={handleStopRecording}
               >
                 <Square className="size-4 fill-current" />
               </Button>
             </div>
           ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full size-12 text-primary hover:bg-primary/10"
-              onClick={startRecording}
-              disabled={loading}
-            >
-              <Mic className="size-6" />
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Record voice note"
+                className="rounded-full size-12 text-primary hover:bg-primary/10"
+                onClick={handleMicClick}
+                disabled={loading || isRequestingMic}
+              >
+                {isRequestingMic ? (
+                  <Loader2 className="size-6 animate-spin" />
+                ) : (
+                  <Mic className="size-6" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                title="Upload voice note"
+                className="rounded-full size-12 text-primary hover:bg-primary/10"
+                onClick={openVoiceFilePicker}
+                disabled={loading || isRequestingMic}
+              >
+                <Paperclip className="size-6" />
+              </Button>
+            </>
           )}
         </div>
       </div>

@@ -2,6 +2,27 @@ import { useState, useEffect, useCallback } from "react";
 import { getToken } from "firebase/messaging";
 import { getFirebaseMessaging, isPushSupported } from "@/lib/firebase/client";
 
+async function registerMessagingWorker() {
+  const registration = await navigator.serviceWorker.register(
+    "/firebase-messaging-sw.js",
+  );
+  await navigator.serviceWorker.ready;
+  return registration;
+}
+
+async function fetchDeviceToken(vapidKey: string): Promise<string | null> {
+  const messagingInstance = getFirebaseMessaging();
+  if (!messagingInstance) return null;
+
+  const registration = await registerMessagingWorker();
+  const deviceToken = await getToken(messagingInstance, {
+    vapidKey,
+    serviceWorkerRegistration: registration,
+  });
+
+  return deviceToken || null;
+}
+
 export const useFcm = (vapidKey: string) => {
   const [token, setToken] = useState<string | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<
@@ -9,7 +30,6 @@ export const useFcm = (vapidKey: string) => {
   >("default");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Check supported and current permission status on mount
   useEffect(() => {
     if (typeof window === "undefined" || !("Notification" in window)) {
       setNotificationPermission("unsupported");
@@ -18,55 +38,39 @@ export const useFcm = (vapidKey: string) => {
     setNotificationPermission(Notification.permission);
   }, []);
 
+  // If permission was granted earlier (e.g. on login), fetch token without re-prompting
+  useEffect(() => {
+    if (!vapidKey || notificationPermission !== "granted") return;
+
+    let cancelled = false;
+
+    fetchDeviceToken(vapidKey)
+      .then((deviceToken) => {
+        if (!cancelled && deviceToken) setToken(deviceToken);
+      })
+      .catch(() => {
+        // Push unavailable in this browser/environment.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [notificationPermission, vapidKey]);
+
   const requestPermission = useCallback(async () => {
-    if (!isPushSupported()) {
+    if (!isPushSupported() || !vapidKey) {
       setNotificationPermission("unsupported");
       return;
     }
 
     setIsLoading(true);
     try {
-      // Handle both old callback-style and new Promise-style Notification API
-      let permission: NotificationPermission;
-      
-      const result = Notification.requestPermission();
-      
-      // If it's a Promise, await it; if it's the old callback style, handle that
-      if (result && typeof (result as Promise<NotificationPermission>).then === "function") {
-        permission = await (result as Promise<NotificationPermission>);
-      } else {
-        // Fallback: use Promise wrapper for old Safari callback style
-        permission = await new Promise<NotificationPermission>((resolve) => {
-          Notification.requestPermission(resolve);
-        });
-      }
-
-      console.log("Notification permission result:", permission);
+      const permission = await Notification.requestPermission();
       setNotificationPermission(permission);
 
       if (permission === "granted") {
-        const messagingInstance = getFirebaseMessaging();
-        if (messagingInstance) {
-          try {
-            let registration: ServiceWorkerRegistration | undefined;
-            try {
-              registration = await navigator.serviceWorker.register(
-                "/firebase-messaging-sw.js",
-              );
-              await navigator.serviceWorker.ready;
-            } catch {
-              return;
-            }
-
-            const deviceToken = await getToken(messagingInstance, {
-              vapidKey,
-              serviceWorkerRegistration: registration,
-            });
-            setToken(deviceToken);
-          } catch {
-            // Push service not available in this environment.
-          }
-        }
+        const deviceToken = await fetchDeviceToken(vapidKey);
+        if (deviceToken) setToken(deviceToken);
       }
     } catch {
       // Permission request failed or was dismissed.

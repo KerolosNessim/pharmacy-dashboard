@@ -73,12 +73,13 @@ const Navbar = () => {
             <Button variant="ghost" size="icon" className="relative">
               <Link href="/notification">
                 <Bell className="h-4 w-4" />
-                <span className="sr-only"></span>
+                <span className="sr-only">Notifications</span>
               </Link>
-         
-                <span className="absolute top-1 right-1 size-2 flex items-center justify-center bg-red-500 rounded-full text-white text-xs animate-pulse">
-                  
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 flex items-center justify-center bg-red-500 rounded-full text-white text-[10px] font-semibold">
+                  {unreadCount > 99 ? "99+" : unreadCount}
                 </span>
+              )}
             </Button>
           </HoverCardTrigger>
           <HoverCardContent>Notifications</HoverCardContent>

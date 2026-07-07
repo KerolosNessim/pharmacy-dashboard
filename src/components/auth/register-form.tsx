@@ -47,6 +47,7 @@ const RegisterForm = () => {
   const {isSubmitting} = form.formState
   const onSubmit = async (values: RegisterValues) => {
     const res = await registerApi(values)
+    console.log(res);
     if(!res.ok){
       toast.error(res.error)
     }

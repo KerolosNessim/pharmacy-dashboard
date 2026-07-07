@@ -21,6 +21,7 @@ import { Loader2 } from "lucide-react";
 import { setPharmacyId, setRole, setToken } from "@/actions/auth";
 import { useUserStore } from "@/stores/user-store";
 import { getFCMToken } from "@/lib/firebase/client";
+import { subscribeToTopicApi } from "@/api/fcm";
 import Link from "next/link";
 
 // ================= Schema =================
@@ -58,6 +59,9 @@ export default function LoginForm() {
       await setPharmacyId(loggedInUser?.pharmacy_id);
       if (loggedInUser) {
         setUser(loggedInUser);
+      }
+      if (fcm_token) {
+        subscribeToTopicApi(fcm_token).catch(() => null);
       }
       router.refresh();
       router.replace("/");

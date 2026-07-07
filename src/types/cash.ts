@@ -1,8 +1,15 @@
 import type { LaravelPagination } from "./pagination";
 
+export type CashStatus =
+  | "delivery"
+  | "received_from_driver"
+  | "delivered_to_finance"
+  | "refunded";
+
+export type CashPaymentMethod = "cash" | "span" | "visa";
+
 export interface CashFormPayload {
   amount: string;
-  status?: "delivery" | "received_from_driver" | "delivered_to_finance";
   delivery_representative_id?: string;
   products_information: string;
   pharmacy_id: string;
@@ -14,12 +21,27 @@ export interface CashFormPayload {
   notes?: string;
 }
 
+export interface CashActivityLogItem {
+  id: number;
+  action: string;
+  from_status: string | null;
+  to_status: string | null;
+  performer_name?: string | null;
+  notes?: string | null;
+  metadata?: Record<string, unknown> | null;
+  created_at: string;
+}
+
 export interface Cash {
   id: number;
   invoice_number: string | null;
   pharmacy_internal_invoice_number: string | null;
   amount: number;
-  status: string;
+  status: CashStatus | string;
+  status_label?: string;
+  payment_method?: CashPaymentMethod | string | null;
+  payment_method_label?: string | null;
+  is_refund?: boolean;
   pharmacy_id: number | null;
   pharmacy_name: string;
   delivery_representative_id: number | null;
@@ -41,6 +63,10 @@ export interface Cash {
     id: number;
     name: string;
   };
+  can_mark_received_from_driver?: boolean;
+  can_mark_refund?: boolean;
+  can_mark_submitted_to_finance?: boolean;
+  activity_log?: CashActivityLogItem[];
   created_at: string;
   updated_at: string;
 }
@@ -58,4 +84,16 @@ export interface GetCashResponse {
     data: Cash[];
     pagination: LaravelPagination;
   };
+}
+
+export interface GetCashDetailResponse {
+  status: string;
+  message: string;
+  data: Cash;
+}
+
+export interface GetCashLogsResponse {
+  status: string;
+  message: string;
+  data: CashActivityLogItem[];
 }

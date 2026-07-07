@@ -51,7 +51,7 @@ export async function apiRequest<T>(
       ...options,
       headers: {
         ...(isFormData
-          ? {} 
+          ? { Accept: "application/json" }
           : {
               "Content-Type": "application/json",
               Accept: "application/json",
@@ -122,6 +122,7 @@ export async function apiFormDataRequest<T>(
       method,
       body: formData,
       headers: {
+        Accept: "application/json",
         Authorization: `Bearer ${token}`,
         "accept-role": role || "",
       },

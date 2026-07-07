@@ -15,6 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Cash } from "@/types/cash";
+import { Badge } from "../ui/badge";
+import { getCashStatusBadgeVariant, getCashStatusLabel } from "@/lib/cash-status";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -30,7 +32,6 @@ import { toast } from "sonner";
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   pharmacy_internal_invoice_number: z.string().optional(),
-  status: z.enum(["delivery", "received_from_driver", "delivered_to_finance"]),
   delivery_representative_id: z.string().optional(),
   products_information: z.string().min(1, "Products information is required"),
   pharmacy_id: z.string().min(1, "Pharmacy is required"),
@@ -56,10 +57,6 @@ export const EditCashForm = ({
       amount: String(invoice?.amount) || "",
       pharmacy_internal_invoice_number:
         invoice?.pharmacy_internal_invoice_number || "",
-      status: invoice?.status as
-        | "delivery"
-        | "received_from_driver"
-        | "delivered_to_finance",
       delivery_representative_id:
         String(invoice?.delivery_representative?.id) || "",
       products_information: invoice?.products_information || "",
@@ -153,38 +150,15 @@ export const EditCashForm = ({
             )}
           />
 
-          {/* Status */}
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Status <span className="text-destructive">*</span>
-                </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="delivery">Delivery</SelectItem>
-                    <SelectItem value="received_from_driver">
-                      Received from Driver
-                    </SelectItem>
-                    <SelectItem value="delivered_to_finance">
-                      Delivered to Finance
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Status (read-only) */}
+          <FormItem>
+            <FormLabel>Status</FormLabel>
+            <div className="flex h-10 items-center">
+              <Badge variant={getCashStatusBadgeVariant(invoice.status)}>
+                {getCashStatusLabel(invoice.status, invoice.status_label)}
+              </Badge>
+            </div>
+          </FormItem>
 
           {/* Delivery Rep */}
           <FormField
@@ -202,7 +176,7 @@ export const EditCashForm = ({
                       <SelectValue placeholder="Select Delivery Rep" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent>
+                  <SelectContent position="popper">
                     {deliveries?.map((rep) => (
                       <SelectItem key={rep?.id} value={rep?.id.toString()}>
                         {rep?.name}
