@@ -24,6 +24,7 @@ export const getCategoriesStatsApi = () =>
 export const getDashboardStatsApi = () =>
   apiRequest<DashboardStatsResponse>("/dashboard/stats");
 
+/** Lists products. Pass search to match name / code / SKU on the API. */
 export const getProductsListApi = (search?: string, page = 1) => {
   const params: ProductsListParams = {
     page,

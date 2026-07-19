@@ -63,7 +63,8 @@ export function BarcodeScannerDialog({
         <DialogHeader>
           <DialogTitle>Scan Barcode</DialogTitle>
           <DialogDescription>
-            Point your camera at a product barcode or QR code.
+            Point your camera at a product barcode or QR code. Search matches
+            code or SKU.
           </DialogDescription>
         </DialogHeader>
 

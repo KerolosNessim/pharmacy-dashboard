@@ -32,9 +32,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ListPagination } from "@/components/shared/list-pagination";
 import { parseFlatListResponse } from "@/lib/list-parse";
 import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import { filterAndRankProducts } from "@/lib/product-search";
 import type { ProductItem } from "@/types/products";
 import { ArrowLeft, Database, Loader2, ScanBarcode, Search, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 const ProductsPage = () => {
   const goBack = useGoBack();
@@ -70,6 +71,11 @@ const ProductsPage = () => {
       return parseFlatListResponse<ProductItem>(res.data, PRODUCTS_PER_PAGE);
     },
   });
+
+  const rankedProducts = useMemo(
+    () => filterAndRankProducts(products, debouncedSearch),
+    [products, debouncedSearch],
+  );
 
   async function handleCheckAvailability(id: string ) {
     setIsCheckAvailabilityPending(true);
@@ -193,7 +199,7 @@ const ProductsPage = () => {
               <Search className="text-primary" />
             </InputGroupAddon>
             <InputGroupInput
-              placeholder="Search products, SKU, or barcode..."
+              placeholder="Search by name, code, or SKU..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -229,6 +235,7 @@ const ProductsPage = () => {
                 <TableRow className="hover:bg-bg">
                   <TableHead>Name</TableHead>
                   <TableHead>Code</TableHead>
+                  <TableHead>SKU</TableHead>
                   <TableHead>Category</TableHead>
                   {user?.role === "super_admin" && <TableHead>Actions</TableHead>}
                   {user?.role === "supervisor" && (
@@ -237,7 +244,7 @@ const ProductsPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-bg/50">
-                {products.map((product) => (
+                {rankedProducts.map((product) => (
                   <TableRow
                     key={product.id}
                     className="hover:bg-muted-foreground/5 h-14 px-4"
@@ -245,6 +252,9 @@ const ProductsPage = () => {
                     <TableCell>{product?.name}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {product?.code || "-"}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {product?.sku || "-"}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {product?.category?.name}

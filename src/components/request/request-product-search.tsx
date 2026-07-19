@@ -3,6 +3,7 @@
 import { getProductsListApi } from "@/api/products";
 import { parseFlatListResponse } from "@/lib/list-parse";
 import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import { filterAndRankProducts } from "@/lib/product-search";
 import type { ProductItem } from "@/types/products";
 import { SelectedProduct } from "@/app/(dashboard)/request/create/page";
 import {
@@ -13,7 +14,7 @@ import {
 import { useDebounce } from "@/hooks/use-debounce";
 import { useQuery } from "@tanstack/react-query";
 import { Box, Loader2, Search } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "../ui/badge";
 
 const RequestProductSearch = ({
@@ -33,10 +34,15 @@ const RequestProductSearch = ({
     enabled: debouncedSearch.length > 0,
   });
 
-  const products = productsList?.ok
-    ? parseFlatListResponse<ProductItem>(productsList.data, PRODUCTS_PER_PAGE)
-        .items
-    : [];
+  const products = useMemo(() => {
+    if (!productsList?.ok) return [];
+    const items = parseFlatListResponse<ProductItem>(
+      productsList.data,
+      PRODUCTS_PER_PAGE,
+    ).items;
+    return filterAndRankProducts(items, debouncedSearch);
+  }, [productsList, debouncedSearch]);
+
   const showDropdown = isFocused && search.length > 0;
 
   return (
@@ -46,7 +52,7 @@ const RequestProductSearch = ({
           <Search />
         </InputGroupAddon>
         <InputGroupInput
-          placeholder="Search products, SKU, or barcode..."
+          placeholder="Search by name, code, or SKU..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -103,7 +109,8 @@ const RequestProductSearch = ({
                       </p>
                       <p>{product?.description}</p>
                       <p>
-                        code: {product?.code || "-"} . Price: {product?.price}
+                        code: {product?.code || "-"} • SKU: {product?.sku || "-"}{" "}
+                        • Price: {product?.price}
                       </p>
                     </div>
                   </div>

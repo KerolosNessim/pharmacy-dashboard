@@ -3,6 +3,7 @@
 import { getProductsListApi } from "@/api/products";
 import { parseFlatListResponse } from "@/lib/list-parse";
 import { PRODUCTS_PER_PAGE } from "@/lib/api-pagination";
+import { filterAndRankProducts } from "@/lib/product-search";
 import type { ProductItem } from "@/types/products";
 import {
   InputGroup,
@@ -14,7 +15,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useQuery } from "@tanstack/react-query";
 import { BarcodeScannerDialog } from "@/components/shared/barcode-scanner-dialog";
 import { Box, Loader2, ScanBarcode, Search } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "../ui/badge";
 
 const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
@@ -29,9 +30,15 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
     enabled: debouncedSearch.length > 0,
   });
 
-  const products = productsList?.ok
-    ? parseFlatListResponse<ProductItem>(productsList.data, PRODUCTS_PER_PAGE).items
-    : [];
+  const products = useMemo(() => {
+    if (!productsList?.ok) return [];
+    const items = parseFlatListResponse<ProductItem>(
+      productsList.data,
+      PRODUCTS_PER_PAGE,
+    ).items;
+    return filterAndRankProducts(items, debouncedSearch);
+  }, [productsList, debouncedSearch]);
+
   const showDropdown = isFocused && search.length > 0;
 
   return (
@@ -41,7 +48,7 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
           <Search />
         </InputGroupAddon>
         <InputGroupInput
-          placeholder="Search products, SKU, or barcode..."
+          placeholder="Search by name, code, or SKU..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onFocus={() => setIsFocused(true)}
@@ -100,7 +107,11 @@ const HomeSearch = ({ onSelect }: { onSelect?: (id: string) => void }) => {
                     <div>
                       <p className="font-medium text-sm">{product.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {product.category?.name} • code: {product?.code || "-"}
+                        {product.category?.name}
+                        {" • "}
+                        code: {product?.code || "-"}
+                        {" • "}
+                        SKU: {product?.sku || "-"}
                       </p>
                     </div>
                   </div>
