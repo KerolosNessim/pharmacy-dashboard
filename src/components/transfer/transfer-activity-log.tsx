@@ -89,32 +89,10 @@ export function TransferActivityLog({
             <div className="min-w-0 flex-1 pt-0.5">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <p className="font-semibold text-foreground">{config.label}</p>
-                {showStatusTransition && (
-                  <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                    {item.from_status && (
-                      <Badge
-                        variant="outline"
-                        className="rounded-full text-muted-foreground"
-                      >
-                        {getTransferStatusLabel(item.from_status)}
-                      </Badge>
-                    )}
-                    {item.from_status && item.to_status && (
-                      <ArrowRight className="size-3 text-muted-foreground" />
-                    )}
-                    {item.to_status && (
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "rounded-full",
-                          getTransferStatusBadgeClass(item.to_status)
-                        )}
-                      >
-                        {getTransferStatusLabel(item.to_status)}
-                      </Badge>
-                    )}
-                  </div>
-                )}
+                <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Clock className="size-3.5 shrink-0" />
+                  <span>{item.created_at}</span>
+                </p>
               </div>
 
               {(performerName || performerPharmacy) && (
@@ -134,10 +112,32 @@ export function TransferActivityLog({
                 </div>
               )}
 
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Clock className="size-3.5 shrink-0" />
-                <span>{item.created_at}</span>
-              </p>
+              {showStatusTransition && (
+                <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">
+                  {item.from_status && (
+                    <Badge
+                      variant="outline"
+                      className="rounded-full text-muted-foreground"
+                    >
+                      {getTransferStatusLabel(item.from_status)}
+                    </Badge>
+                  )}
+                  {item.from_status && item.to_status && (
+                    <ArrowRight className="size-3 text-muted-foreground" />
+                  )}
+                  {item.to_status && (
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "rounded-full",
+                        getTransferStatusBadgeClass(item.to_status)
+                      )}
+                    >
+                      {getTransferStatusLabel(item.to_status)}
+                    </Badge>
+                  )}
+                </div>
+              )}
 
               {item.notes?.trim() && (
                 <p className="mt-2 rounded-md bg-background/60 p-2 text-sm whitespace-pre-wrap">

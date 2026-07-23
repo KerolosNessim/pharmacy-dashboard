@@ -138,7 +138,8 @@ export function TransferActions({ transfar, className }: TransferActionsProps) {
                 </>
               )}
 
-            {isSourcePharmacy &&
+            {user?.role === "supervisor" &&
+              isSourcePharmacy &&
               !transfar.can_activate &&
               !transfar.can_complete &&
               status === "approved" && (
