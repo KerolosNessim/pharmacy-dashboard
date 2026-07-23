@@ -4,25 +4,22 @@ import { Badge } from "@/components/ui/badge";
 import {
   getActivityMetadataEntries,
   getPerformerName,
-  getPerformerPharmacyName,
   getTransferActivityConfig,
   getTransferStatusBadgeClass,
   getTransferStatusLabel,
 } from "@/lib/transfer-activity";
 import { cn } from "@/lib/utils";
-import type { TransferActivityLogItem, TransferPharmacyContext } from "@/types/transfar";
-import { ArrowRight, Clock, History, Store, UserRound } from "lucide-react";
+import type { TransferActivityLogItem } from "@/types/transfar";
+import { ArrowRight, Clock, History, UserRound } from "lucide-react";
 
 type TransferActivityLogProps = {
   items?: TransferActivityLogItem[];
   isLoading?: boolean;
-  transferPharmacies?: TransferPharmacyContext;
 };
 
 export function TransferActivityLog({
   items,
   isLoading,
-  transferPharmacies,
 }: TransferActivityLogProps) {
   if (isLoading) {
     return (
@@ -56,7 +53,6 @@ export function TransferActivityLog({
       {items.map((item, index) => {
         const config = getTransferActivityConfig(item.action);
         const Icon = config.icon;
-        const performerPharmacy = getPerformerPharmacyName(item, transferPharmacies);
         const performerName = getPerformerName(item);
         const rejectionReason =
           item.metadata?.rejection_reason != null
@@ -95,21 +91,11 @@ export function TransferActivityLog({
                 </p>
               </div>
 
-              {(performerName || performerPharmacy) && (
-                <div className="mt-1 flex flex-col gap-1 text-sm text-muted-foreground">
-                  {performerName && (
-                    <p className="flex items-center gap-1.5">
-                      <UserRound className="size-3.5 shrink-0" />
-                      <span>{performerName}</span>
-                    </p>
-                  )}
-                  {performerPharmacy && (
-                    <p className="flex items-center gap-1.5">
-                      <Store className="size-3.5 shrink-0" />
-                      <span>{performerPharmacy}</span>
-                    </p>
-                  )}
-                </div>
+              {performerName && (
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <UserRound className="size-3.5 shrink-0" />
+                  <span>{performerName}</span>
+                </p>
               )}
 
               {showStatusTransition && (

@@ -120,13 +120,7 @@ export function TransferDetailsView({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TransferActivityLog
-            items={transfer.activity_log}
-            transferPharmacies={{
-              from_pharmacy: transfer.from_pharmacy,
-              to_pharmacy: transfer.to_pharmacy,
-            }}
-          />
+          <TransferActivityLog items={transfer.activity_log} />
         </CardContent>
       </Card>
     </div>
