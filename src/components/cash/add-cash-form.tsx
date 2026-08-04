@@ -26,15 +26,12 @@ import { getDeliveriesApi } from "@/api/delivery";
 import { addCashApi } from "@/api/cash";
 import { toast } from "sonner";
 import { useUserStore } from "@/stores/user-store";
-import { useState } from "react";
-import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
-import { Label } from "../ui/label";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   pharmacy_internal_invoice_number: z.string().optional(),
   delivery_representative_id: z.string().optional(),
-  products_information: z.string().min(1, "Products information is required"),
+  products_information: z.string().optional(),
   pharmacy_id: z.string().min(1, "Pharmacy is required"),
   neighborhood: z.string().min(1, "Neighborhood is required"),
   customer_name: z.string().min(1, "Customer name is required"),
@@ -50,8 +47,6 @@ export const AddCashForm = ({
 }: {
   setOpen: (open: boolean) => void;
 }) => {
-  const [withdelivery, setWithdelivery] = useState<boolean>(false);
-
   const { user } = useUserStore();
   const form = useForm<cashValues>({
     resolver: zodResolver(formSchema),
@@ -77,16 +72,21 @@ export const AddCashForm = ({
   const queryClient = useQueryClient();
 
   async function onSubmit(values: cashValues) {
-    if (!withdelivery) {
-      delete values.delivery_representative_id;
-    }
-
     if (!values.pharmacy_id && user?.pharmacy_id) {
       values.pharmacy_id = user.pharmacy_id.toString();
     }
 
     if (!values.pharmacy_internal_invoice_number?.trim()) {
       delete values.pharmacy_internal_invoice_number;
+    }
+    if (!values.delivery_representative_id?.trim()) {
+      delete values.delivery_representative_id;
+    }
+    if (!values.products_information?.trim()) {
+      delete values.products_information;
+    }
+    if (!values.notes?.trim()) {
+      delete values.notes;
     }
 
     const res = await addCashApi(values);
@@ -103,12 +103,13 @@ export const AddCashForm = ({
 
   return (
     <Form {...form}>
-      <form 
-        onSubmit={form.handleSubmit(onSubmit, (errors) => console.log("Validation Errors:", errors))} 
+      <form
+        onSubmit={form.handleSubmit(onSubmit, (errors) =>
+          console.log("Validation Errors:", errors),
+        )}
         className="space-y-4"
       >
         <div className="grid grid-cols-2 gap-4">
-          {/* Amount */}
           <FormField
             control={form.control}
             name="amount"
@@ -130,7 +131,6 @@ export const AddCashForm = ({
             )}
           />
 
-          {/* Pharmacy Internal Invoice Number */}
           <FormField
             control={form.control}
             name="pharmacy_internal_invoice_number"
@@ -149,7 +149,6 @@ export const AddCashForm = ({
             )}
           />
 
-          {/* Customer Name */}
           <FormField
             control={form.control}
             name="customer_name"
@@ -168,7 +167,6 @@ export const AddCashForm = ({
             )}
           />
 
-          {/* Mobile No */}
           <FormField
             control={form.control}
             name="mobile_no"
@@ -187,7 +185,6 @@ export const AddCashForm = ({
             )}
           />
 
-          {/* Neighborhood */}
           <FormField
             control={form.control}
             name="neighborhood"
@@ -206,7 +203,6 @@ export const AddCashForm = ({
             )}
           />
 
-          {/* Location */}
           <FormField
             control={form.control}
             name="location"
@@ -225,71 +221,41 @@ export const AddCashForm = ({
             )}
           />
         </div>
-        {/* with delivery or without delivery */}
-        <RadioGroup
-          className="flex items-center gap-3"
-          defaultValue="option-two"
-        >
-          <div className="flex items-center gap-3">
-            <RadioGroupItem
-              onClick={() => setWithdelivery(false)}
-              value="option-two"
-              id="option-two"
-            />
-            <Label htmlFor="option-two" className="cursor-pointer">
-              Without Delivery
-            </Label>
-          </div>
 
-          <div className="flex items-center gap-3">
-            <RadioGroupItem
-              onClick={() => setWithdelivery(true)}
-              value="option-one"
-              id="option-one"
-            />
-            <Label htmlFor="option-one" className="cursor-pointer">
-              With Delivery
-            </Label>
-          </div>
-        </RadioGroup>
+        <FormField
+          control={form.control}
+          name="delivery_representative_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Delivery Representative</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Delivery Rep" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent position="popper">
+                  {deliveryReps.map((rep) => (
+                    <SelectItem key={rep?.id} value={rep?.id.toString()}>
+                      {rep?.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        {withdelivery && (
-          <FormField
-            control={form.control}
-            name="delivery_representative_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Delivery Representative</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select Delivery Rep" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent position="popper">
-                    {deliveryReps.map((rep) => (
-                      <SelectItem key={rep?.id} value={rep?.id.toString()}>
-                        {rep?.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        {/* Products Information */}
         <FormField
           control={form.control}
           name="products_information"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Products Information</FormLabel>
+              <FormLabel>Products Information (optional)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Enter invoice contents / products information..."
@@ -302,13 +268,12 @@ export const AddCashForm = ({
           )}
         />
 
-        {/* Notes */}
         <FormField
           control={form.control}
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>Notes (optional)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Additional notes..."

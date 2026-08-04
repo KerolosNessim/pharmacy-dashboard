@@ -11,7 +11,7 @@ export type CashPaymentMethod = "cash" | "span" | "visa";
 export interface CashFormPayload {
   amount: string;
   delivery_representative_id?: string;
-  products_information: string;
+  products_information?: string;
   pharmacy_id: string;
   pharmacy_internal_invoice_number?: string;
   neighborhood: string;

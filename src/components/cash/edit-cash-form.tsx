@@ -33,7 +33,7 @@ const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
   pharmacy_internal_invoice_number: z.string().optional(),
   delivery_representative_id: z.string().optional(),
-  products_information: z.string().min(1, "Products information is required"),
+  products_information: z.string().optional(),
   pharmacy_id: z.string().min(1, "Pharmacy is required"),
   neighborhood: z.string().min(1, "Neighborhood is required"),
   customer_name: z.string().min(1, "Customer name is required"),
@@ -79,6 +79,15 @@ export const EditCashForm = ({
   const onSubmit = async (values: cashValues) => {
     if (!values.pharmacy_internal_invoice_number?.trim()) {
       delete values.pharmacy_internal_invoice_number;
+    }
+    if (!values.delivery_representative_id?.trim()) {
+      delete values.delivery_representative_id;
+    }
+    if (!values.products_information?.trim()) {
+      delete values.products_information;
+    }
+    if (!values.notes?.trim()) {
+      delete values.notes;
     }
 
     const res = await updateCashApi(invoice.id, values);
@@ -272,7 +281,7 @@ export const EditCashForm = ({
           name="products_information"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Products Information</FormLabel>
+              <FormLabel>Products Information (optional)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Enter invoice contents / products information..."
@@ -291,7 +300,7 @@ export const EditCashForm = ({
           name="notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Notes</FormLabel>
+              <FormLabel>Notes (optional)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Additional notes..."
